@@ -33,17 +33,14 @@ app.use(
 app.use(express.json());
 app.use(morgan('dev'));
 
-// Health check endpoint
 app.get('/api/health', (req, res) => {
   res.json({ status: 'ok', uptime: process.uptime() });
 });
 
-// API Routes
 app.use('/api/auth', authRoutes);
 app.use('/api/products', productRoutes);
 app.use('/api/orders', orderRoutes);
 
-// Error Middlewares
 app.use(notFound);
 app.use(errorHandler);
 

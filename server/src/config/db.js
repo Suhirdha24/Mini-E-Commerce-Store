@@ -7,7 +7,7 @@ const connectDB = async () => {
             try {
                 dns.setServers(["8.8.8.8", "1.1.1.1"]);
             } catch (dnsErr) {
-                // ignore DNS set error
+                // Ignore if custom DNS set fails
             }
         }
         const mongoUri = process.env.MONGO_URI || "mongodb://127.0.0.1:27017/mini_store";
