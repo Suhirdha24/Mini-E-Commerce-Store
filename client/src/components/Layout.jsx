@@ -3,7 +3,6 @@ import { Link, Outlet } from "react-router-dom";
 export default function Layout() {
   return (
     <div>
-
       <header
         style={{
           padding: "20px 40px",
@@ -13,7 +12,6 @@ export default function Layout() {
           alignItems: "center",
         }}
       >
-
         <Link
           to="/"
           style={{
@@ -39,13 +37,11 @@ export default function Layout() {
           <Link to="/cart">Cart</Link>
           <Link to="/profile">Profile</Link>
         </nav>
-
       </header>
 
       <main>
         <Outlet />
       </main>
-
     </div>
   );
 }
