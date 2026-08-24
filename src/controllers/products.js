@@ -1,0 +1,7 @@
+import Product from '../models/Product.js';
+const slugify=s=>s.toLowerCase().trim().replace(/[^a-z0-9]+/g,'-').replace(/(^-|-$)/g,'');
+export const list=async(req,res)=>{const {search='',category='',page=1,limit=8}=req.query;const filter={};if(search)filter.$or=[{name:{$regex:search,$options:'i'}},{description:{$regex:search,$options:'i'}}];if(category)filter.category=category;const p=Math.max(1,+page),l=Math.min(50,Math.max(1,+limit));const [items,total,categories]=await Promise.all([Product.find(filter).sort({createdAt:-1}).skip((p-1)*l).limit(l),Product.countDocuments(filter),Product.distinct('category')]);res.json({items,total,page:p,pages:Math.ceil(total/l),categories});};
+export const getOne=async(req,res)=>{const p=await Product.findById(req.params.id);if(!p)return res.status(404).json({message:'Product not found'});res.json(p)};
+export const create=async(req,res)=>{const data={...req.body,slug:slugify(req.body.name)};res.status(201).json(await Product.create(data))};
+export const update=async(req,res)=>{const data={...req.body};if(data.name)data.slug=slugify(data.name);const p=await Product.findByIdAndUpdate(req.params.id,data,{new:true,runValidators:true});if(!p)return res.status(404).json({message:'Product not found'});res.json(p)};
+export const remove=async(req,res)=>{const p=await Product.findByIdAndDelete(req.params.id);if(!p)return res.status(404).json({message:'Product not found'});res.json({message:'Product deleted'})};
