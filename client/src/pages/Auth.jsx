@@ -1,39 +1,20 @@
 import { useState } from "react";
 import {
   Link,
-  useLocation,
   useNavigate,
 } from "react-router-dom";
 
 import { useAuth } from "../context/AuthContext";
 
-
-export default function Auth({
-  mode = "login",
-}) {
+export default function Auth({ mode = "login" }) {
   const isRegister = mode === "register";
 
   const navigate = useNavigate();
-  const location = useLocation();
 
   const {
     login,
     register,
   } = useAuth();
-
-
-  /* =====================================================
-     REMEMBER WHERE THE USER CAME FROM
-  ===================================================== */
-
-  const redirectPath =
-    location.state?.from?.pathname ||
-    "/";
-
-
-  /* =====================================================
-     FORM STATE
-  ===================================================== */
 
   const [form, setForm] = useState({
     name: "",
@@ -41,156 +22,59 @@ export default function Auth({
     password: "",
   });
 
-
   const [error, setError] = useState("");
-
   const [loading, setLoading] = useState(false);
 
-
-  /* =====================================================
-     INPUT CHANGE
-  ===================================================== */
-
   const handleChange = (event) => {
-    const {
-      name,
-      value,
-    } = event.target;
-
-    setForm((previous) => ({
-      ...previous,
-      [name]: value,
-    }));
-
-    /*
-      Clear previous error as soon as
-      the user starts correcting the form.
-    */
-
-    if (error) {
-      setError("");
-    }
+    setForm({
+      ...form,
+      [event.target.name]:
+        event.target.value,
+    });
   };
-
-
-  /* =====================================================
-     FORM SUBMIT
-  ===================================================== */
 
   const handleSubmit = async (event) => {
     event.preventDefault();
-
-    if (loading) {
-      return;
-    }
 
     try {
       setLoading(true);
       setError("");
 
-
-      /* ================================================
-         REGISTER
-      ================================================ */
-
       if (isRegister) {
-
         await register(
-          form.name.trim(),
-          form.email.trim(),
+          form.name,
+          form.email,
           form.password
         );
-
-      }
-
-
-      /* ================================================
-         LOGIN
-      ================================================ */
-
-      else {
-
+      } else {
         await login(
-          form.email.trim(),
+          form.email,
           form.password
         );
-
       }
 
-
-      /* ================================================
-         REDIRECT
-         
-         If the user originally tried:
-         
-         /checkout
-         
-         they will go to:
-         
-         /login
-             ↓
-         successful login
-             ↓
-         /checkout
-         
-         Otherwise they go to home.
-      ================================================ */
-
-      navigate(
-        redirectPath,
-        {
-          replace: true,
-        }
-      );
-
+      navigate("/");
     } catch (err) {
-
-      console.error(
-        "Authentication error:",
-        err
-      );
-
-
       setError(
-        err?.response?.data?.message ||
-        err?.message ||
-        (
-          isRegister
-            ? "Unable to create your account."
-            : "Unable to sign in. Please check your email and password."
-        )
+        err.response?.data?.message ||
+        err.message ||
+        "Something went wrong."
       );
-
     } finally {
-
       setLoading(false);
-
     }
   };
-
-
-  /* =====================================================
-     RENDER
-  ===================================================== */
 
   return (
     <section className="auth-page">
 
-
-      {/* =================================================
-          LEFT VISUAL PANEL
-      ================================================= */}
-
       <div className="auth-visual">
-
-        <div className="auth-visual-overlay" />
 
         <div className="auth-visual-copy">
 
-          <span className="auth-brand">
+          <span>
             NOVA STORE
           </span>
-
 
           <h1>
             Simple things,
@@ -198,41 +82,13 @@ export default function Auth({
             beautifully chosen.
           </h1>
 
-
-          <p>
-            Discover thoughtfully selected
-            pieces designed for everyday living.
-          </p>
-
         </div>
 
       </div>
 
-
-      {/* =================================================
-          RIGHT FORM PANEL
-      ================================================= */}
-
       <div className="auth-form-area">
 
         <div className="auth-form">
-
-
-          {/* =================================================
-              BRAND
-          ================================================= */}
-
-          <Link
-            to="/"
-            className="auth-logo"
-          >
-            NOVA
-          </Link>
-
-
-          {/* =================================================
-              HEADING
-          ================================================= */}
 
           <span className="eyebrow">
 
@@ -242,7 +98,6 @@ export default function Auth({
 
           </span>
 
-
           <h1>
 
             {isRegister
@@ -251,101 +106,38 @@ export default function Auth({
 
           </h1>
 
-
-          <p className="auth-description">
+          <p>
 
             {isRegister
-
-              ? "Create your account and start exploring the NOVA collection."
-
-              : "Sign in to continue to your NOVA account."}
+              ? "Create your account to start your NOVA journey."
+              : "Sign in to continue to your account."}
 
           </p>
 
-
-          {/* =================================================
-              REDIRECT MESSAGE
-              
-              This appears when someone tries to access
-              a protected page before logging in.
-          ================================================= */}
-
-          {location.state?.from && !isRegister && (
-
-            <div className="auth-notice">
-
-              Please sign in to continue.
-
-            </div>
-
-          )}
-
-
-          {/* =================================================
-              ERROR
-          ================================================= */}
-
           {error && (
-
-            <div
-              className="form-error"
-              role="alert"
-            >
-
+            <div className="form-error">
               {error}
-
             </div>
-
           )}
 
-
-          {/* =================================================
-              FORM
-          ================================================= */}
-
-          <form
-            onSubmit={handleSubmit}
-            className="auth-form-fields"
-          >
-
-
-            {/* =================================================
-                NAME
-            ================================================= */}
+          <form onSubmit={handleSubmit}>
 
             {isRegister && (
-
               <label>
-
-                <span>
-                  Full Name
-                </span>
+                Name
 
                 <input
-                  type="text"
                   name="name"
                   value={form.name}
                   onChange={handleChange}
                   placeholder="Your name"
-                  autoComplete="name"
                   required
-                  disabled={loading}
                 />
-
               </label>
-
             )}
 
-
-            {/* =================================================
-                EMAIL
-            ================================================= */}
-
             <label>
-
-              <span>
-                Email Address
-              </span>
+              Email
 
               <input
                 type="email"
@@ -353,23 +145,12 @@ export default function Auth({
                 value={form.email}
                 onChange={handleChange}
                 placeholder="you@example.com"
-                autoComplete="email"
                 required
-                disabled={loading}
               />
-
             </label>
 
-
-            {/* =================================================
-                PASSWORD
-            ================================================= */}
-
             <label>
-
-              <span>
-                Password
-              </span>
+              Password
 
               <input
                 type="password"
@@ -377,22 +158,9 @@ export default function Auth({
                 value={form.password}
                 onChange={handleChange}
                 placeholder="••••••••"
-                autoComplete={
-                  isRegister
-                    ? "new-password"
-                    : "current-password"
-                }
-                minLength={6}
                 required
-                disabled={loading}
               />
-
             </label>
-
-
-            {/* =================================================
-                SUBMIT BUTTON
-            ================================================= */}
 
             <button
               type="submit"
@@ -400,98 +168,39 @@ export default function Auth({
               disabled={loading}
             >
 
+              {loading
+                ? "Please wait..."
+                : isRegister
+                ? "Create Account"
+                : "Sign In"}
+
               <span>
-
-                {loading
-
-                  ? (
-                    isRegister
-                      ? "Creating account..."
-                      : "Signing in..."
-                  )
-
-                  : (
-                    isRegister
-                      ? "Create Account"
-                      : "Sign In"
-                  )}
-
+                →
               </span>
-
-
-              {!loading && (
-
-                <span>
-                  →
-                </span>
-
-              )}
 
             </button>
 
           </form>
 
-
-          {/* =================================================
-              ACCOUNT SWITCH
-          ================================================= */}
-
           <div className="auth-switch">
 
             {isRegister ? (
-
               <>
-                <span>
-                  Already have an account?
-                </span>
-
-                <Link
-                  to="/login"
-                  state={{
-                    from:
-                      location.state?.from,
-                  }}
-                >
+                Already have an account?{" "}
+                <Link to="/login">
                   Sign in
                 </Link>
               </>
-
             ) : (
-
               <>
-                <span>
-                  Don't have an account?
-                </span>
-
-                <Link
-                  to="/register"
-                  state={{
-                    from:
-                      location.state?.from,
-                  }}
-                >
+                Don't have an account?{" "}
+                <Link to="/register">
                   Create one
                 </Link>
               </>
-
             )}
 
           </div>
-
-
-          {/* =================================================
-              BACK TO STORE
-          ================================================= */}
-
-          <Link
-            to="/"
-            className="back-to-store"
-          >
-
-            ← Back to store
-
-          </Link>
-
 
         </div>
 

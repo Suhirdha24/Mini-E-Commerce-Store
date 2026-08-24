@@ -1,9 +1,4 @@
-import {
-  Navigate,
-  Route,
-  Routes,
-  useLocation,
-} from "react-router-dom";
+import { Routes, Route } from "react-router-dom";
 
 import Layout from "./components/Layout";
 
@@ -11,256 +6,94 @@ import Home from "./pages/Home";
 import Shop from "./pages/Shop";
 import Product from "./pages/Product";
 import Cart from "./pages/Cart";
-
-import Auth from "./pages/Auth";
-
 import Checkout from "./pages/Checkout";
 import Orders from "./pages/Orders";
 import OrderDetail from "./pages/OrderDetail";
 
+import Auth from "./pages/Auth";
 import Profile from "./pages/Profile";
 import Favorites from "./pages/Favorites";
-
 import About from "./pages/About";
-
 import Admin from "./pages/Admin";
-import Logout from "./pages/Logout";
 
-import { useAuth } from "./context/AuthContext";
-
-
-/* =========================================================
-   AUTH GUARD
-========================================================= */
-
-function Guard({
-  children,
-  admin = false,
-}) {
-  const {
-    user,
-    loading,
-  } = useAuth();
-
-  const location = useLocation();
-
-
-  if (loading) {
-    return (
-      <div className="page-loader">
-
-        <div className="loader-mark">
-          N
-        </div>
-
-        <span>
-          Loading...
-        </span>
-
-      </div>
-    );
-  }
-
-
-  /*
-    User is not logged in.
-
-    Remember the page they originally
-    wanted to visit so we can send them
-    back after login.
-  */
-
-  if (!user) {
-    return (
-      <Navigate
-        to="/login"
-        state={{
-          from: location,
-        }}
-        replace
-      />
-    );
-  }
-
-
-  /*
-    Admin-only protection
-  */
-
-  if (
-    admin &&
-    user.role !== "admin"
-  ) {
-    return (
-      <Navigate
-        to="/"
-        replace
-      />
-    );
-  }
-
-
-  return children;
-}
-
-
-/* =========================================================
-   APP
-========================================================= */
-
-export default function App() {
-
+function App() {
   return (
-    <Layout>
+    <Routes>
 
-      <Routes>
+      {/* Login */}
+      <Route
+        path="/login"
+        element={<Auth mode="login" />}
+      />
 
-        {/* =================================================
-            PUBLIC
-        ================================================= */}
+      {/* Register */}
+      <Route
+        path="/register"
+        element={<Auth mode="register" />}
+      />
+
+      {/* Main Website */}
+      <Route element={<Layout />}>
 
         <Route
           path="/"
           element={<Home />}
         />
 
-        {/* Home / Shop catalogue */}
-
         <Route
           path="/shop"
           element={<Shop />}
         />
 
-        {/* Individual product */}
-
         <Route
-          path="/products/:id"
+          path="/product/:id"
           element={<Product />}
         />
-
-        {/* Collections */}
-
-        <Route
-          path="/collections/:slug"
-          element={<Shop />}
-        />
-
-        {/* About */}
 
         <Route
           path="/about"
           element={<About />}
         />
 
-        {/* Authentication */}
-
         <Route
-          path="/login"
-          element={<Auth />}
+          path="/favorites"
+          element={<Favorites />}
         />
-
-        <Route
-          path="/register"
-          element={
-            <Auth mode="register" />
-          }
-        />
-
-        {/* Cart can be viewed without login */}
 
         <Route
           path="/cart"
           element={<Cart />}
         />
 
-
-        {/* =================================================
-            LOGGED-IN USER
-        ================================================= */}
-
-        <Route
-          path="/profile"
-          element={
-            <Guard>
-              <Profile />
-            </Guard>
-          }
-        />
-
-        <Route
-          path="/favorites"
-          element={
-            <Guard>
-              <Favorites />
-            </Guard>
-          }
-        />
-
         <Route
           path="/checkout"
-          element={
-            <Guard>
-              <Checkout />
-            </Guard>
-          }
+          element={<Checkout />}
         />
 
         <Route
           path="/orders"
-          element={
-            <Guard>
-              <Orders />
-            </Guard>
-          }
+          element={<Orders />}
         />
 
         <Route
           path="/orders/:id"
-          element={
-            <Guard>
-              <OrderDetail />
-            </Guard>
-          }
+          element={<OrderDetail />}
         />
-
-        {/* Logout */}
 
         <Route
-          path="/logout"
-          element={<Logout />}
+          path="/profile"
+          element={<Profile />}
         />
-
-
-        {/* =================================================
-            ADMIN
-        ================================================= */}
 
         <Route
           path="/admin"
-          element={
-            <Guard admin>
-              <Admin />
-            </Guard>
-          }
+          element={<Admin />}
         />
 
+      </Route>
 
-        {/* =================================================
-            FALLBACK
-        ================================================= */}
-
-        <Route
-          path="*"
-          element={
-            <Navigate
-              to="/"
-              replace
-            />
-          }
-        />
-
-      </Routes>
-
-    </Layout>
+    </Routes>
   );
 }
+
+export default App;
