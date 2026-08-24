@@ -2,11 +2,10 @@ import {
   Navigate,
   Route,
   Routes,
-  useLocation,
+  useLocation
 } from "react-router-dom";
 
 import Layout from "./components/Layout";
-
 import Home from "./pages/Home";
 import Product from "./pages/Product";
 import Cart from "./pages/Cart";
@@ -19,33 +18,9 @@ import Admin from "./pages/Admin";
 import { useAuth } from "./context/AuthContext";
 
 
-/*
-  ============================================================
-  PROTECTED ROUTE / GUARD
-  ============================================================
-
-  Guard protects pages that require authentication.
-
-  Usage:
-
-  <Guard>
-    <Checkout />
-  </Guard>
-
-  For admin-only pages:
-
-  <Guard admin>
-    <Admin />
-  </Guard>
-*/
-
 function Guard({ children, admin = false }) {
   const { user, loading } = useAuth();
   const location = useLocation();
-
-  // ----------------------------------------------------------
-  // Wait until authentication state is loaded
-  // ----------------------------------------------------------
 
   if (loading) {
     return (
@@ -54,10 +29,6 @@ function Guard({ children, admin = false }) {
       </div>
     );
   }
-
-  // ----------------------------------------------------------
-  // User is not logged in
-  // ----------------------------------------------------------
 
   if (!user) {
     return (
@@ -69,10 +40,6 @@ function Guard({ children, admin = false }) {
     );
   }
 
-  // ----------------------------------------------------------
-  // Admin-only protection
-  // ----------------------------------------------------------
-
   if (admin && user.role !== "admin") {
     return (
       <Navigate
@@ -82,65 +49,45 @@ function Guard({ children, admin = false }) {
     );
   }
 
-  // ----------------------------------------------------------
-  // User is authorized
-  // ----------------------------------------------------------
-
   return children;
 }
 
-
-/*
-  ============================================================
-  APPLICATION ROUTES
-  ============================================================
-*/
 
 export default function App() {
   return (
     <Layout>
       <Routes>
 
-        {/* ====================================================
-            PUBLIC ROUTES
-        ==================================================== */}
+        {/* Public Routes */}
 
-        {/* Home */}
         <Route
           path="/"
           element={<Home />}
         />
 
-        {/* Product Details */}
         <Route
           path="/products/:id"
           element={<Product />}
         />
 
-        {/* Shopping Cart */}
         <Route
           path="/cart"
           element={<Cart />}
         />
 
-        {/* Login */}
         <Route
           path="/login"
           element={<Auth />}
         />
 
-        {/* Register */}
         <Route
           path="/register"
           element={<Auth mode="register" />}
         />
 
 
-        {/* ====================================================
-            CUSTOMER PROTECTED ROUTES
-        ==================================================== */}
+        {/* Customer Protected Routes */}
 
-        {/* Checkout */}
         <Route
           path="/checkout"
           element={
@@ -150,7 +97,6 @@ export default function App() {
           }
         />
 
-        {/* Customer Orders */}
         <Route
           path="/orders"
           element={
@@ -160,7 +106,6 @@ export default function App() {
           }
         />
 
-        {/* Individual Order */}
         <Route
           path="/orders/:id"
           element={
@@ -171,21 +116,7 @@ export default function App() {
         />
 
 
-        {/* ====================================================
-            ADMIN ROUTE
-        ==================================================== */}
-
-        {/*
-
-          Admin Portal
-
-          Only users with:
-
-          user.role === "admin"
-
-          can access this page.
-
-        */}
+        {/* Admin Protected Route */}
 
         <Route
           path="/admin"
@@ -197,22 +128,7 @@ export default function App() {
         />
 
 
-        {/* ====================================================
-            FALLBACK ROUTE
-        ==================================================== */}
-
-        {/*
-
-          If the user enters an invalid URL,
-          redirect them back to Home.
-
-          Example:
-
-          /something-that-does-not-exist
-          ↓
-          /
-
-        */}
+        {/* Invalid URL */}
 
         <Route
           path="*"
