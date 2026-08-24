@@ -1,130 +1,55 @@
+import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+import api from '../api/api';
+import { useCart } from '../context/CartContext';
+
 export default function Checkout() {
+  const { items, total, clear } = useCart();
+  const nav = useNavigate();
+  const [f, setF] = useState({ name: '', address: '', city: '', state: '', postalCode: '', phone: '' });
+  const [err, setErr] = useState('');
+  const [busy, setBusy] = useState(false);
+
+  const s = (e) => setF({ ...f, [e.target.name]: e.target.value });
+
+  const submit = async (e) => {
+    e.preventDefault();
+    setBusy(true);
+    try {
+      const r = await api.post('/orders', {
+        shipping: f,
+        items: items.map((i) => ({ product: i.product._id || i.product.id, quantity: i.quantity })),
+      });
+      clear();
+      nav(`/orders/${r.data._id}`);
+    } catch (x) {
+      setErr(x.response?.data?.message || 'Could not place order');
+    } finally {
+      setBusy(false);
+    }
+  };
+
   return (
-    <section className="checkout-page">
+    <section className="page" style={{ maxWidth: '900px', margin: '0 auto' }}>
+      <p className="eyebrow">CHECKOUT</p>
+      <h1 style={{ fontFamily: 'var(--font-serif)', fontSize: '36px', marginBottom: '32px' }}>Shipping Details</h1>
 
-      <div className="page-heading">
-
-        <span className="eyebrow">
-          NOVA CHECKOUT
-        </span>
-
-        <h1>
-          Complete your order.
-        </h1>
-
-      </div>
-
-
-      <div className="checkout-layout">
-
-        <div className="checkout-form">
-
-          <section>
-            <span className="form-number">
-              01
-            </span>
-
-            <h2>
-              Contact information
-            </h2>
-
-            <input
-              type="email"
-              placeholder="Email address"
-            />
-          </section>
-
-
-          <section>
-            <span className="form-number">
-              02
-            </span>
-
-            <h2>
-              Shipping address
-            </h2>
-
-            <div className="form-row">
-
-              <input
-                placeholder="First name"
-              />
-
-              <input
-                placeholder="Last name"
-              />
-
-            </div>
-
-            <input
-              placeholder="Address"
-            />
-
-            <div className="form-row">
-
-              <input
-                placeholder="City"
-              />
-
-              <input
-                placeholder="Postal code"
-              />
-
-            </div>
-
-          </section>
-
-
-          <section>
-            <span className="form-number">
-              03
-            </span>
-
-            <h2>
-              Payment
-            </h2>
-
-            <div className="payment-option">
-              Cash on Delivery
-            </div>
-          </section>
-
-
-          <button className="dark-button">
-            Place Order →
-          </button>
-
-        </div>
-
-
-        <aside className="checkout-summary">
-
-          <span className="eyebrow">
-            YOUR ORDER
-          </span>
-
-          <h2>
-            Order Summary
-          </h2>
-
-          {/* Render existing cart items here */}
-
-          <div className="summary-total">
-
-            <span>
-              Total
-            </span>
-
-            <strong>
-              ₹0
-            </strong>
-
-          </div>
-
-        </aside>
-
-      </div>
-
+      <form className="form-card" onSubmit={submit}>
+        {['name', 'address', 'city', 'state', 'postalCode', 'phone'].map((k) => (
+          <input
+            key={k}
+            name={k}
+            placeholder={k === 'postalCode' ? 'Postal Code' : k[0].toUpperCase() + k.slice(1)}
+            required
+            value={f[k]}
+            onChange={s}
+          />
+        ))}
+        {err && <div className="alert">{err}</div>}
+        <button className="primary wide" disabled={busy}>
+          {busy ? 'Processing Order...' : `Pay ₹${total.toLocaleString('en-IN')} & Place Order`}
+        </button>
+      </form>
     </section>
   );
 }

@@ -1,211 +1,81 @@
-import { useState } from "react";
-import {
-  Link,
-  useNavigate,
-} from "react-router-dom";
+import { useState } from 'react';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
+import { useAuth } from '../context/AuthContext';
 
-import { useAuth } from "../context/AuthContext";
+export default function Auth({ mode = 'login' }) {
+  const isLogin = mode === 'login';
+  const loc = useLocation();
+  const nav = useNavigate();
+  const { login, register } = useAuth();
+  
+  const [f, setF] = useState({ name: '', email: '', password: '' });
+  const [err, setErr] = useState('');
+  const [msg, setMsg] = useState(loc.state?.msg || '');
 
-export default function Auth({ mode = "login" }) {
-  const isRegister = mode === "register";
-
-  const navigate = useNavigate();
-
-  const {
-    login,
-    register,
-  } = useAuth();
-
-  const [form, setForm] = useState({
-    name: "",
-    email: "",
-    password: "",
-  });
-
-  const [error, setError] = useState("");
-  const [loading, setLoading] = useState(false);
-
-  const handleChange = (event) => {
-    setForm({
-      ...form,
-      [event.target.name]:
-        event.target.value,
-    });
-  };
-
-  const handleSubmit = async (event) => {
-    event.preventDefault();
+  const submit = async (e) => {
+    e.preventDefault();
+    setErr('');
+    setMsg('');
 
     try {
-      setLoading(true);
-      setError("");
-
-      if (isRegister) {
-        await register(
-          form.name,
-          form.email,
-          form.password
-        );
+      if (isLogin) {
+        await login(f);
+        nav(loc.state?.from || '/');
       } else {
-        await login(
-          form.email,
-          form.password
-        );
+        await register(f);
+        // Redirect to Login page after successful registration
+        nav('/login', { state: { msg: 'Account created successfully! Please sign in below.' } });
       }
-
-      navigate("/");
-    } catch (err) {
-      setError(
-        err.response?.data?.message ||
-        err.message ||
-        "Something went wrong."
-      );
-    } finally {
-      setLoading(false);
+    } catch (x) {
+      setErr(x.response?.data?.message || 'Something went wrong. Please try again.');
     }
   };
 
   return (
-    <section className="auth-page">
+    <section className="auth">
+      <form onSubmit={submit}>
+        <p className="eyebrow">NOVA STORE</p>
+        <h1 style={{ fontFamily: 'var(--font-serif)', fontSize: '32px' }}>
+          {isLogin ? 'Welcome Back' : 'Create Account'}
+        </h1>
+        
+        {msg && <div style={{ background: '#def7ec', color: '#03543f', padding: '12px', borderRadius: '6px', fontSize: '13px' }}>{msg}</div>}
+        {err && <div className="alert">{err}</div>}
 
-      <div className="auth-visual">
+        {!isLogin && (
+          <input
+            placeholder="Full Name"
+            required
+            value={f.name}
+            onChange={(e) => setF({ ...f, name: e.target.value })}
+          />
+        )}
+        <input
+          type="email"
+          placeholder="Email Address"
+          required
+          value={f.email}
+          onChange={(e) => setF({ ...f, email: e.target.value })}
+        />
+        <input
+          type="password"
+          placeholder="Password (6+ characters)"
+          minLength="6"
+          required
+          value={f.password}
+          onChange={(e) => setF({ ...f, password: e.target.value })}
+        />
 
-        <div className="auth-visual-copy">
-
-          <span>
-            NOVA STORE
-          </span>
-
-          <h1>
-            Simple things,
-            <br />
-            beautifully chosen.
-          </h1>
-
-        </div>
-
-      </div>
-
-      <div className="auth-form-area">
-
-        <div className="auth-form">
-
-          <span className="eyebrow">
-
-            {isRegister
-              ? "WELCOME TO NOVA"
-              : "WELCOME BACK"}
-
-          </span>
-
-          <h1>
-
-            {isRegister
-              ? "Create an account."
-              : "Welcome back."}
-
-          </h1>
-
-          <p>
-
-            {isRegister
-              ? "Create your account to start your NOVA journey."
-              : "Sign in to continue to your account."}
-
-          </p>
-
-          {error && (
-            <div className="form-error">
-              {error}
-            </div>
+        <button className="primary wide">{isLogin ? 'Sign In' : 'Create Account'}</button>
+        
+        <p style={{ fontSize: '14px', textAlign: 'center', color: 'var(--text-muted)' }}>
+          {isLogin ? (
+            <>New to NOVA? <Link to="/register" style={{ color: 'var(--text-dark)', fontWeight: 600 }}>Create an account</Link></>
+          ) : (
+            <>Already have an account? <Link to="/login" style={{ color: 'var(--text-dark)', fontWeight: 600 }}>Sign in</Link></>
           )}
-
-          <form onSubmit={handleSubmit}>
-
-            {isRegister && (
-              <label>
-                Name
-
-                <input
-                  name="name"
-                  value={form.name}
-                  onChange={handleChange}
-                  placeholder="Your name"
-                  required
-                />
-              </label>
-            )}
-
-            <label>
-              Email
-
-              <input
-                type="email"
-                name="email"
-                value={form.email}
-                onChange={handleChange}
-                placeholder="you@example.com"
-                required
-              />
-            </label>
-
-            <label>
-              Password
-
-              <input
-                type="password"
-                name="password"
-                value={form.password}
-                onChange={handleChange}
-                placeholder="••••••••"
-                required
-              />
-            </label>
-
-            <button
-              type="submit"
-              className="dark-button full"
-              disabled={loading}
-            >
-
-              {loading
-                ? "Please wait..."
-                : isRegister
-                ? "Create Account"
-                : "Sign In"}
-
-              <span>
-                →
-              </span>
-
-            </button>
-
-          </form>
-
-          <div className="auth-switch">
-
-            {isRegister ? (
-              <>
-                Already have an account?{" "}
-                <Link to="/login">
-                  Sign in
-                </Link>
-              </>
-            ) : (
-              <>
-                Don't have an account?{" "}
-                <Link to="/register">
-                  Create one
-                </Link>
-              </>
-            )}
-
-          </div>
-
-        </div>
-
-      </div>
-
+        </p>
+      </form>
     </section>
   );
 }

@@ -19,13 +19,13 @@ export default function Layout({ children }) {
           <NavLink to="/about">About</NavLink>
           <NavLink to="/favorites">Favorites</NavLink>
           {user && <NavLink to="/orders">My Orders</NavLink>}
-          {user?.role === 'admin' && <NavLink to="/admin">Admin Dashboard</NavLink>}
+          <NavLink to="/admin">Admin Portal</NavLink>
         </nav>
 
         <div className="nav-actions">
           {user ? (
             <>
-              <span className="hello">Hi, {user.name.split(' ')[0]}</span>
+              <span style={{ fontSize: '14px', fontWeight: 600 }}>Hi, {user.name?.split(' ')[0]}</span>
               <button className="link-btn" onClick={logout}>Logout</button>
             </>
           ) : (
@@ -44,7 +44,7 @@ export default function Layout({ children }) {
 
       <footer>
         <div>NOVA STORE</div>
-        <span>Modern Essentials. Elegant Living. © 2026</span>
+        <span>Modern Essentials. Simple Living. © 2026</span>
       </footer>
     </>
   );

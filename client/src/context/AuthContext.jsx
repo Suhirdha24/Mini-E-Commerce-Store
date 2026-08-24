@@ -1,90 +1,44 @@
-import React, { createContext, useContext, useState } from "react";
+import { createContext, useContext, useEffect, useState } from 'react';
+import api from '../api/api';
 
 const AuthContext = createContext();
 
+export const useAuth = () => useContext(AuthContext);
+
 export function AuthProvider({ children }) {
-  const [user, setUser] = useState(() => {
-    const savedUser = localStorage.getItem("nova_user");
-    return savedUser ? JSON.parse(savedUser) : null;
-  });
+  const [user, setUser] = useState(null);
+  const [loading, setLoading] = useState(true);
 
-  const login = async (email, password) => {
-    const savedUser = localStorage.getItem(`nova_account_${email}`);
-
-    if (!savedUser) {
-      throw new Error("Account not found. Please create an account first.");
+  useEffect(() => {
+    if (localStorage.getItem('token')) {
+      api.get('/auth/me')
+        .then(r => setUser(r.data.user))
+        .catch(() => localStorage.removeItem('token'))
+        .finally(() => setLoading(false));
+    } else {
+      setLoading(false);
     }
+  }, []);
 
-    const account = JSON.parse(savedUser);
-
-    if (account.password !== password) {
-      throw new Error("Incorrect email or password.");
-    }
-
-    const loggedInUser = {
-      name: account.name,
-      email: account.email,
-    };
-
-    localStorage.setItem("nova_user", JSON.stringify(loggedInUser));
-    setUser(loggedInUser);
-
-    return loggedInUser;
+  const login = async (data) => {
+    const r = await api.post('/auth/login', data);
+    localStorage.setItem('token', r.data.token);
+    setUser(r.data.user);
   };
 
-  const register = async (name, email, password) => {
-    const existingUser = localStorage.getItem(`nova_account_${email}`);
-
-    if (existingUser) {
-      throw new Error("An account with this email already exists.");
-    }
-
-    const account = {
-      name,
-      email,
-      password,
-    };
-
-    localStorage.setItem(
-      `nova_account_${email}`,
-      JSON.stringify(account)
-    );
-
-    const loggedInUser = {
-      name,
-      email,
-    };
-
-    localStorage.setItem(
-      "nova_user",
-      JSON.stringify(loggedInUser)
-    );
-
-    setUser(loggedInUser);
-
-    return loggedInUser;
+  const register = async (data) => {
+    // Only register user, do not auto-save token
+    await api.post('/auth/register', data);
   };
 
   const logout = () => {
-    localStorage.removeItem("nova_user");
+    localStorage.removeItem('token');
     setUser(null);
   };
 
   return (
-    <AuthContext.Provider
-      value={{
-        user,
-        login,
-        register,
-        logout,
-        isAuthenticated: !!user,
-      }}
-    >
+    <AuthContext.Provider value={{ user, loading, login, register, logout }}>
       {children}
     </AuthContext.Provider>
   );
-}
-
-export function useAuth() {
-  return useContext(AuthContext);
 }

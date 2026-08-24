@@ -1,24 +1,26 @@
 /* =========================================================
-   NOVA STORE — EDITORIAL LUXURY DESIGN SYSTEM
+   NOVA STORE — LUXURY EDITORIAL DESIGN SYSTEM
 ========================================================= */
 
-@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Alex+Brush&family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap');
 
 :root {
   --font-serif: 'Playfair Display', Georgia, serif;
-  --font-sans: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
-  --bg-primary: #faf9f6;
+  --font-sans: 'Plus Jakarta Sans', -apple-system, sans-serif;
+  --font-script: 'Alex Brush', cursive;
+  
+  --bg-primary: #f6f3ed;
   --bg-card: #ffffff;
-  --bg-secondary: #f3f1ec;
-  --text-dark: #121212;
-  --text-muted: #666666;
-  --text-light: #999999;
+  --bg-secondary: #eee9df;
+  --text-dark: #1a1918;
+  --text-muted: #66625d;
   --accent-gold: #c5a059;
-  --border-light: #e5e2da;
+  --border-light: #e2ddd3;
+  
   --radius-sm: 6px;
-  --radius-md: 12px;
-  --shadow-sm: 0 4px 12px rgba(0, 0, 0, 0.04);
-  --shadow-md: 0 12px 32px rgba(0, 0, 0, 0.08);
+  --radius-md: 14px;
+  --shadow-sm: 0 4px 16px rgba(0, 0, 0, 0.04);
+  --shadow-md: 0 16px 40px rgba(0, 0, 0, 0.08);
   --transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
@@ -33,21 +35,28 @@ body {
   background-color: var(--bg-primary);
   color: var(--text-dark);
   line-height: 1.6;
-  -webkit-font-smoothing: antialiased;
+  min-height: 100vh;
 }
 
-/* =========================================================
-   HEADER & NAVIGATION
-========================================================= */
+#root {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+}
 
+main {
+  flex: 1;
+}
+
+/* HEADER & NAVIGATION */
 header {
   position: sticky;
   top: 0;
   z-index: 100;
-  background: rgba(250, 249, 246, 0.92);
+  background: rgba(246, 243, 237, 0.95);
   backdrop-filter: blur(12px);
   border-bottom: 1px solid var(--border-light);
-  padding: 18px 5vw;
+  padding: 20px 6vw;
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -55,26 +64,26 @@ header {
 
 .brand {
   font-family: var(--font-serif);
-  font-size: 26px;
+  font-size: 24px;
   font-weight: 700;
-  letter-spacing: 0.08em;
+  letter-spacing: 0.1em;
   text-decoration: none;
   color: var(--text-dark);
   text-transform: uppercase;
 }
 
 .brand span {
-  font-size: 14px;
+  font-size: 12px;
   font-weight: 400;
   color: var(--accent-gold);
-  margin-left: 6px;
-  letter-spacing: 0.2em;
+  margin-left: 8px;
+  letter-spacing: 0.25em;
 }
 
 nav {
   display: flex;
   align-items: center;
-  gap: 32px;
+  gap: 28px;
 }
 
 nav a {
@@ -82,24 +91,23 @@ nav a {
   color: var(--text-muted);
   font-size: 14px;
   font-weight: 500;
-  letter-spacing: 0.04em;
   transition: var(--transition);
 }
 
-nav a:hover,
-nav a.active {
+nav a:hover, nav a.active {
   color: var(--text-dark);
   font-weight: 600;
+  border-bottom: 1.5px solid var(--text-dark);
+  padding-bottom: 2px;
 }
 
 .nav-actions {
   display: flex;
   align-items: center;
-  gap: 20px;
+  gap: 18px;
 }
 
-.nav-actions a,
-.nav-actions button.link-btn {
+.nav-actions a, .nav-actions button {
   text-decoration: none;
   font-size: 14px;
   font-weight: 500;
@@ -107,102 +115,74 @@ nav a.active {
   background: none;
   border: none;
   cursor: pointer;
-  transition: var(--transition);
 }
 
-.nav-actions .cart-btn {
-  background: var(--text-dark);
-  color: #fff;
-  padding: 8px 18px;
+.cart-btn {
+  background: var(--text-dark) !important;
+  color: #fff !important;
+  padding: 10px 22px;
   border-radius: 30px;
   font-size: 13px;
   font-weight: 600;
-  letter-spacing: 0.03em;
   text-decoration: none;
   transition: var(--transition);
 }
 
-.nav-actions .cart-btn:hover {
-  background: #333;
-  transform: translateY(-1px);
+.cart-btn:hover {
+  background: #333 !important;
 }
 
-/* =========================================================
-   HERO SECTION
-========================================================= */
-
+/* HERO SECTION */
 .hero {
-  padding: 80px 5vw;
+  padding: 80px 6vw;
   display: grid;
-  grid-template-columns: 1.2fr 0.8fr;
+  grid-template-columns: 1.1fr 0.9fr;
   align-items: center;
   gap: 60px;
-  min-height: 80vh;
-  background: radial-gradient(circle at 80% 20%, #f3efe6 0%, transparent 60%);
+  background: linear-gradient(135deg, #f6f3ed 0%, #efe8dc 100%);
+}
+
+.script-accent {
+  font-family: var(--font-script);
+  font-size: 42px;
+  color: var(--accent-gold);
+  display: block;
 }
 
 .eyebrow {
-  font-size: 12px;
+  font-size: 11px;
   font-weight: 700;
-  letter-spacing: 0.25em;
-  color: var(--accent-gold);
+  letter-spacing: 0.3em;
+  color: var(--text-muted);
   text-transform: uppercase;
-  margin-bottom: 16px;
+  margin-bottom: 12px;
 }
 
 .hero h1 {
   font-family: var(--font-serif);
-  font-size: clamp(3rem, 6vw, 5.5rem);
+  font-size: clamp(3.2rem, 5.5vw, 5rem);
   line-height: 1.05;
   font-weight: 400;
   margin-bottom: 24px;
-  color: var(--text-dark);
 }
 
 .hero p {
-  font-size: 18px;
+  font-size: 17px;
   color: var(--text-muted);
-  max-width: 480px;
+  max-width: 460px;
   margin-bottom: 36px;
-  font-weight: 300;
 }
 
-.hero-art {
-  position: relative;
-}
-
-.hero-art img {
+.hero-art-wrapper img {
   width: 100%;
-  height: 520px;
+  height: 460px;
   object-fit: cover;
   border-radius: var(--radius-md);
   box-shadow: var(--shadow-md);
 }
 
-.hero-badge {
-  position: absolute;
-  bottom: -20px;
-  left: -20px;
-  background: var(--bg-card);
-  padding: 24px;
-  border-radius: var(--radius-md);
-  box-shadow: var(--shadow-md);
-  font-family: var(--font-serif);
-  border: 1px solid var(--border-light);
-}
-
-.hero-badge strong {
-  display: block;
-  font-size: 24px;
-  color: var(--text-dark);
-}
-
-/* =========================================================
-   BUTTONS & INPUTS
-========================================================= */
-
-button.primary,
-a.primary {
+/* BUTTONS & FORM INPUTS */
+button.primary, a.primary, .dark-button {
   display: inline-block;
   background: var(--text-dark);
   color: #fff;
@@ -215,18 +195,17 @@ a.primary {
   border: 1px solid var(--text-dark);
   cursor: pointer;
   transition: var(--transition);
+  text-align: center;
 }
 
-button.primary:hover,
-a.primary:hover {
+button.primary:hover, a.primary:hover, .dark-button:hover {
   background: #333;
   transform: translateY(-2px);
-  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
 }
 
-button.primary.wide {
+button.primary.wide, .dark-button.full {
   width: 100%;
-  text-align: center;
 }
 
 input, select, textarea {
@@ -244,18 +223,46 @@ input, select, textarea {
 
 input:focus, select:focus, textarea:focus {
   border-color: var(--text-dark);
-  box-shadow: 0 0 0 3px rgba(18, 18, 18, 0.08);
+  box-shadow: 0 0 0 3px rgba(26, 25, 24, 0.08);
 }
 
-/* =========================================================
-   PRODUCT CARDS & GRID
-========================================================= */
+/* AUTHENTICATION CARD */
+.auth {
+  min-height: 75vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 60px 20px;
+}
 
-.shop-grid, .grid {
+.auth form {
+  width: 100%;
+  max-width: 440px;
+  background: var(--bg-card);
+  padding: 44px;
+  border-radius: var(--radius-md);
+  border: 1px solid var(--border-light);
+  box-shadow: var(--shadow-md);
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.auth h1 {
+  font-family: var(--font-serif);
+  font-size: 32px;
+}
+
+/* CARDS & GRID */
+.page {
+  padding: 60px 6vw;
+}
+
+.grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
-  gap: 36px;
-  margin-top: 40px;
+  gap: 32px;
+  margin-top: 36px;
 }
 
 .card {
@@ -277,7 +284,6 @@ input:focus, select:focus, textarea:focus {
   width: 100%;
   height: 280px;
   object-fit: cover;
-  background: var(--bg-secondary);
 }
 
 .card-body {
@@ -287,20 +293,11 @@ input:focus, select:focus, textarea:focus {
   flex: 1;
 }
 
-.card-body .muted {
-  font-size: 11px;
-  text-transform: uppercase;
-  letter-spacing: 0.15em;
-  color: var(--text-light);
-  margin-bottom: 6px;
-}
-
 .card-body h3 {
   font-family: var(--font-serif);
   font-size: 18px;
-  font-weight: 600;
-  margin-bottom: 12px;
-  color: var(--text-dark);
+  font-weight: 500;
+  margin: 6px 0 12px;
 }
 
 .card-body .row {
@@ -310,175 +307,26 @@ input:focus, select:focus, textarea:focus {
   margin-top: auto;
 }
 
-.card-body b {
-  font-size: 16px;
-  font-weight: 700;
-  color: var(--text-dark);
-}
-
 .card-body button {
-  background: var(--bg-secondary);
-  color: var(--text-dark);
-  border: 1px solid var(--border-light);
-  padding: 8px 16px;
+  background: var(--text-dark);
+  color: #fff;
+  border: none;
+  padding: 8px 18px;
   border-radius: 20px;
   font-size: 13px;
   font-weight: 600;
   cursor: pointer;
-  transition: var(--transition);
 }
 
-.card-body button:hover {
-  background: var(--text-dark);
-  color: #fff;
-}
-
-/* =========================================================
-   ADMIN DASHBOARD & FORMS
-========================================================= */
-
-.page {
-  padding: 60px 5vw;
-}
-
-.stats {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 24px;
-  margin: 32px 0 48px;
-}
-
-.stats > div {
-  background: var(--bg-card);
-  padding: 28px;
-  border-radius: var(--radius-md);
-  border: 1px solid var(--border-light);
-  box-shadow: var(--shadow-sm);
-}
-
-.stats b {
-  display: block;
-  font-size: 32px;
-  font-family: var(--font-serif);
-  color: var(--text-dark);
-}
-
-.stats span {
-  font-size: 13px;
-  color: var(--text-muted);
-  text-transform: uppercase;
-  letter-spacing: 0.1em;
-}
-
-.admin-grid {
-  display: grid;
-  grid-template-columns: 1fr 1.5fr;
-  gap: 40px;
-  align-items: start;
-}
-
-.form-card {
-  background: var(--bg-card);
-  padding: 36px;
-  border-radius: var(--radius-md);
-  border: 1px solid var(--border-light);
-  box-shadow: var(--shadow-sm);
-  display: flex;
-  flex-direction: column;
-  gap: 16px;
-}
-
-.form-card h2 {
-  font-family: var(--font-serif);
-  font-size: 24px;
-  margin-bottom: 8px;
-}
-
-.admin-list {
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-  margin-top: 16px;
-}
-
-.admin-row {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  background: var(--bg-card);
-  padding: 16px 20px;
-  border-radius: var(--radius-sm);
-  border: 1px solid var(--border-light);
-}
-
-.admin-row b {
-  display: block;
-  font-size: 15px;
-}
-
-.admin-row small {
-  color: var(--text-muted);
-}
-
-.admin-row button {
-  background: none;
-  border: none;
-  color: var(--text-muted);
-  cursor: pointer;
-  font-size: 13px;
-  margin-left: 12px;
-  text-decoration: underline;
-}
-
-.admin-row button:hover {
-  color: var(--text-dark);
-}
-
-/* =========================================================
-   AUTH PAGES & ALERTS
-========================================================= */
-
-.auth {
-  min-height: 80vh;
-  display: grid;
-  place-items: center;
-  padding: 60px 20px;
-}
-
-.auth form {
-  width: 100%;
-  max-width: 420px;
-  background: var(--bg-card);
-  padding: 40px;
-  border-radius: var(--radius-md);
-  border: 1px solid var(--border-light);
-  box-shadow: var(--shadow-md);
-  display: flex;
-  flex-direction: column;
-  gap: 18px;
-}
-
-.alert {
-  background: #fde8e8;
-  color: #9b1c1c;
-  padding: 12px 16px;
-  border-radius: var(--radius-sm);
-  font-size: 13px;
-}
-
-/* =========================================================
-   FOOTER
-========================================================= */
-
+/* FOOTER */
 footer {
-  margin-top: 100px;
+  margin-top: auto;
   background: var(--text-dark);
   color: #fff;
-  padding: 60px 5vw 40px;
+  padding: 48px 6vw;
   display: flex;
   justify-content: space-between;
   align-items: center;
-  border-top: 1px solid rgba(255, 255, 255, 0.1);
 }
 
 footer div {
@@ -490,22 +338,4 @@ footer div {
 footer span {
   font-size: 13px;
   color: #aaa;
-}
-
-/* =========================================================
-   RESPONSIVE
-========================================================= */
-
-@media (max-width: 768px) {
-  header {
-    flex-direction: column;
-    gap: 16px;
-  }
-  .hero {
-    grid-template-columns: 1fr;
-    padding: 40px 5vw;
-  }
-  .admin-grid, .stats {
-    grid-template-columns: 1fr;
-  }
 }

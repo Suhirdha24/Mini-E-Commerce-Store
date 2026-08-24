@@ -1,186 +1,67 @@
-import {
-  Link,
-  useNavigate,
-} from "react-router-dom";
+import { Link, useNavigate } from 'react-router-dom';
+import { useCart } from '../context/CartContext';
+import { useAuth } from '../context/AuthContext';
 
 export default function Cart() {
+  const { items, update, remove, total } = useCart();
+  const { user } = useAuth();
+  const nav = useNavigate();
 
-  /*
-    Keep your existing cart state/API logic here.
-    This component controls the new visual structure.
-  */
-
-  const navigate = useNavigate();
-
-  const cart = [];
-
-  const subtotal = cart.reduce(
-    (sum, item) =>
-      sum +
-      Number(item.price) *
-        Number(item.quantity),
-    0
-  );
-
-  const shipping =
-    subtotal > 0 ? 0 : 0;
-
-  const total =
-    subtotal + shipping;
-
-
-  if (cart.length === 0) {
+  if (!items.length) {
     return (
-      <section className="empty-page">
-
-        <span className="eyebrow">
-          YOUR SELECTION
-        </span>
-
-        <h1>
-          Your cart is empty.
-        </h1>
-
-        <p>
-          Nothing here yet. Discover
-          something you love.
-        </p>
-
-        <Link
-          to="/"
-          className="dark-button"
-        >
-          Continue Shopping →
-        </Link>
-
-      </section>
+      <div style={{ textAlign: 'center', padding: '100px 20px' }}>
+        <h2 style={{ fontFamily: 'var(--font-serif)', fontSize: '32px', marginBottom: '16px' }}>Your bag is empty</h2>
+        <p style={{ color: 'var(--text-muted)', marginBottom: '24px' }}>Discover something special from our curated collection.</p>
+        <Link className="primary" to="/shop">Explore Collection →</Link>
+      </div>
     );
   }
 
-
   return (
-    <section className="cart-page">
+    <section className="page" style={{ maxWidth: '1000px', margin: '0 auto' }}>
+      <p className="eyebrow">YOUR SELECTION</p>
+      <h1 style={{ fontFamily: 'var(--font-serif)', fontSize: '40px', marginBottom: '32px' }}>Review Bag</h1>
 
-      <div className="page-heading">
-
-        <span className="eyebrow">
-          YOUR SELECTION
-        </span>
-
-        <h1>
-          Shopping Cart
-        </h1>
-
-      </div>
-
-
-      <div className="cart-layout">
-
-        <div className="cart-items">
-
-          {cart.map((item) => (
-            <div
-              className="cart-item"
-              key={item.id}
-            >
-
-              <img
-                src={item.image}
-                alt={item.name}
-              />
-
-              <div className="cart-item-info">
-
-                <span>
-                  {item.category}
-                </span>
-
-                <h3>
-                  {item.name}
-                </h3>
-
-                <strong>
-                  ₹
-                  {Number(
-                    item.price
-                  ).toLocaleString(
-                    "en-IN"
-                  )}
-                </strong>
-
+      <div style={{ display: 'grid', gridTemplateColumns: '1.4fr 0.8fr', gap: '48px', alignItems: 'start' }}>
+        <div>
+          {items.map((i) => (
+            <div key={i.product._id || i.product.id} style={{ display: 'flex', gap: '20px', padding: '20px 0', borderBottom: '1px solid var(--border-light)', alignItems: 'center' }}>
+              <img src={i.product.image} alt={i.product.name} style={{ width: '90px', height: '110px', objectFit: 'cover', borderRadius: 'var(--radius-sm)' }} />
+              <div style={{ flex: 1 }}>
+                <h3 style={{ fontFamily: 'var(--font-serif)', fontSize: '18px' }}>{i.product.name}</h3>
+                <p style={{ color: 'var(--text-muted)', fontSize: '14px', margin: '4px 0 12px' }}>₹{i.product.price?.toLocaleString('en-IN')}</p>
+                <div style={{ display: 'flex', gap: '12px', alignItems: 'center' }}>
+                  <button onClick={() => update(i.product._id || i.product.id, i.quantity - 1)} style={{ padding: '2px 10px', cursor: 'pointer' }}>-</button>
+                  <span>{i.quantity}</span>
+                  <button disabled={i.quantity >= i.product.stock} onClick={() => update(i.product._id || i.product.id, i.quantity + 1)} style={{ padding: '2px 10px', cursor: 'pointer' }}>+</button>
+                  <button className="link-btn" onClick={() => remove(i.product._id || i.product.id)} style={{ marginLeft: '16px', color: '#dc2626', textDecoration: 'underline' }}>Remove</button>
+                </div>
               </div>
-
-              <div className="quantity">
-                − {item.quantity} +
-              </div>
-
+              <b>₹{(i.product.price * i.quantity).toLocaleString('en-IN')}</b>
             </div>
           ))}
-
         </div>
 
-
-        <aside className="order-summary">
-
-          <span className="eyebrow">
-            SUMMARY
-          </span>
-
-          <h2>
-            Your Order
-          </h2>
-
-          <div>
-            <span>
-              Subtotal
-            </span>
-
-            <strong>
-              ₹
-              {subtotal.toLocaleString(
-                "en-IN"
-              )}
-            </strong>
+        <aside style={{ background: 'var(--bg-card)', padding: '28px', borderRadius: 'var(--radius-md)', border: '1px solid var(--border-light)' }}>
+          <h2 style={{ fontFamily: 'var(--font-serif)', fontSize: '22px', marginBottom: '20px' }}>Order Summary</h2>
+          <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '12px' }}>
+            <span>Subtotal</span>
+            <b>₹{total.toLocaleString('en-IN')}</b>
           </div>
-
-          <div>
-            <span>
-              Shipping
-            </span>
-
-            <strong>
-              Free
-            </strong>
+          <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '20px' }}>
+            <span>Shipping</span>
+            <span style={{ color: '#16a34a', fontWeight: 600 }}>Free</span>
           </div>
-
-          <hr />
-
-          <div>
-            <span>
-              Total
-            </span>
-
-            <strong>
-              ₹
-              {total.toLocaleString(
-                "en-IN"
-              )}
-            </strong>
+          <hr style={{ borderColor: 'var(--border-light)', margin: '16px 0' }} />
+          <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '24px', fontSize: '18px' }}>
+            <span>Total</span>
+            <b>₹{total.toLocaleString('en-IN')}</b>
           </div>
-
-          <button
-            className="dark-button full"
-            onClick={() =>
-              navigate("/checkout")
-            }
-          >
-            Checkout →
+          <button className="primary wide" onClick={() => (user ? nav('/checkout') : nav('/login'))}>
+            {user ? 'Proceed to Checkout →' : 'Sign in to Checkout'}
           </button>
-
         </aside>
-
       </div>
-
     </section>
   );
 }
