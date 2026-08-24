@@ -1,6 +1,6 @@
 import { Routes, Route } from "react-router-dom";
 
-import Layout from "./components/Layout";
+
 
 import Home from "./pages/Home";
 import Shop from "./pages/Shop";
@@ -20,13 +20,12 @@ function App() {
   return (
     <Routes>
 
-      {/* Login */}
+      {/* Authentication */}
       <Route
         path="/login"
         element={<Auth mode="login" />}
       />
 
-      {/* Register */}
       <Route
         path="/register"
         element={<Auth mode="register" />}
@@ -35,15 +34,9 @@ function App() {
       {/* Main Website */}
       <Route element={<Layout />}>
 
-        <Route
-          path="/"
-          element={<Home />}
-        />
+        <Route path="/" element={<Home />} />
 
-        <Route
-          path="/shop"
-          element={<Shop />}
-        />
+        <Route path="/shop" element={<Shop />} />
 
         <Route
           path="/product/:id"
@@ -71,6 +64,11 @@ function App() {
         />
 
         <Route
+          path="/profile"
+          element={<Profile />}
+        />
+
+        <Route
           path="/orders"
           element={<Orders />}
         />
@@ -78,11 +76,6 @@ function App() {
         <Route
           path="/orders/:id"
           element={<OrderDetail />}
-        />
-
-        <Route
-          path="/profile"
-          element={<Profile />}
         />
 
         <Route
