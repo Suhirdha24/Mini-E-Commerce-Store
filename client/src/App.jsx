@@ -2,45 +2,95 @@ import {
   Navigate,
   Route,
   Routes,
-  useLocation
+  useLocation,
 } from "react-router-dom";
 
 import Layout from "./components/Layout";
+
 import Home from "./pages/Home";
+import Shop from "./pages/Shop";
 import Product from "./pages/Product";
 import Cart from "./pages/Cart";
+
 import Auth from "./pages/Auth";
+
 import Checkout from "./pages/Checkout";
 import Orders from "./pages/Orders";
 import OrderDetail from "./pages/OrderDetail";
+
+import Profile from "./pages/Profile";
+import Favorites from "./pages/Favorites";
+
+import About from "./pages/About";
+
 import Admin from "./pages/Admin";
+import Logout from "./pages/Logout";
 
 import { useAuth } from "./context/AuthContext";
 
 
-function Guard({ children, admin = false }) {
-  const { user, loading } = useAuth();
+/* =========================================================
+   AUTH GUARD
+========================================================= */
+
+function Guard({
+  children,
+  admin = false,
+}) {
+  const {
+    user,
+    loading,
+  } = useAuth();
+
   const location = useLocation();
+
 
   if (loading) {
     return (
-      <div className="state">
-        Loading...
+      <div className="page-loader">
+
+        <div className="loader-mark">
+          N
+        </div>
+
+        <span>
+          Loading...
+        </span>
+
       </div>
     );
   }
+
+
+  /*
+    User is not logged in.
+
+    Remember the page they originally
+    wanted to visit so we can send them
+    back after login.
+  */
 
   if (!user) {
     return (
       <Navigate
         to="/login"
-        state={{ from: location }}
+        state={{
+          from: location,
+        }}
         replace
       />
     );
   }
 
-  if (admin && user.role !== "admin") {
+
+  /*
+    Admin-only protection
+  */
+
+  if (
+    admin &&
+    user.role !== "admin"
+  ) {
     return (
       <Navigate
         to="/"
@@ -49,31 +99,60 @@ function Guard({ children, admin = false }) {
     );
   }
 
+
   return children;
 }
 
 
+/* =========================================================
+   APP
+========================================================= */
+
 export default function App() {
+
   return (
     <Layout>
+
       <Routes>
 
-        {/* Public Routes */}
+        {/* =================================================
+            PUBLIC
+        ================================================= */}
 
         <Route
           path="/"
           element={<Home />}
         />
 
+        {/* Home / Shop catalogue */}
+
+        <Route
+          path="/shop"
+          element={<Shop />}
+        />
+
+        {/* Individual product */}
+
         <Route
           path="/products/:id"
           element={<Product />}
         />
 
+        {/* Collections */}
+
         <Route
-          path="/cart"
-          element={<Cart />}
+          path="/collections/:slug"
+          element={<Shop />}
         />
+
+        {/* About */}
+
+        <Route
+          path="/about"
+          element={<About />}
+        />
+
+        {/* Authentication */}
 
         <Route
           path="/login"
@@ -82,11 +161,40 @@ export default function App() {
 
         <Route
           path="/register"
-          element={<Auth mode="register" />}
+          element={
+            <Auth mode="register" />
+          }
+        />
+
+        {/* Cart can be viewed without login */}
+
+        <Route
+          path="/cart"
+          element={<Cart />}
         />
 
 
-        {/* Customer Protected Routes */}
+        {/* =================================================
+            LOGGED-IN USER
+        ================================================= */}
+
+        <Route
+          path="/profile"
+          element={
+            <Guard>
+              <Profile />
+            </Guard>
+          }
+        />
+
+        <Route
+          path="/favorites"
+          element={
+            <Guard>
+              <Favorites />
+            </Guard>
+          }
+        />
 
         <Route
           path="/checkout"
@@ -115,8 +223,17 @@ export default function App() {
           }
         />
 
+        {/* Logout */}
 
-        {/* Admin Protected Route */}
+        <Route
+          path="/logout"
+          element={<Logout />}
+        />
+
+
+        {/* =================================================
+            ADMIN
+        ================================================= */}
 
         <Route
           path="/admin"
@@ -128,7 +245,9 @@ export default function App() {
         />
 
 
-        {/* Invalid URL */}
+        {/* =================================================
+            FALLBACK
+        ================================================= */}
 
         <Route
           path="*"
@@ -141,6 +260,7 @@ export default function App() {
         />
 
       </Routes>
+
     </Layout>
   );
 }

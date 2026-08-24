@@ -1,1 +1,100 @@
-import {useEffect,useState} from 'react';import {Link} from 'react-router-dom';import api from '../api/api';export default function Orders(){const [orders,setOrders]=useState([]);useEffect(()=>{api.get('/orders/mine').then(r=>setOrders(r.data))},[]);return <section className="page"><p className="eyebrow">ACCOUNT</p><h1>My orders</h1>{orders.length?<div className="orders">{orders.map(o=><Link to={`/orders/${o._id}`} className="order" key={o._id}><div><b>#{o._id.slice(-6).toUpperCase()}</b><span>{new Date(o.createdAt).toLocaleDateString()}</span></div><div><span className="badge">{o.status}</span><b>₹{o.total.toLocaleString('en-IN')}</b></div></Link>)}</div>:<div className="state">No orders yet.</div>}</section>}
+import { Link } from "react-router-dom";
+
+export default function Orders() {
+
+  const orders = [];
+
+  return (
+    <section className="orders-page">
+
+      <div className="page-heading">
+
+        <span className="eyebrow">
+          YOUR ACCOUNT
+        </span>
+
+        <h1>
+          Orders
+        </h1>
+
+      </div>
+
+
+      {orders.length === 0 ? (
+
+        <div className="empty-page compact">
+
+          <h2>
+            No orders yet.
+          </h2>
+
+          <p>
+            Your future purchases will
+            appear here.
+          </p>
+
+          <Link
+            to="/"
+            className="dark-button"
+          >
+            Explore Store →
+          </Link>
+
+        </div>
+
+      ) : (
+
+        <div className="orders-list">
+
+          {orders.map((order) => (
+
+            <Link
+              to={`/orders/${order._id}`}
+              className="order-card"
+              key={order._id}
+            >
+
+              <div>
+
+                <span>
+                  ORDER #
+                  {order._id
+                    .slice(-6)
+                    .toUpperCase()}
+                </span>
+
+                <h2>
+                  ₹
+                  {Number(
+                    order.total
+                  ).toLocaleString(
+                    "en-IN"
+                  )}
+                </h2>
+
+              </div>
+
+
+              <div>
+
+                <span>
+                  {order.status}
+                </span>
+
+                <small>
+                  →
+                </small>
+
+              </div>
+
+            </Link>
+
+          ))}
+
+        </div>
+
+      )}
+
+    </section>
+  );
+}

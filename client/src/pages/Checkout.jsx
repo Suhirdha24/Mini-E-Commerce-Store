@@ -1,1 +1,130 @@
-import {useState} from 'react';import {useNavigate} from 'react-router-dom';import api from '../api/api';import {useCart} from '../context/CartContext';export default function Checkout(){const {items,total,clear}=useCart(),nav=useNavigate();const [f,setF]=useState({name:'',address:'',city:'',state:'',postalCode:'',phone:''}),[err,setErr]=useState(''),[busy,setBusy]=useState(false);const s=e=>setF({...f,[e.target.name]:e.target.value});const submit=async e=>{e.preventDefault();setBusy(true);try{const r=await api.post('/orders',{shipping:f,items:items.map(i=>({product:i.product._id,quantity:i.quantity}))});clear();nav(`/orders/${r.data._id}`)}catch(x){setErr(x.response?.data?.message||'Could not place order')}finally{setBusy(false)}};return <section className="checkout"><form className="form-card" onSubmit={submit}><p className="eyebrow">CHECKOUT</p><h1>Shipping details</h1>{['name','address','city','state','postalCode','phone'].map(k=><input key={k} name={k} placeholder={k==='postalCode'?'Postal code':k[0].toUpperCase()+k.slice(1)} required value={f[k]} onChange={s}/>)}{err&&<div className="alert">{err}</div>}<button className="primary wide" disabled={busy}>{busy?'Placing order...':'Place order'}</button></form><aside className="summary"><h2>Order summary</h2>{items.map(i=><div className="sum" key={i.product._id}><span>{i.product.name} × {i.quantity}</span><b>₹{(i.product.price*i.quantity).toLocaleString('en-IN')}</b></div>)}<hr/><div className="sum total"><span>Total</span><b>₹{total.toLocaleString('en-IN')}</b></div></aside></section>}
+export default function Checkout() {
+  return (
+    <section className="checkout-page">
+
+      <div className="page-heading">
+
+        <span className="eyebrow">
+          NOVA CHECKOUT
+        </span>
+
+        <h1>
+          Complete your order.
+        </h1>
+
+      </div>
+
+
+      <div className="checkout-layout">
+
+        <div className="checkout-form">
+
+          <section>
+            <span className="form-number">
+              01
+            </span>
+
+            <h2>
+              Contact information
+            </h2>
+
+            <input
+              type="email"
+              placeholder="Email address"
+            />
+          </section>
+
+
+          <section>
+            <span className="form-number">
+              02
+            </span>
+
+            <h2>
+              Shipping address
+            </h2>
+
+            <div className="form-row">
+
+              <input
+                placeholder="First name"
+              />
+
+              <input
+                placeholder="Last name"
+              />
+
+            </div>
+
+            <input
+              placeholder="Address"
+            />
+
+            <div className="form-row">
+
+              <input
+                placeholder="City"
+              />
+
+              <input
+                placeholder="Postal code"
+              />
+
+            </div>
+
+          </section>
+
+
+          <section>
+            <span className="form-number">
+              03
+            </span>
+
+            <h2>
+              Payment
+            </h2>
+
+            <div className="payment-option">
+              Cash on Delivery
+            </div>
+          </section>
+
+
+          <button className="dark-button">
+            Place Order →
+          </button>
+
+        </div>
+
+
+        <aside className="checkout-summary">
+
+          <span className="eyebrow">
+            YOUR ORDER
+          </span>
+
+          <h2>
+            Order Summary
+          </h2>
+
+          {/* Render existing cart items here */}
+
+          <div className="summary-total">
+
+            <span>
+              Total
+            </span>
+
+            <strong>
+              ₹0
+            </strong>
+
+          </div>
+
+        </aside>
+
+      </div>
+
+    </section>
+  );
+}

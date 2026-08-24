@@ -1,2 +1,260 @@
-import {useEffect,useState} from 'react';import api from '../api/api';import ProductCard from '../components/ProductCard';
-export default function Home(){const [data,setData]=useState({items:[],categories:[]}),[q,setQ]=useState(''),[cat,setCat]=useState(''),[page,setPage]=useState(1),[loading,setLoading]=useState(true),[error,setError]=useState('');useEffect(()=>{setLoading(true);api.get('/products',{params:{search:q,category:cat,page,limit:8}}).then(r=>setData(r.data)).catch(e=>setError(e.response?.data?.message||'Unable to load products')).finally(()=>setLoading(false))},[q,cat,page]);return <><section className="hero"><div><p className="eyebrow">THE EVERYDAY EDIT</p><h1>Good design.<br/>Better living.</h1><p>Thoughtful products for work, travel and everyday life.</p><a className="primary" href="#shop">Explore collection</a></div><div className="hero-art"><div>NEW<br/><strong>DROP<br/>2026</strong></div></div></section><section id="shop" className="shop"><div className="section-head"><div><p className="eyebrow">CURATED FOR YOU</p><h2>Shop essentials</h2></div><div className="filters"><input value={q} onChange={e=>{setQ(e.target.value);setPage(1)}} placeholder="Search products..."/><select value={cat} onChange={e=>{setCat(e.target.value);setPage(1)}}><option value="">All categories</option>{data.categories.map(c=><option key={c}>{c}</option>)}</select></div></div>{error&&<div className="alert">{error}</div>}{loading?<div className="state">Loading products...</div>:data.items.length?<><div className="grid">{data.items.map(p=><ProductCard key={p._id} p={p}/>)}</div><div className="pagination"><button disabled={page<=1} onClick={()=>setPage(page-1)}>←</button><span>Page {page} of {data.pages||1}</span><button disabled={page>=data.pages} onClick={()=>setPage(page+1)}>→</button></div></>:<div className="state">No products found.</div>}</section></>}
+import { Link } from "react-router-dom";
+
+
+const featuredProducts = [
+  {
+    id: 1,
+    name: "Essential Collection",
+    category: "NEW ARRIVAL",
+    price: "₹1,499",
+    image:
+      "https://images.unsplash.com/photo-1525507119028-ed4c629a60a3?auto=format&fit=crop&w=900&q=80",
+  },
+  {
+    id: 2,
+    name: "Everyday Edit",
+    category: "BEST SELLER",
+    price: "₹1,899",
+    image:
+      "https://images.unsplash.com/photo-1490481651871-ab68de25d43d?auto=format&fit=crop&w=900&q=80",
+  },
+  {
+    id: 3,
+    name: "Modern Classic",
+    category: "CURATED",
+    price: "₹2,199",
+    image:
+      "https://images.unsplash.com/photo-1483985988355-763728e1935b?auto=format&fit=crop&w=900&q=80",
+  },
+];
+
+
+export default function Home() {
+  return (
+    <div className="home-page">
+
+      {/* HERO */}
+
+      <section className="editorial-hero">
+
+        <div className="hero-copy">
+
+          <span className="eyebrow">
+            THE NEW COLLECTION
+          </span>
+
+          <h1>
+            BEAUTY IN
+            <br />
+            THE EVERYDAY.
+          </h1>
+
+          <p>
+            A considered collection of
+            modern essentials, selected
+            for people who appreciate
+            simplicity.
+          </p>
+
+          <Link
+            to="/"
+            className="dark-button"
+          >
+            Explore Collection
+            <span>→</span>
+          </Link>
+
+        </div>
+
+
+        <div className="hero-art">
+
+          <div className="hero-image-main">
+
+            <img
+              src="https://images.unsplash.com/photo-1441986300917-64674bd600d8?auto=format&fit=crop&w=1200&q=85"
+              alt="NOVA collection"
+            />
+
+          </div>
+
+
+          <div className="hero-floating-card">
+
+            <span>
+              NOVA
+            </span>
+
+            <strong>
+              01
+            </strong>
+
+          </div>
+
+        </div>
+
+      </section>
+
+
+      {/* INTRO */}
+
+      <section className="editorial-intro">
+
+        <span className="eyebrow">
+          OUR PHILOSOPHY
+        </span>
+
+        <h2>
+          Less, but
+          <br />
+          better.
+        </h2>
+
+        <p>
+          We believe the things you
+          choose should feel intentional.
+          Every piece is selected with
+          quality, simplicity and everyday
+          beauty in mind.
+        </p>
+
+      </section>
+
+
+      {/* PRODUCTS */}
+
+      <section className="featured-section">
+
+        <div className="section-heading">
+
+          <div>
+
+            <span className="eyebrow">
+              CURATED FOR YOU
+            </span>
+
+            <h2>
+              The Edit
+            </h2>
+
+          </div>
+
+          <Link to="/">
+            View all →
+          </Link>
+
+        </div>
+
+
+        <div className="editorial-product-grid">
+
+          {featuredProducts.map(
+            (product) => (
+              <Link
+                to={`/products/${product.id}`}
+                className="editorial-product"
+                key={product.id}
+              >
+
+                <div className="product-image">
+
+                  <img
+                    src={product.image}
+                    alt={product.name}
+                  />
+
+                  <span>
+                    View
+                  </span>
+
+                </div>
+
+
+                <div className="product-info">
+
+                  <div>
+
+                    <span>
+                      {product.category}
+                    </span>
+
+                    <h3>
+                      {product.name}
+                    </h3>
+
+                  </div>
+
+                  <strong>
+                    {product.price}
+                  </strong>
+
+                </div>
+
+              </Link>
+            )
+          )}
+
+        </div>
+
+      </section>
+
+
+      {/* STATEMENT */}
+
+      <section className="statement-section">
+
+        <span>
+          DESIGNED FOR LIFE
+        </span>
+
+        <h2>
+          Objects with
+          <br />
+          intention.
+        </h2>
+
+        <Link
+          to="/"
+          className="outline-button"
+        >
+          Discover NOVA
+        </Link>
+
+      </section>
+
+
+      {/* NEWSLETTER */}
+
+      <section className="newsletter">
+
+        <span className="eyebrow">
+          STAY IN THE KNOW
+        </span>
+
+        <h2>
+          Join our world.
+        </h2>
+
+        <p>
+          New collections, thoughtful
+          stories and occasional surprises.
+        </p>
+
+        <form>
+
+          <input
+            type="email"
+            placeholder="Your email address"
+          />
+
+          <button>
+            →
+          </button>
+
+        </form>
+
+      </section>
+
+    </div>
+  );
+}
