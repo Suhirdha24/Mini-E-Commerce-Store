@@ -23,14 +23,17 @@ const categoryCards = [
 
 export default function Home() {
   const [products, setProducts] = useState(() => {
-    const saved = JSON.parse(localStorage.getItem('custom_products') || '[]');
-    return saved.length ? saved.slice(0, 6) : mockHomeProducts;
+    const saved = JSON.parse(localStorage.getItem('admin_products') || localStorage.getItem('custom_products') || '[]');
+    return saved.slice(0, 6);
   });
 
   useEffect(() => {
-    api.get('/products?limit=6')
-      .then(r => { if (r.data.items?.length) setProducts(r.data.items); })
-      .catch(() => {});
+    const updateLocal = () => {
+      const saved = JSON.parse(localStorage.getItem('admin_products') || localStorage.getItem('custom_products') || '[]');
+      setProducts(saved.slice(0, 6));
+    };
+    window.addEventListener('productsUpdated', updateLocal);
+    return () => window.removeEventListener('productsUpdated', updateLocal);
   }, []);
 
   return (

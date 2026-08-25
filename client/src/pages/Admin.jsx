@@ -10,7 +10,7 @@ const initialInventory = [
 export default function Admin() {
   const [tab, setTab] = useState('dashboard'); // 'dashboard' | 'inventory' | 'add' | 'orders' | 'customers' | 'coupons'
   const [products, setProducts] = useState(() => {
-    const saved = JSON.parse(localStorage.getItem('custom_products') || '[]');
+    const saved = JSON.parse(localStorage.getItem('admin_products') || localStorage.getItem('custom_products') || '[]');
     return saved.length ? saved : initialInventory;
   });
   const [orders, setOrders] = useState([]);
@@ -34,25 +34,33 @@ export default function Admin() {
     sku: '', name: '', description: '', regularPrice: '', salePrice: '', costPrice: '', category: 'Bags', image: '', stock: 10, active: true
   });
 
-  const getPId = p => p._id || p.id;
+  const getPId = p => String(p._id || p.id);
+
+  const saveProducts = (newList) => {
+    setProducts(newList);
+    localStorage.setItem('admin_products', JSON.stringify(newList));
+    localStorage.setItem('custom_products', JSON.stringify(newList));
+    window.dispatchEvent(new Event('productsUpdated'));
+  };
 
   useEffect(() => {
     const localOrders = JSON.parse(localStorage.getItem('user_orders') || '[]');
     setOrders(localOrders);
-
-    api.get('/products?limit=50')
-      .then(r => { if (r.data.items?.length) setProducts(r.data.items); })
-      .catch(() => {});
+    // Ensure initial storage sync
+    if (!localStorage.getItem('admin_products')) {
+      localStorage.setItem('admin_products', JSON.stringify(products));
+    }
   }, []);
 
   const handleAdjustStock = (product, delta, reason) => {
     const pId = getPId(product);
     const newStock = Math.max(0, (product.stock || 0) + delta);
 
-    setProducts(prev => prev.map(p => {
+    const newList = products.map(p => {
       if (getPId(p) === pId) return { ...p, stock: newStock, active: newStock > 0 };
       return p;
-    }));
+    });
+    saveProducts(newList);
 
     setAuditLogs([{
       id: 'log-' + Date.now(),
@@ -66,10 +74,16 @@ export default function Admin() {
   };
 
   const handleToggleStatus = (productId) => {
-    setProducts(prev => prev.map(p => {
-      if (getPId(p) === productId) return { ...p, active: !p.active };
+    const newList = products.map(p => {
+      if (getPId(p) === String(productId)) return { ...p, active: !p.active };
       return p;
-    }));
+    });
+    saveProducts(newList);
+  };
+
+  const handleDeleteProduct = (productId) => {
+    const newList = products.filter(p => getPId(p) !== String(productId));
+    saveProducts(newList);
   };
 
   const handleSubmitProduct = (e) => {
@@ -99,22 +113,18 @@ export default function Admin() {
     };
 
     if (editingId) {
-      const updatedList = products.map(p => getPId(p) === editingId ? newProd : p);
-      setProducts(updatedList);
-      localStorage.setItem('custom_products', JSON.stringify(updatedList));
-      window.dispatchEvent(new Event('productsUpdated'));
+      const newList = products.map(p => getPId(p) === String(editingId) ? newProd : p);
+      saveProducts(newList);
       setSuccessMsg(`✓ Product "${form.name}" updated successfully!`);
     } else {
-      const updatedList = [newProd, ...products];
-      setProducts(updatedList);
-      localStorage.setItem('custom_products', JSON.stringify(updatedList));
-      window.dispatchEvent(new Event('productsUpdated'));
+      const newList = [newProd, ...products];
+      saveProducts(newList);
       setSuccessMsg(`✓ New product "${form.name}" added to inventory & live in Customer Store!`);
     }
 
     setForm({ sku: '', name: '', description: '', regularPrice: '', salePrice: '', costPrice: '', category: 'Bags', image: '', stock: 10, active: true });
     setEditingId(null);
-    setTimeout(() => { setSuccessMsg(''); setTab('inventory'); }, 1500);
+    setTimeout(() => { setSuccessMsg(''); setTab('inventory'); }, 1200);
   };
 
   const handleCreateCoupon = (e) => {
@@ -248,7 +258,7 @@ export default function Admin() {
                     </td>
                     <td style={{ padding: '14px 20px', textAlign: 'right' }}>
                       <button onClick={() => { setEditingId(id); setForm({ ...p, regularPrice: p.regularPrice || p.price }); setTab('add'); }} style={{ marginRight: '12px', background: 'none', border: 'none', fontWeight: 600, cursor: 'pointer' }}>Edit</button>
-                      <button onClick={() => setProducts(products.filter(item => getPId(item) !== id))} style={{ background: 'none', border: 'none', color: '#dc2626', fontWeight: 600, cursor: 'pointer' }}>Delete</button>
+                      <button onClick={() => handleDeleteProduct(id)} style={{ background: 'none', border: 'none', color: '#dc2626', fontWeight: 600, cursor: 'pointer' }}>Delete</button>
                     </td>
                   </tr>
                 );
