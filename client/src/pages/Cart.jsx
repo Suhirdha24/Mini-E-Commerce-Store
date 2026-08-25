@@ -20,28 +20,59 @@ export default function Cart() {
   return (
     <section className="page" style={{ maxWidth: '1000px', margin: '0 auto' }}>
       <p className="eyebrow">YOUR SELECTION</p>
-      <h1 style={{ fontFamily: 'var(--font-serif)', fontSize: '40px', marginBottom: '32px' }}>Review Bag</h1>
+      <h1 style={{ fontFamily: 'var(--font-serif)', fontSize: '40px', marginBottom: '32px' }}>Review Bag ({items.length} Items)</h1>
 
       <div style={{ display: 'grid', gridTemplateColumns: '1.4fr 0.8fr', gap: '48px', alignItems: 'start' }}>
         <div>
-          {items.map((i) => (
-            <div key={i.product._id || i.product.id} style={{ display: 'flex', gap: '20px', padding: '20px 0', borderBottom: '1px solid var(--border-light)', alignItems: 'center' }}>
-              <img src={i.product.image} alt={i.product.name} style={{ width: '90px', height: '110px', objectFit: 'cover', borderRadius: 'var(--radius-sm)' }} />
-              <div style={{ flex: 1 }}>
-                <h3 style={{ fontFamily: 'var(--font-serif)', fontSize: '18px' }}>{i.product.name}</h3>
-                <p style={{ color: 'var(--text-muted)', fontSize: '14px', margin: '4px 0 12px' }}>₹{i.product.price?.toLocaleString('en-IN')}</p>
-                <div style={{ display: 'flex', gap: '12px', alignItems: 'center' }}>
-                  <button onClick={() => update(i.product._id || i.product.id, i.quantity - 1)} style={{ padding: '2px 10px', cursor: 'pointer' }}>-</button>
-                  <span>{i.quantity}</span>
-                  <button disabled={i.quantity >= i.product.stock} onClick={() => update(i.product._id || i.product.id, i.quantity + 1)} style={{ padding: '2px 10px', cursor: 'pointer' }}>+</button>
-                  <button className="link-btn" onClick={() => remove(i.product._id || i.product.id)} style={{ marginLeft: '16px', color: '#dc2626', textDecoration: 'underline' }}>Remove</button>
+          {items.map((i) => {
+            const pId = i.product._id || i.product.id;
+            return (
+              <div key={pId} style={{ display: 'flex', gap: '20px', padding: '20px 0', borderBottom: '1px solid var(--border-light)', alignItems: 'center' }}>
+                <img src={i.product.image} alt={i.product.name} style={{ width: '90px', height: '110px', objectFit: 'cover', borderRadius: 'var(--radius-sm)' }} />
+                
+                <div style={{ flex: 1 }}>
+                  <h3 style={{ fontFamily: 'var(--font-serif)', fontSize: '18px' }}>{i.product.name}</h3>
+                  <p style={{ color: 'var(--text-muted)', fontSize: '14px', margin: '4px 0 8px' }}>₹{i.product.price?.toLocaleString('en-IN')}</p>
+                  
+                  {/* STOCK REMAINING MESSAGE */}
+                  <small style={{ color: i.product.stock < 5 ? '#d97706' : 'var(--text-muted)', display: 'block', marginBottom: '12px' }}>
+                    {i.product.stock < 5 ? `Only ${i.product.stock} left in stock!` : `${i.product.stock} available`}
+                  </small>
+
+                  {/* QUANTITY ADJUSTMENT CONTROLS */}
+                  <div style={{ display: 'flex', gap: '12px', alignItems: 'center' }}>
+                    <button 
+                      onClick={() => update(pId, i.quantity - 1)} 
+                      style={{ width: '32px', height: '32px', border: '1px solid var(--border-light)', background: '#fff', borderRadius: '4px', cursor: 'pointer', fontWeight: 700 }}
+                    >
+                      -
+                    </button>
+                    <span style={{ fontWeight: 600, width: '24px', textAlign: 'center' }}>{i.quantity}</span>
+                    <button 
+                      disabled={i.quantity >= i.product.stock} 
+                      onClick={() => update(pId, i.quantity + 1)} 
+                      style={{ width: '32px', height: '32px', border: '1px solid var(--border-light)', background: '#fff', borderRadius: '4px', cursor: 'pointer', fontWeight: 700 }}
+                    >
+                      +
+                    </button>
+
+                    {/* REMOVE PRODUCT BUTTON */}
+                    <button 
+                      onClick={() => remove(pId)} 
+                      style={{ marginLeft: '20px', background: 'none', border: 'none', color: '#dc2626', fontWeight: 600, cursor: 'pointer', fontSize: '13px', textDecoration: 'underline' }}
+                    >
+                      Remove
+                    </button>
+                  </div>
                 </div>
+
+                <b style={{ fontSize: '16px' }}>₹{(i.product.price * i.quantity).toLocaleString('en-IN')}</b>
               </div>
-              <b>₹{(i.product.price * i.quantity).toLocaleString('en-IN')}</b>
-            </div>
-          ))}
+            );
+          })}
         </div>
 
+        {/* ORDER SUMMARY */}
         <aside style={{ background: 'var(--bg-card)', padding: '28px', borderRadius: 'var(--radius-md)', border: '1px solid var(--border-light)' }}>
           <h2 style={{ fontFamily: 'var(--font-serif)', fontSize: '22px', marginBottom: '20px' }}>Order Summary</h2>
           <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '12px' }}>

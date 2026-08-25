@@ -9,35 +9,24 @@ export default function ProductCard({ p }) {
   const productId = p._id || p.id;
   const [isFav, setIsFav] = useState(false);
 
-  // Persistent key tied to user email
   const userKey = user?.email ? `fav_${user.email.toLowerCase()}` : 'fav_guest';
 
-  const checkFav = () => {
+  useEffect(() => {
     const favs = JSON.parse(localStorage.getItem(userKey) || '[]');
     setIsFav(favs.some(item => (item._id || item.id) === productId));
-  };
-
-  useEffect(() => {
-    checkFav();
-    window.addEventListener('favoritesUpdated', checkFav);
-    return () => window.removeEventListener('favoritesUpdated', checkFav);
   }, [productId, userKey]);
 
   const toggleFavorite = (e) => {
     e.preventDefault();
     e.stopPropagation();
     let favs = JSON.parse(localStorage.getItem(userKey) || '[]');
-    
     if (isFav) {
       favs = favs.filter(item => (item._id || item.id) !== productId);
     } else {
       favs.push(p);
     }
-    
     localStorage.setItem(userKey, JSON.stringify(favs));
     setIsFav(!isFav);
-
-    // Dispatch event to update Favorites page instantly
     window.dispatchEvent(new Event('favoritesUpdated'));
   };
 
@@ -63,22 +52,35 @@ export default function ProductCard({ p }) {
           fontSize: '18px',
           color: isFav ? '#dc2626' : '#666'
         }}
-        title={isFav ? "Remove from Favorites" : "Add to Favorites"}
       >
         {isFav ? '♥' : '♡'}
       </button>
 
-      <Link to={`/products/${productId}`}>
+      {/* DYNAMIC PRODUCT LINK FIX */}
+      <Link to={`/product/${productId}`}>
         <img src={p.image} alt={p.name} />
       </Link>
       
       <div className="card-body">
-        <div className="muted">{p.category}</div>
-        <h3>{p.name}</h3>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+          <div className="muted">{p.category}</div>
+          
+          {/* STOCK VISIBILITY FEATURE */}
+          {p.stock === 0 ? (
+            <span style={{ fontSize: '11px', color: '#dc2626', fontWeight: 700 }}>Out of Stock</span>
+          ) : p.stock < 5 ? (
+            <span style={{ fontSize: '11px', color: '#d97706', fontWeight: 700 }}>Only {p.stock} left!</span>
+          ) : (
+            <span style={{ fontSize: '11px', color: 'var(--text-muted)' }}>{p.stock} items left</span>
+          )}
+        </div>
+
+        <h3 style={{ margin: '8px 0 12px' }}>{p.name}</h3>
+        
         <div className="row">
           <b>₹{p.price?.toLocaleString('en-IN')}</b>
-          <button disabled={!p.stock} onClick={() => add(p)}>
-            {p.stock ? 'Add to Bag' : 'Out of Stock'}
+          <button disabled={p.stock === 0} onClick={() => add(p)}>
+            {p.stock === 0 ? 'Out of Stock' : 'Add to Bag'}
           </button>
         </div>
       </div>
