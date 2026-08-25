@@ -109,12 +109,14 @@ const catalog90 = [
 ];
 
 const getProductById = (targetId) => {
-  if (!targetId) return catalog90[0];
+  const custom = JSON.parse(localStorage.getItem('custom_products') || '[]');
+  const allProds = [...custom, ...catalog90];
+  if (!targetId) return allProds[0];
   const cleanId = String(targetId).trim().toLowerCase();
-  return catalog90.find(item => 
+  return allProds.find(item => 
     String(item.id || item._id).trim().toLowerCase() === cleanId ||
     item.name.toLowerCase().replace(/[^a-z0-9]+/g, '-').includes(cleanId)
-  ) || catalog90[0];
+  ) || allProds[0];
 };
 
 export default function Product() {

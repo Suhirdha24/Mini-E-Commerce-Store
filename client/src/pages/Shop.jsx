@@ -1,3 +1,6 @@
+import { useState, useEffect } from 'react';
+import ProductCard from '../components/ProductCard';
+
 const catalog90 = [
   // BAGS (15 ITEMS)
   { id: 'b1', name: 'Essential Leather Tote', category: 'Bags', price: 2899, image: 'https://images.unsplash.com/photo-1548036328-c9fa89d128fa?w=800&auto=format&fit=crop&q=80', stock: 15 },
@@ -103,10 +106,36 @@ const catalog90 = [
 ];
 
 export default function Shop() {
-  const [items] = useState(catalog90);
+  const [items, setItems] = useState(() => {
+    const custom = JSON.parse(localStorage.getItem('custom_products') || '[]');
+    const map = new Map();
+    [...custom, ...catalog90].forEach(i => map.set(String(i.id || i._id || i.name).toLowerCase(), i));
+    return Array.from(map.values());
+  });
   const [categories] = useState(['Bags', 'Footwear', 'Accessories', 'Apparel', 'Home', 'Electronics']);
   const [q, setQ] = useState('');
   const [cat, setCat] = useState('');
+
+  const loadProducts = () => {
+    const custom = JSON.parse(localStorage.getItem('custom_products') || '[]');
+    const combined = [...custom, ...catalog90];
+    
+    // DEDUPLICATE BY UNIQUE ITEM ID / NAME SO NO PRODUCT EVER DUPLICATES
+    const uniqueMap = new Map();
+    combined.forEach(item => {
+      const key = String(item.id || item._id || item.name).toLowerCase();
+      if (!uniqueMap.has(key)) {
+        uniqueMap.set(key, item);
+      }
+    });
+    setItems(Array.from(uniqueMap.values()));
+  };
+
+  useEffect(() => {
+    loadProducts();
+    window.addEventListener('productsUpdated', loadProducts);
+    return () => window.removeEventListener('productsUpdated', loadProducts);
+  }, []);
 
   const filtered = items.filter(i => 
     (!cat || i.category === cat) &&

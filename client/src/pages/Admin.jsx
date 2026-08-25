@@ -96,11 +96,17 @@ export default function Admin() {
     };
 
     if (editingId) {
-      setProducts(products.map(p => getPId(p) === editingId ? newProd : p));
+      const updatedList = products.map(p => getPId(p) === editingId ? newProd : p);
+      setProducts(updatedList);
+      localStorage.setItem('custom_products', JSON.stringify(updatedList));
+      window.dispatchEvent(new Event('productsUpdated'));
       setSuccessMsg(`✓ Product "${form.name}" updated successfully!`);
     } else {
-      setProducts([newProd, ...products]);
-      setSuccessMsg(`✓ New product "${form.name}" added to inventory!`);
+      const updatedList = [newProd, ...products];
+      setProducts(updatedList);
+      localStorage.setItem('custom_products', JSON.stringify(updatedList));
+      window.dispatchEvent(new Event('productsUpdated'));
+      setSuccessMsg(`✓ New product "${form.name}" added to inventory & live in Customer Store!`);
     }
 
     setForm({ sku: '', name: '', description: '', regularPrice: '', salePrice: '', costPrice: '', category: 'Bags', image: '', stock: 10, active: true });
