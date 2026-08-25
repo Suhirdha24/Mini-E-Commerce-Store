@@ -106,17 +106,29 @@ const catalog90 = [
 ];
 
 const getDeduplicatedProducts = () => {
-  const custom = JSON.parse(localStorage.getItem('custom_products') || '[]');
+  let custom = [];
+  try {
+    custom = JSON.parse(localStorage.getItem('custom_products') || '[]');
+  } catch (e) {
+    custom = [];
+  }
+  
   const combined = [...custom, ...catalog90];
   const uniqueMap = new Map();
+  
   combined.forEach(item => {
     if (!item || !item.name) return;
-    const key = item.name.trim().toLowerCase();
+    // Standardize key by removing non-alphanumeric characters for 100% accurate deduplication
+    const key = item.name.toLowerCase().replace(/[^a-z0-9]/g, '');
     if (!uniqueMap.has(key)) {
       uniqueMap.set(key, item);
     }
   });
-  return Array.from(uniqueMap.values());
+  
+  const result = Array.from(uniqueMap.values());
+  // Self-heal localStorage so bad legacy duplicates are erased permanently!
+  localStorage.setItem('custom_products', JSON.stringify(result));
+  return result;
 };
 
 export default function Shop() {

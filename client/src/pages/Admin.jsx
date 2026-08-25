@@ -9,7 +9,10 @@ const initialInventory = [
 
 export default function Admin() {
   const [tab, setTab] = useState('dashboard'); // 'dashboard' | 'inventory' | 'add' | 'orders' | 'customers' | 'coupons'
-  const [products, setProducts] = useState(initialInventory);
+  const [products, setProducts] = useState(() => {
+    const saved = JSON.parse(localStorage.getItem('custom_products') || '[]');
+    return saved.length ? saved : initialInventory;
+  });
   const [orders, setOrders] = useState([]);
   const [editingId, setEditingId] = useState(null);
   const [successMsg, setSuccessMsg] = useState('');
