@@ -3,18 +3,22 @@ import { Link } from 'react-router-dom';
 import { useCart } from '../context/CartContext';
 import { useAuth } from '../context/AuthContext';
 
+const FALLBACK_IMAGE = 'https://images.unsplash.com/photo-1548036328-c9fa89d128fa?w=800&auto=format&fit=crop&q=80';
+
 export default function ProductCard({ p }) {
   const { add } = useCart();
   const { user } = useAuth();
   const productId = p.id || p._id;
   const [isFav, setIsFav] = useState(false);
+  const [imgSrc, setImgSrc] = useState(p.image || FALLBACK_IMAGE);
 
   const userKey = user?.email ? `fav_${user.email.toLowerCase()}` : 'fav_guest';
 
   useEffect(() => {
+    setImgSrc(p.image || FALLBACK_IMAGE);
     const favs = JSON.parse(localStorage.getItem(userKey) || '[]');
     setIsFav(favs.some(item => String(item.id || item._id).toLowerCase() === String(productId).toLowerCase()));
-  }, [productId, userKey]);
+  }, [p.image, productId, userKey]);
 
   const toggleFavorite = (e) => {
     e.preventDefault();
@@ -55,9 +59,14 @@ export default function ProductCard({ p }) {
         {isFav ? '♥' : '♡'}
       </button>
 
-      {/* DYNAMIC PRODUCT LINK BY UNIQUE ITEM ID */}
+      {/* DYNAMIC PRODUCT LINK + BROKEN IMAGE FALLBACK HANDLER */}
       <Link to={`/product/${productId}`}>
-        <img src={p.image} alt={p.name} />
+        <img 
+          src={imgSrc} 
+          alt={p.name} 
+          onError={() => setImgSrc(FALLBACK_IMAGE)}
+          style={{ width: '100%', height: '240px', objectFit: 'cover' }}
+        />
       </Link>
       
       <div className="card-body">
