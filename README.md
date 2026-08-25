@@ -1,8 +1,10 @@
-# NOVA STORE — MERN Mini E-Commerce Store
+# 🛍️ NOVA STORE — MERN Mini E-Commerce & Retailer Portal
 
-🚀 **Live Store App (Vercel)**: [https://mini-e-commerce-store-6l2l6dtca-suhirdha24s-projects.vercel.app/](https://mini-e-commerce-store-6l2l6dtca-suhirdha24s-projects.vercel.app/)
+[![Vercel Deployment](https://img.shields.io/badge/Vercel-Live%20Demo-000000?style=for-the-badge&logo=vercel)](https://mini-e-commerce-store-lake.vercel.app/)
 
-A full-stack MERN assessment project with JWT authentication, product search/filtering, cart, stock validation, checkout, orders, admin product/order management, responsive UI, Docker support and MongoDB Atlas deployment readiness.
+🚀 **Permanent Production Store URL (Vercel)**:  
+👉 **[https://mini-e-commerce-store-lake.vercel.app/](https://mini-e-commerce-store-lake.vercel.app/)**
+
 
 
 > The visual direction is an original modern editorial storefront inspired by current Dribbble-style layouts: large typography, neutral palette, strong whitespace, product cards and a bold hero. It does not copy a specific Dribbble design.
