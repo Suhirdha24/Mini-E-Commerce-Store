@@ -108,32 +108,29 @@ const catalog90 = [
 const getDeduplicatedProducts = () => {
   const uniqueMap = new Map();
   
-  // 1. Load brand-new catalog90 with 90 unique high-resolution images
+  // 1. Load catalog90 items (90 unique curated products)
   catalog90.forEach(item => {
     if (!item || !item.name) return;
-    const key = item.name.toLowerCase().replace(/[^a-z0-9]/g, '');
-    uniqueMap.set(key, item);
+    const nameKey = item.name.toLowerCase().replace(/[^a-z0-9]/g, '');
+    uniqueMap.set(nameKey, item);
   });
 
-  // 2. Merge only newly added admin products
-  let custom = [];
+  // 2. Merge only newly created custom admin products (IDs starting with p-)
   try {
-    custom = JSON.parse(localStorage.getItem('custom_products') || '[]');
+    const custom = JSON.parse(localStorage.getItem('custom_products') || '[]');
+    custom.forEach(item => {
+      if (!item || !item.name) return;
+      const idStr = String(item.id || item._id || '');
+      const nameKey = item.name.toLowerCase().replace(/[^a-z0-9]/g, '');
+      if (idStr.startsWith('p-')) {
+        uniqueMap.set(nameKey, item);
+      }
+    });
   } catch (e) {
-    custom = [];
+    // ignore
   }
-  
-  custom.forEach(item => {
-    if (!item || !item.name) return;
-    const key = item.name.toLowerCase().replace(/[^a-z0-9]/g, '');
-    if (!uniqueMap.has(key) || String(item.id || item._id).startsWith('p-')) {
-      uniqueMap.set(key, item);
-    }
-  });
 
-  const result = Array.from(uniqueMap.values());
-  localStorage.setItem('custom_products', JSON.stringify(result));
-  return result;
+  return Array.from(uniqueMap.values());
 };
 
 export default function Shop() {
@@ -166,25 +163,28 @@ export default function Shop() {
         <input
           value={q}
           onChange={e => setQ(e.target.value)}
-          placeholder="Search 90 products..."
+          placeholder="Search products..."
           style={{ maxWidth: '360px' }}
         />
 
         <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
           <button onClick={() => setCat('')} style={{ padding: '10px 18px', background: cat === '' ? 'var(--text-dark)' : '#fff', color: cat === '' ? '#fff' : 'var(--text-dark)', border: '1px solid var(--border-light)', borderRadius: '20px', cursor: 'pointer' }}>
-            All (90)
+            All ({items.length})
           </button>
-          {categories.map(c => (
-            <button key={c} onClick={() => setCat(c)} style={{ padding: '10px 18px', background: cat === c ? 'var(--text-dark)' : '#fff', color: cat === c ? '#fff' : 'var(--text-dark)', border: '1px solid var(--border-light)', borderRadius: '20px', cursor: 'pointer' }}>
-              {c} (15)
-            </button>
-          ))}
+          {categories.map(c => {
+            const count = items.filter(i => i.category === c).length;
+            return (
+              <button key={c} onClick={() => setCat(c)} style={{ padding: '10px 18px', background: cat === c ? 'var(--text-dark)' : '#fff', color: cat === c ? '#fff' : 'var(--text-dark)', border: '1px solid var(--border-light)', borderRadius: '20px', cursor: 'pointer' }}>
+                {c} ({count})
+              </button>
+            );
+          })}
         </div>
       </div>
 
       <div className="grid">
         {filtered.map(p => (
-          <ProductCard key={p.id} p={p} />
+          <ProductCard key={p._id || p.id || p.name} p={p} />
         ))}
       </div>
     </section>
