@@ -30,15 +30,23 @@ export default function Product() {
   const [addedMsg, setAddedMsg] = useState(false);
 
   useEffect(() => {
-    const item = getProductById(id);
-    if (item) setP(item);
+    const updateProduct = () => {
+      const item = getProductById(id);
+      if (item) setP(item);
+    };
 
-    api.get(`/products/${id}`)
-      .then(r => { if (r.data?._id || r.data?.id) setP(r.data); })
-      .catch(() => {});
+    updateProduct();
+
+    window.addEventListener('productsUpdated', updateProduct);
+    window.addEventListener('storage', updateProduct);
 
     const favs = JSON.parse(localStorage.getItem(userKey) || '[]');
     setIsFav(favs.some(item => String(item.id || item._id).toLowerCase() === String(id).toLowerCase()));
+
+    return () => {
+      window.removeEventListener('productsUpdated', updateProduct);
+      window.removeEventListener('storage', updateProduct);
+    };
   }, [id, userKey]);
 
   const toggleFavorite = () => {

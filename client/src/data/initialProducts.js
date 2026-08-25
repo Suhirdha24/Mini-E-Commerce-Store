@@ -77,7 +77,7 @@ export const getStoredProducts = () => {
     const raw = localStorage.getItem('admin_products') || localStorage.getItem('custom_products');
     if (raw) {
       const parsed = JSON.parse(raw);
-      if (Array.isArray(parsed) && parsed.length >= 60) return parsed;
+      if (Array.isArray(parsed) && parsed.length > 0) return parsed;
     }
   } catch (e) {
     // fallback

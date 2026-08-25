@@ -18,7 +18,11 @@ export default function Shop() {
   useEffect(() => {
     loadProducts();
     window.addEventListener('productsUpdated', loadProducts);
-    return () => window.removeEventListener('productsUpdated', loadProducts);
+    window.addEventListener('storage', loadProducts);
+    return () => {
+      window.removeEventListener('productsUpdated', loadProducts);
+      window.removeEventListener('storage', loadProducts);
+    };
   }, []);
 
   // Dynamically extract categories from admin products
