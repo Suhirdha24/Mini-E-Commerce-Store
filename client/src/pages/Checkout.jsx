@@ -4,20 +4,16 @@ import api from '../api/api';
 import { useCart } from '../context/CartContext';
 import { useAuth } from '../context/AuthContext';
 
-const INDIAN_STATES = [
-  'Tamil Nadu', 'Karnataka', 'Kerala', 'Maharashtra', 
-  'Delhi', 'Telangana', 'Andhra Pradesh', 'Gujarat'
-];
-
+const INDIAN_STATES = ['Tamil Nadu', 'Karnataka', 'Kerala', 'Maharashtra', 'Delhi', 'Telangana', 'Andhra Pradesh', 'Gujarat'];
 const CITIES = {
-  'Tamil Nadu': ['Erode', 'Chennai', 'Coimbatore', 'Madurai', 'Salem', 'Tiruchirappalli'],
-  'Karnataka': ['Bengaluru', 'Mysuru', 'Mangaluru', 'Hubballi'],
-  'Kerala': ['Kochi', 'Thiruvananthapuram', 'Kozhikode'],
-  'Maharashtra': ['Mumbai', 'Pune', 'Nagpur'],
-  'Delhi': ['New Delhi', 'North Delhi', 'South Delhi'],
-  'Telangana': ['Hyderabad', 'Warangal'],
-  'Andhra Pradesh': ['Visakhapatnam', 'Vijayawada'],
-  'Gujarat': ['Ahmedabad', 'Surat', 'Vadodara']
+  'Tamil Nadu': ['Erode', 'Chennai', 'Coimbatore', 'Madurai', 'Salem'],
+  'Karnataka': ['Bengaluru', 'Mysuru', 'Mangaluru'],
+  'Kerala': ['Kochi', 'Thiruvananthapuram'],
+  'Maharashtra': ['Mumbai', 'Pune'],
+  'Delhi': ['New Delhi', 'North Delhi'],
+  'Telangana': ['Hyderabad'],
+  'Andhra Pradesh': ['Visakhapatnam'],
+  'Gujarat': ['Ahmedabad', 'Surat']
 };
 
 export default function Checkout() {
@@ -25,10 +21,11 @@ export default function Checkout() {
   const { user } = useAuth();
   const nav = useNavigate();
   
-  const [step, setStep] = useState('shipping'); // 'shipping' | 'payment' | 'success'
-  const [paymentMethod, setPaymentMethod] = useState('cod'); // 'cod' | 'upi'
+  const [step, setStep] = useState('shipping');
+  const [paymentMethod, setPaymentMethod] = useState('cod');
   const [upiId, setUpiId] = useState('');
-  const [saveAddress, setSaveAddress] = useState(true);
+  const [useNewAddress, setUseNewAddress] = useState(false);
+  const [savedAddress, setSavedAddress] = useState(null);
 
   const userAddressKey = user ? `saved_address_${user.email}` : 'saved_address_guest';
 
@@ -45,37 +42,23 @@ export default function Checkout() {
   const [busy, setBusy] = useState(false);
   const [successOrder, setSuccessOrder] = useState(null);
 
-  // AUTO-FILL FLIPKART STYLE SAVED ADDRESS
   useEffect(() => {
     const saved = localStorage.getItem(userAddressKey);
     if (saved) {
-      setF(JSON.parse(saved));
+      const parsed = JSON.parse(saved);
+      setSavedAddress(parsed);
+      setF(parsed);
     }
   }, [userAddressKey]);
-
-  const handleStateChange = (e) => {
-    const selectedState = e.target.value;
-    const availableCities = CITIES[selectedState] || [];
-    setF({
-      ...f,
-      state: selectedState,
-      city: availableCities[0] || ''
-    });
-  };
 
   const handleProceedToPayment = (e) => {
     e.preventDefault();
     if (!f.name || !f.address || !f.postalCode || !f.phone) {
-      setErr('Please fill in all shipping fields.');
+      setErr('Please fill in all address fields.');
       return;
     }
     setErr('');
-
-    // Save Flipkart-style address for future orders
-    if (saveAddress) {
-      localStorage.setItem(userAddressKey, JSON.stringify(f));
-    }
-
+    localStorage.setItem(userAddressKey, JSON.stringify(f));
     setStep('payment');
   };
 
@@ -87,7 +70,6 @@ export default function Checkout() {
     }
 
     setBusy(true);
-    setErr('');
 
     const newOrder = {
       _id: 'ORD-' + Math.random().toString(36).substring(2, 9).toUpperCase(),
@@ -123,7 +105,6 @@ export default function Checkout() {
     setStep('success');
   };
 
-  // 1. ORDER SUCCESS SCREEN
   if (step === 'success' && successOrder) {
     return (
       <section className="page" style={{ maxWidth: '650px', margin: '40px auto', textAlign: 'center' }}>
@@ -170,73 +151,82 @@ export default function Checkout() {
     <section className="page" style={{ maxWidth: '600px', margin: '20px auto' }}>
       <div style={{ background: '#fff', padding: '40px', borderRadius: '16px', border: '1px solid var(--border-light)', boxShadow: 'var(--shadow-md)' }}>
         
-        {/* CHECKOUT STEP INDICATOR */}
         <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '28px', borderBottom: '1px solid var(--border-light)', paddingBottom: '16px' }}>
-          <div style={{ fontWeight: step === 'shipping' ? 700 : 400, color: step === 'shipping' ? 'var(--text-dark)' : 'var(--text-muted)' }}>
-            1. Shipping Address
-          </div>
-          <div style={{ fontWeight: step === 'payment' ? 700 : 400, color: step === 'payment' ? 'var(--text-dark)' : 'var(--text-muted)' }}>
-            2. Payment Method
-          </div>
+          <div style={{ fontWeight: step === 'shipping' ? 700 : 400 }}>1. Shipping Address</div>
+          <div style={{ fontWeight: step === 'payment' ? 700 : 400 }}>2. Payment Method</div>
         </div>
 
-        {/* STEP 1: SHIPPING DETAILS */}
         {step === 'shipping' && (
           <form onSubmit={handleProceedToPayment} style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
             <h1 style={{ fontFamily: 'var(--font-serif)', fontSize: '32px' }}>Shipping Details</h1>
 
-            <div>
-              <label style={{ display: 'block', fontSize: '13px', fontWeight: 600, marginBottom: '6px' }}>Full Name</label>
-              <input required placeholder="Suhirdha K S" value={f.name} onChange={e => setF({ ...f, name: e.target.value })} />
-            </div>
-
-            <div>
-              <label style={{ display: 'block', fontSize: '13px', fontWeight: 600, marginBottom: '6px' }}>Street Address</label>
-              <input required placeholder="Door No, Street Name, Locality" value={f.address} onChange={e => setF({ ...f, address: e.target.value })} />
-            </div>
-
-            {/* DROPDOWNS FOR STATE & CITY */}
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
-              <div>
-                <label style={{ display: 'block', fontSize: '13px', fontWeight: 600, marginBottom: '6px' }}>State</label>
-                <select value={f.state} onChange={handleStateChange}>
-                  {INDIAN_STATES.map(st => (
-                    <option key={st} value={st}>{st}</option>
-                  ))}
-                </select>
+            {/* SAVED ADDRESS VS NEW ADDRESS TOGGLE (FLIPKART STYLE) */}
+            {savedAddress && (
+              <div style={{ background: 'var(--bg-primary)', padding: '18px', borderRadius: '10px', marginBottom: '10px' }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
+                  <strong style={{ fontSize: '14px' }}>📍 Saved Delivery Address</strong>
+                  <button 
+                    type="button" 
+                    onClick={() => {
+                      setUseNewAddress(!useNewAddress);
+                      if (useNewAddress) setF(savedAddress);
+                      else setF({ name: user?.name || '', address: '', city: 'Erode', state: 'Tamil Nadu', postalCode: '', phone: '' });
+                    }} 
+                    style={{ background: 'none', border: 'none', color: 'var(--accent-gold)', fontWeight: 700, cursor: 'pointer' }}
+                  >
+                    {useNewAddress ? 'Use Saved Address' : '+ Add New Address'}
+                  </button>
+                </div>
+                {!useNewAddress && (
+                  <p style={{ fontSize: '13px', color: 'var(--text-muted)' }}>
+                    <strong>{savedAddress.name}</strong><br />
+                    {savedAddress.address}, {savedAddress.city}, {savedAddress.state} - {savedAddress.postalCode}<br />
+                    Phone: {savedAddress.phone}
+                  </p>
+                )}
               </div>
+            )}
 
-              <div>
-                <label style={{ display: 'block', fontSize: '13px', fontWeight: 600, marginBottom: '6px' }}>City</label>
-                <select value={f.city} onChange={e => setF({ ...f, city: e.target.value })}>
-                  {(CITIES[f.state] || []).map(c => (
-                    <option key={c} value={c}>{c}</option>
-                  ))}
-                </select>
-              </div>
-            </div>
+            {(useNewAddress || !savedAddress) && (
+              <>
+                <div>
+                  <label style={{ display: 'block', fontSize: '13px', fontWeight: 600, marginBottom: '6px' }}>Full Name</label>
+                  <input required placeholder="Suhirdha K S" value={f.name} onChange={e => setF({ ...f, name: e.target.value })} />
+                </div>
 
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
-              <div>
-                <label style={{ display: 'block', fontSize: '13px', fontWeight: 600, marginBottom: '6px' }}>Postal Code</label>
-                <input required placeholder="638153" value={f.postalCode} onChange={e => setF({ ...f, postalCode: e.target.value })} />
-              </div>
-              <div>
-                <label style={{ display: 'block', fontSize: '13px', fontWeight: 600, marginBottom: '6px' }}>Phone Number</label>
-                <input required placeholder="9876543210" value={f.phone} onChange={e => setF({ ...f, phone: e.target.value })} />
-              </div>
-            </div>
+                <div>
+                  <label style={{ display: 'block', fontSize: '13px', fontWeight: 600, marginBottom: '6px' }}>Street Address</label>
+                  <input required placeholder="Door No, Street Name" value={f.address} onChange={e => setF({ ...f, address: e.target.value })} />
+                </div>
 
-            {/* FLIPKART STYLE AUTO-SAVE CHECKBOX */}
-            <label style={{ display: 'flex', alignItems: 'center', gap: '10px', fontSize: '13px', color: 'var(--text-muted)', cursor: 'pointer', marginTop: '6px' }}>
-              <input 
-                type="checkbox" 
-                checked={saveAddress} 
-                onChange={e => setSaveAddress(e.target.checked)} 
-                style={{ width: 'auto' }} 
-              />
-              Save address for future orders (like Flipkart)
-            </label>
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
+                  <div>
+                    <label style={{ display: 'block', fontSize: '13px', fontWeight: 600, marginBottom: '6px' }}>State</label>
+                    <select value={f.state} onChange={e => setF({ ...f, state: e.target.value, city: CITIES[e.target.value]?.[0] || '' })}>
+                      {INDIAN_STATES.map(st => <option key={st} value={st}>{st}</option>)}
+                    </select>
+                  </div>
+
+                  <div>
+                    <label style={{ display: 'block', fontSize: '13px', fontWeight: 600, marginBottom: '6px' }}>City</label>
+                    <select value={f.city} onChange={e => setF({ ...f, city: e.target.value })}>
+                      {(CITIES[f.state] || []).map(c => <option key={c} value={c}>{c}</option>)}
+                    </select>
+                  </div>
+                </div>
+
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
+                  <div>
+                    <label style={{ display: 'block', fontSize: '13px', fontWeight: 600, marginBottom: '6px' }}>Postal Code</label>
+                    <input required placeholder="638153" value={f.postalCode} onChange={e => setF({ ...f, postalCode: e.target.value })} />
+                  </div>
+                  <div>
+                    <label style={{ display: 'block', fontSize: '13px', fontWeight: 600, marginBottom: '6px' }}>Phone Number</label>
+                    <input required placeholder="9876543210" value={f.phone} onChange={e => setF({ ...f, phone: e.target.value })} />
+                  </div>
+                </div>
+              </>
+            )}
 
             {err && <div style={{ color: '#dc2626', background: '#fee2e2', padding: '12px', borderRadius: '6px', fontSize: '13px' }}>{err}</div>}
 
@@ -246,54 +236,33 @@ export default function Checkout() {
           </form>
         )}
 
-        {/* STEP 2: PAYMENT PAGE (COD vs UPI) */}
         {step === 'payment' && (
           <form onSubmit={handleFinalPayment} style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
             <h1 style={{ fontFamily: 'var(--font-serif)', fontSize: '32px' }}>Select Payment Method</h1>
-            <p style={{ color: 'var(--text-muted)', fontSize: '14px' }}>Total Amount to Pay: <strong>₹{total?.toLocaleString('en-IN')}</strong></p>
+            <p style={{ color: 'var(--text-muted)', fontSize: '14px' }}>Total Amount: <strong>₹{total?.toLocaleString('en-IN')}</strong></p>
 
             <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
-              {/* CASH ON DELIVERY OPTION */}
-              <label style={{ display: 'flex', alignItems: 'center', gap: '14px', padding: '16px', border: paymentMethod === 'cod' ? '2px solid var(--text-dark)' : '1px solid var(--border-light)', borderRadius: '10px', cursor: 'pointer', background: paymentMethod === 'cod' ? '#fcfbf9' : '#fff' }}>
-                <input 
-                  type="radio" 
-                  name="pm" 
-                  checked={paymentMethod === 'cod'} 
-                  onChange={() => setPaymentMethod('cod')} 
-                  style={{ width: 'auto' }} 
-                />
+              <label style={{ display: 'flex', alignItems: 'center', gap: '14px', padding: '16px', border: paymentMethod === 'cod' ? '2px solid var(--text-dark)' : '1px solid var(--border-light)', borderRadius: '10px', cursor: 'pointer' }}>
+                <input type="radio" name="pm" checked={paymentMethod === 'cod'} onChange={() => setPaymentMethod('cod')} style={{ width: 'auto' }} />
                 <div>
                   <strong style={{ display: 'block', fontSize: '15px' }}>💵 Cash on Delivery (COD)</strong>
-                  <span style={{ fontSize: '12px', color: 'var(--text-muted)' }}>Pay with cash upon delivery to your doorstep.</span>
+                  <span style={{ fontSize: '12px', color: 'var(--text-muted)' }}>Pay with cash upon delivery.</span>
                 </div>
               </label>
 
-              {/* UPI PAYMENT OPTION */}
-              <label style={{ display: 'flex', alignItems: 'center', gap: '14px', padding: '16px', border: paymentMethod === 'upi' ? '2px solid var(--text-dark)' : '1px solid var(--border-light)', borderRadius: '10px', cursor: 'pointer', background: paymentMethod === 'upi' ? '#fcfbf9' : '#fff' }}>
-                <input 
-                  type="radio" 
-                  name="pm" 
-                  checked={paymentMethod === 'upi'} 
-                  onChange={() => setPaymentMethod('upi')} 
-                  style={{ width: 'auto' }} 
-                />
+              <label style={{ display: 'flex', alignItems: 'center', gap: '14px', padding: '16px', border: paymentMethod === 'upi' ? '2px solid var(--text-dark)' : '1px solid var(--border-light)', borderRadius: '10px', cursor: 'pointer' }}>
+                <input type="radio" name="pm" checked={paymentMethod === 'upi'} onChange={() => setPaymentMethod('upi')} style={{ width: 'auto' }} />
                 <div>
-                  <strong style={{ display: 'block', fontSize: '15px' }}>📱 UPI / QR Payment (GPay, PhonePe, Paytm)</strong>
-                  <span style={{ fontSize: '12px', color: 'var(--text-muted)' }}>Instant, secure digital payment via UPI ID or Mobile Number.</span>
+                  <strong style={{ display: 'block', fontSize: '15px' }}>📱 UPI Payment (GPay, PhonePe, Paytm)</strong>
+                  <span style={{ fontSize: '12px', color: 'var(--text-muted)' }}>Instant digital payment via UPI ID.</span>
                 </div>
               </label>
             </div>
 
-            {/* UPI INPUT FIELD */}
             {paymentMethod === 'upi' && (
               <div style={{ background: 'var(--bg-primary)', padding: '18px', borderRadius: '10px' }}>
-                <label style={{ display: 'block', fontSize: '13px', fontWeight: 600, marginBottom: '6px' }}>Enter your UPI ID or Mobile Number</label>
-                <input 
-                  required 
-                  placeholder="name@okaxis or 9876543210@upi" 
-                  value={upiId} 
-                  onChange={e => setUpiId(e.target.value)} 
-                />
+                <label style={{ display: 'block', fontSize: '13px', fontWeight: 600, marginBottom: '6px' }}>UPI ID / Mobile Number</label>
+                <input required placeholder="name@okaxis or 9876543210@upi" value={upiId} onChange={e => setUpiId(e.target.value)} />
               </div>
             )}
 

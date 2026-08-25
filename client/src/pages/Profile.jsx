@@ -1,8 +1,17 @@
+import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 
 export default function Profile() {
   const { user } = useAuth();
+  const [savedAddress, setSavedAddress] = useState(null);
+
+  const userAddressKey = user ? `saved_address_${user.email}` : 'saved_address_guest';
+
+  useEffect(() => {
+    const saved = localStorage.getItem(userAddressKey);
+    if (saved) setSavedAddress(JSON.parse(saved));
+  }, [userAddressKey]);
 
   return (
     <section className="page" style={{ maxWidth: '800px', margin: '0 auto' }}>
@@ -25,9 +34,23 @@ export default function Profile() {
           </div>
         </div>
 
+        {/* SAVED ADDRESS DISPLAY CARD */}
+        <div style={{ borderTop: '1px solid var(--border-light)', paddingTop: '24px', marginBottom: '24px' }}>
+          <h3 style={{ fontFamily: 'var(--font-serif)', fontSize: '18px', marginBottom: '12px' }}>📍 Saved Delivery Address</h3>
+          {savedAddress ? (
+            <div style={{ background: 'var(--bg-primary)', padding: '18px', borderRadius: '10px', fontSize: '14px' }}>
+              <strong>{savedAddress.name}</strong><br />
+              {savedAddress.address}, {savedAddress.city}, {savedAddress.state} - {savedAddress.postalCode}<br />
+              Phone: {savedAddress.phone}
+            </div>
+          ) : (
+            <p style={{ color: 'var(--text-muted)', fontSize: '14px' }}>No saved address yet. Checkout an order to save your address for quick future orders!</p>
+          )}
+        </div>
+
         <div style={{ display: 'flex', flexDirection: 'column', gap: '14px', borderTop: '1px solid var(--border-light)', paddingTop: '24px' }}>
           <Link to="/orders" style={{ textDecoration: 'none', color: 'var(--text-dark)', fontSize: '16px', fontWeight: 600 }}>
-            📦 My Orders →
+            📦 My Orders & Tracking →
           </Link>
           <Link to="/favorites" style={{ textDecoration: 'none', color: 'var(--text-dark)', fontSize: '16px', fontWeight: 600 }}>
             ❤️ Saved Favorites →
