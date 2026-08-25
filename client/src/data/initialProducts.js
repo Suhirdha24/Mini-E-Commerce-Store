@@ -74,7 +74,7 @@ export const initialAdminProducts = [
 
 export const getStoredProducts = () => {
   try {
-    const raw = localStorage.getItem('admin_products') || localStorage.getItem('custom_products');
+    const raw = localStorage.getItem('admin_products');
     if (raw) {
       const parsed = JSON.parse(raw);
       if (Array.isArray(parsed) && parsed.length > 0) return parsed;
@@ -83,6 +83,5 @@ export const getStoredProducts = () => {
     // fallback
   }
   localStorage.setItem('admin_products', JSON.stringify(initialAdminProducts));
-  localStorage.setItem('custom_products', JSON.stringify(initialAdminProducts));
   return initialAdminProducts;
 };

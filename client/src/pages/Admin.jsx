@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import api from '../api/api';
-import { getStoredProducts } from '../data/initialProducts';
+import { getStoredProducts, initialAdminProducts } from '../data/initialProducts';
 
 export default function Admin() {
   const [tab, setTab] = useState('dashboard'); // 'dashboard' | 'inventory' | 'add' | 'orders' | 'customers' | 'coupons'
@@ -32,8 +32,15 @@ export default function Admin() {
   const saveProducts = (newList) => {
     setProducts(newList);
     localStorage.setItem('admin_products', JSON.stringify(newList));
-    localStorage.setItem('custom_products', JSON.stringify(newList));
     window.dispatchEvent(new Event('productsUpdated'));
+  };
+
+  const handleResetDefaultCatalog = () => {
+    if (window.confirm('Reset catalog to default 60 products? This will update all product categories.')) {
+      saveProducts(initialAdminProducts);
+      setSuccessMsg('✓ Store reset to 60 default products (10 per category)!');
+      setTimeout(() => setSuccessMsg(''), 2500);
+    }
   };
 
   useEffect(() => {
@@ -163,6 +170,9 @@ export default function Admin() {
           </div>
         </div>
         <div style={{ display: 'flex', gap: '12px', alignItems: 'center' }}>
+          <button onClick={handleResetDefaultCatalog} style={{ background: '#334155', border: '1px solid #475569', color: '#f8fafc', padding: '6px 14px', borderRadius: '8px', fontSize: '12px', fontWeight: 600, cursor: 'pointer' }}>
+            🔄 Reset 60 Products
+          </button>
           <span style={{ background: '#1e293b', border: '1px solid #334155', color: '#38bdf8', padding: '6px 14px', borderRadius: '20px', fontSize: '12px', fontWeight: 600 }}>🟢 Management Console Active</span>
           <Link to="/shop" style={{ background: '#3b82f6', color: '#fff', padding: '6px 14px', borderRadius: '8px', fontSize: '13px', fontWeight: 600, textDecoration: 'none' }}>
             🛍️ View Customer Store →

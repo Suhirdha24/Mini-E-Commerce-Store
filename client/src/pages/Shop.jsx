@@ -12,7 +12,7 @@ export default function Shop() {
   const [cat, setCat] = useState('');
 
   const loadProducts = () => {
-    setItems(getAdminProducts());
+    setItems([...getAdminProducts()]);
   };
 
   useEffect(() => {
