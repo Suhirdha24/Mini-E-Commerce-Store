@@ -105,30 +105,28 @@ const catalog90 = [
   { id: 'e15', name: 'Desk LED Ring Light', category: 'Electronics', price: 999, image: 'https://images.unsplash.com/photo-1507473885765-e6ed057f782c?w=800&auto=format&fit=crop&q=80', stock: 40 }
 ];
 
-export default function Shop() {
-  const [items, setItems] = useState(() => {
-    const custom = JSON.parse(localStorage.getItem('custom_products') || '[]');
-    const map = new Map();
-    [...custom, ...catalog90].forEach(i => map.set(String(i.id || i._id || i.name).toLowerCase(), i));
-    return Array.from(map.values());
+const getDeduplicatedProducts = () => {
+  const custom = JSON.parse(localStorage.getItem('custom_products') || '[]');
+  const combined = [...custom, ...catalog90];
+  const uniqueMap = new Map();
+  combined.forEach(item => {
+    if (!item || !item.name) return;
+    const key = item.name.trim().toLowerCase();
+    if (!uniqueMap.has(key)) {
+      uniqueMap.set(key, item);
+    }
   });
+  return Array.from(uniqueMap.values());
+};
+
+export default function Shop() {
+  const [items, setItems] = useState(() => getDeduplicatedProducts());
   const [categories] = useState(['Bags', 'Footwear', 'Accessories', 'Apparel', 'Home', 'Electronics']);
   const [q, setQ] = useState('');
   const [cat, setCat] = useState('');
 
   const loadProducts = () => {
-    const custom = JSON.parse(localStorage.getItem('custom_products') || '[]');
-    const combined = [...custom, ...catalog90];
-    
-    // DEDUPLICATE BY UNIQUE ITEM ID / NAME SO NO PRODUCT EVER DUPLICATES
-    const uniqueMap = new Map();
-    combined.forEach(item => {
-      const key = String(item.id || item._id || item.name).toLowerCase();
-      if (!uniqueMap.has(key)) {
-        uniqueMap.set(key, item);
-      }
-    });
-    setItems(Array.from(uniqueMap.values()));
+    setItems(getDeduplicatedProducts());
   };
 
   useEffect(() => {

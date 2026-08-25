@@ -110,7 +110,14 @@ const catalog90 = [
 
 const getProductById = (targetId) => {
   const custom = JSON.parse(localStorage.getItem('custom_products') || '[]');
-  const allProds = [...custom, ...catalog90];
+  const combined = [...custom, ...catalog90];
+  const uniqueMap = new Map();
+  combined.forEach(item => {
+    if (!item || !item.name) return;
+    const key = item.name.trim().toLowerCase();
+    if (!uniqueMap.has(key)) uniqueMap.set(key, item);
+  });
+  const allProds = Array.from(uniqueMap.values());
   if (!targetId) return allProds[0];
   const cleanId = String(targetId).trim().toLowerCase();
   return allProds.find(item => 
