@@ -3,18 +3,10 @@ import { Link, useParams } from 'react-router-dom';
 import api from '../api/api';
 import { useCart } from '../context/CartContext';
 import { useAuth } from '../context/AuthContext';
-
-const getAdminProducts = () => {
-  try {
-    const saved = JSON.parse(localStorage.getItem('admin_products') || localStorage.getItem('custom_products') || '[]');
-    return saved;
-  } catch (e) {
-    return [];
-  }
-};
+import { getStoredProducts } from '../data/initialProducts';
 
 const getProductById = (targetId) => {
-  const allProds = getAdminProducts();
+  const allProds = getStoredProducts();
   if (!allProds.length) return null;
   if (!targetId) return allProds[0];
   const cleanId = String(targetId).trim().toLowerCase();

@@ -1,18 +1,11 @@
 import { useEffect, useState } from 'react';
+import { Link } from 'react-router-dom';
 import api from '../api/api';
-
-const initialInventory = [
-  { id: 'b1', sku: 'SKU-BAG-01', name: 'Essential Leather Tote', category: 'Bags', regularPrice: 3200, salePrice: 2899, costPrice: 1800, image: 'https://images.unsplash.com/photo-1548036328-c9fa89d128fa?w=800&auto=format&fit=crop&q=80', description: 'Structured daily tote.', stock: 15, active: true },
-  { id: 'f1', sku: 'SKU-FTW-02', name: 'Aero Knit Sneakers', category: 'Footwear', regularPrice: 2800, salePrice: 2499, costPrice: 1400, image: 'https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=800&auto=format&fit=crop&q=80', description: 'Breathable knit sneakers.', stock: 3, active: true },
-  { id: 'a1', sku: 'SKU-ACC-03', name: 'Mono Chronograph Watch', category: 'Accessories', regularPrice: 4500, salePrice: 3999, costPrice: 2500, image: 'https://images.unsplash.com/photo-1524805444758-089113d48a6d?w=800&auto=format&fit=crop&q=80', description: 'Stainless steel watch.', stock: 0, active: false }
-];
+import { getStoredProducts } from '../data/initialProducts';
 
 export default function Admin() {
   const [tab, setTab] = useState('dashboard'); // 'dashboard' | 'inventory' | 'add' | 'orders' | 'customers' | 'coupons'
-  const [products, setProducts] = useState(() => {
-    const saved = JSON.parse(localStorage.getItem('admin_products') || localStorage.getItem('custom_products') || '[]');
-    return saved.length ? saved : initialInventory;
-  });
+  const [products, setProducts] = useState(() => getStoredProducts());
   const [orders, setOrders] = useState([]);
   const [editingId, setEditingId] = useState(null);
   const [successMsg, setSuccessMsg] = useState('');
@@ -51,6 +44,25 @@ export default function Admin() {
       localStorage.setItem('admin_products', JSON.stringify(products));
     }
   }, []);
+
+  const handleAdjustPrice = (product, delta) => {
+    const pId = getPId(product);
+    const currentPrice = Number(product.salePrice || product.regularPrice || product.price || 0);
+    const newPrice = Math.max(1, currentPrice + delta);
+
+    const newList = products.map(p => {
+      if (getPId(p) === pId) {
+        return {
+          ...p,
+          price: newPrice,
+          salePrice: newPrice,
+          regularPrice: Math.max(newPrice, Number(p.regularPrice || newPrice))
+        };
+      }
+      return p;
+    });
+    saveProducts(newList);
+  };
 
   const handleAdjustStock = (product, delta, reason) => {
     const pId = getPId(product);
@@ -141,6 +153,23 @@ export default function Admin() {
 
   return (
     <section className="page" style={{ maxWidth: '1150px', margin: '0 auto' }}>
+      {/* DISTINCT STANDALONE ADMIN HEADER BANNER */}
+      <div style={{ background: '#0f172a', color: '#fff', padding: '16px 24px', borderRadius: '12px', marginBottom: '28px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '16px' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+          <span style={{ fontSize: '24px' }}>🛡️</span>
+          <div>
+            <h3 style={{ margin: 0, fontSize: '18px', color: '#f8fafc', fontWeight: 700, fontFamily: 'var(--font-serif)' }}>NOVA MANAGEMENT CONSOLE</h3>
+            <span style={{ fontSize: '12px', color: '#94a3b8' }}>Standalone Admin Portal | Isolated Inventory & Order Controls</span>
+          </div>
+        </div>
+        <div style={{ display: 'flex', gap: '12px', alignItems: 'center' }}>
+          <span style={{ background: '#1e293b', border: '1px solid #334155', color: '#38bdf8', padding: '6px 14px', borderRadius: '20px', fontSize: '12px', fontWeight: 600 }}>🟢 Management Console Active</span>
+          <Link to="/shop" style={{ background: '#3b82f6', color: '#fff', padding: '6px 14px', borderRadius: '8px', fontSize: '13px', fontWeight: 600, textDecoration: 'none' }}>
+            🛍️ View Customer Store →
+          </Link>
+        </div>
+      </div>
+
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '32px' }}>
         <div>
           <p className="eyebrow">ENTERPRISE ADMIN PORTAL</p>
@@ -243,12 +272,23 @@ export default function Admin() {
                         <small style={{ color: 'var(--text-muted)' }}>{p.sku || 'N/A'} | {p.category}</small>
                       </div>
                     </td>
-                    <td style={{ padding: '14px 20px', fontWeight: 600 }}>₹{(p.salePrice || p.regularPrice || p.price)?.toLocaleString('en-IN')}</td>
                     <td style={{ padding: '14px 20px' }}>
-                      <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                        <button onClick={() => handleAdjustStock(p, -1, 'Manual Adjustment')} style={{ width: '28px', height: '28px', border: '1px solid var(--border-light)', background: '#fff', borderRadius: '4px', cursor: 'pointer' }}>-</button>
-                        <b style={{ width: '32px', textAlign: 'center' }}>{p.stock}</b>
-                        <button onClick={() => handleAdjustStock(p, +5, 'Restock')} style={{ padding: '4px 10px', border: '1px solid var(--border-light)', background: 'var(--bg-primary)', borderRadius: '4px', cursor: 'pointer', fontSize: '12px', fontWeight: 600 }}>+5 Restock</button>
+                      <div style={{ fontWeight: 700, fontSize: '15px', marginBottom: '6px' }}>
+                        ₹{(p.salePrice || p.regularPrice || p.price)?.toLocaleString('en-IN')}
+                      </div>
+                      <div style={{ display: 'flex', gap: '4px' }}>
+                        <button onClick={() => handleAdjustPrice(p, +100)} title="Increase Price by ₹100" style={{ padding: '3px 6px', border: '1px solid var(--border-light)', background: '#f3f4f6', borderRadius: '4px', cursor: 'pointer', fontSize: '11px', fontWeight: 600 }}>+₹100</button>
+                        <button onClick={() => handleAdjustPrice(p, +500)} title="Increase Price by ₹500" style={{ padding: '3px 6px', border: '1px solid var(--border-light)', background: '#f3f4f6', borderRadius: '4px', cursor: 'pointer', fontSize: '11px', fontWeight: 600 }}>+₹500</button>
+                        <button onClick={() => handleAdjustPrice(p, -100)} title="Decrease Price by ₹100" style={{ padding: '3px 6px', border: '1px solid var(--border-light)', background: '#fff', borderRadius: '4px', cursor: 'pointer', fontSize: '11px' }}>-₹100</button>
+                      </div>
+                    </td>
+                    <td style={{ padding: '14px 20px' }}>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                        <button onClick={() => handleAdjustStock(p, -1, 'Manual Reduction')} style={{ width: '28px', height: '28px', border: '1px solid var(--border-light)', background: '#fff', borderRadius: '4px', cursor: 'pointer', fontWeight: 700 }}>-</button>
+                        <b style={{ minWidth: '28px', textAlign: 'center', fontSize: '15px' }}>{p.stock}</b>
+                        <button onClick={() => handleAdjustStock(p, +1, 'Stock Increase (+1)')} style={{ padding: '4px 8px', border: '1px solid var(--border-light)', background: 'var(--bg-primary)', borderRadius: '4px', cursor: 'pointer', fontSize: '11px', fontWeight: 600 }}>+1</button>
+                        <button onClick={() => handleAdjustStock(p, +5, 'Restock (+5)')} style={{ padding: '4px 8px', border: '1px solid var(--border-light)', background: 'var(--bg-primary)', borderRadius: '4px', cursor: 'pointer', fontSize: '11px', fontWeight: 600 }}>+5</button>
+                        <button onClick={() => handleAdjustStock(p, +10, 'Bulk Restock (+10)')} style={{ padding: '4px 8px', border: '1px solid var(--border-light)', background: 'var(--bg-primary)', borderRadius: '4px', cursor: 'pointer', fontSize: '11px', fontWeight: 600 }}>+10</button>
                       </div>
                     </td>
                     <td style={{ padding: '14px 20px' }}>

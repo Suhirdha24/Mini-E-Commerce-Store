@@ -26,27 +26,50 @@ export default function Layout() {
           <NavLink to="/favorites">Favorites</NavLink>
           <NavLink to="/profile">Profile</NavLink>
           {user && <NavLink to="/orders">My Orders</NavLink>}
-          {user?.role === 'admin' && <NavLink to="/admin">Admin Portal</NavLink>}
         </nav>
 
-        <div className="nav-actions">
+        <div className="nav-actions" style={{ display: 'flex', alignItems: 'center', gap: '14px' }}>
           {user ? (
             <>
-              <span style={{ fontSize: '14px', fontWeight: 600 }}>Hi, {user.name?.split(' ')[0]}</span>
+              <span style={{ fontSize: '13px', fontWeight: 600, whiteSpace: 'nowrap', color: 'var(--text-dark)' }}>
+                Hi, {user.name?.split(' ')[0]}
+              </span>
+
+              {user?.role === 'admin' && (
+                <Link 
+                  to="/admin" 
+                  style={{ 
+                    background: '#1e293b', 
+                    color: '#fff', 
+                    padding: '6px 12px', 
+                    borderRadius: '20px', 
+                    fontSize: '12px', 
+                    fontWeight: 600, 
+                    textDecoration: 'none',
+                    whiteSpace: 'nowrap',
+                    display: 'inline-flex',
+                    alignItems: 'center',
+                    gap: '4px',
+                    boxShadow: 'var(--shadow-sm)'
+                  }}
+                >
+                  🛡️ Admin Portal
+                </Link>
+              )}
+
               <Link className="cart-btn" to="/cart">
                 Bag ({count})
               </Link>
-              {/* LOGOUT BUTTON WITH IMMEDIATE REDIRECT TO /LOGIN */}
               <button 
                 onClick={handleLogout} 
                 style={{ 
                   background: 'none', 
                   border: 'none', 
-                  fontSize: '14px', 
+                  fontSize: '13px', 
                   fontWeight: 600, 
-                  color: 'var(--text-dark)', 
+                  color: '#dc2626', 
                   cursor: 'pointer',
-                  paddingLeft: '6px' 
+                  paddingLeft: '4px' 
                 }}
               >
                 Logout

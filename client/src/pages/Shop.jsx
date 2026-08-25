@@ -1,13 +1,9 @@
 import { useState, useEffect } from 'react';
 import ProductCard from '../components/ProductCard';
+import { getStoredProducts } from '../data/initialProducts';
 
 const getAdminProducts = () => {
-  try {
-    const saved = JSON.parse(localStorage.getItem('admin_products') || localStorage.getItem('custom_products') || '[]');
-    return saved;
-  } catch (e) {
-    return [];
-  }
+  return getStoredProducts();
 };
 
 export default function Shop() {
