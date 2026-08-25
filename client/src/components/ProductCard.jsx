@@ -2,37 +2,46 @@ import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { useCart } from '../context/CartContext';
 import { useAuth } from '../context/AuthContext';
+import { safeGetJSON, safeSetJSON } from '../utils/storage';
 
 const FALLBACK_IMAGE = 'https://images.unsplash.com/photo-1548036328-c9fa89d128fa?w=800&auto=format&fit=crop&q=80';
 
 export default function ProductCard({ p }) {
   const { add } = useCart();
   const { user } = useAuth();
+  if (!p) return null;
+
   const productId = p.id || p._id;
   const [isFav, setIsFav] = useState(false);
   const [imgSrc, setImgSrc] = useState(p.image || FALLBACK_IMAGE);
 
-  const userKey = user?.email ? `fav_${user.email.toLowerCase()}` : 'fav_guest';
+  const userKey = user?.email ? `fav_${String(user.email).toLowerCase()}` : 'fav_guest';
 
   useEffect(() => {
-    setImgSrc(p.image || FALLBACK_IMAGE);
-    const favs = JSON.parse(localStorage.getItem(userKey) || '[]');
-    setIsFav(favs.some(item => String(item.id || item._id).toLowerCase() === String(productId).toLowerCase()));
-  }, [p.image, productId, userKey]);
+    setImgSrc(p?.image || FALLBACK_IMAGE);
+    const favs = safeGetJSON(userKey, []);
+    if (Array.isArray(favs)) {
+      setIsFav(favs.some(item => item && String(item.id || item._id).toLowerCase() === String(productId).toLowerCase()));
+    }
+  }, [p?.image, productId, userKey]);
 
   const toggleFavorite = (e) => {
     e.preventDefault();
     e.stopPropagation();
-    let favs = JSON.parse(localStorage.getItem(userKey) || '[]');
+    let favs = safeGetJSON(userKey, []);
+    if (!Array.isArray(favs)) favs = [];
+
     if (isFav) {
-      favs = favs.filter(item => String(item.id || item._id).toLowerCase() !== String(productId).toLowerCase());
+      favs = favs.filter(item => item && String(item.id || item._id).toLowerCase() !== String(productId).toLowerCase());
     } else {
       favs.push(p);
     }
-    localStorage.setItem(userKey, JSON.stringify(favs));
+    safeSetJSON(userKey, favs);
     setIsFav(!isFav);
     window.dispatchEvent(new Event('favoritesUpdated'));
   };
+
+  const displayPrice = Number(p.price || p.salePrice || p.regularPrice || 0);
 
   return (
     <article className="card" style={{ position: 'relative' }}>
@@ -63,7 +72,7 @@ export default function ProductCard({ p }) {
       <Link to={`/product/${productId}`}>
         <img 
           src={imgSrc} 
-          alt={p.name} 
+          alt={p.name || 'Product'} 
           onError={() => setImgSrc(FALLBACK_IMAGE)}
           style={{ width: '100%', height: '240px', objectFit: 'cover' }}
         />
@@ -71,7 +80,7 @@ export default function ProductCard({ p }) {
       
       <div className="card-body">
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-          <div className="muted">{p.category}</div>
+          <div className="muted">{p.category || 'Collection'}</div>
           {p.stock === 0 ? (
             <span style={{ fontSize: '11px', color: '#dc2626', fontWeight: 700 }}>Out of Stock</span>
           ) : p.stock < 5 ? (
@@ -84,7 +93,7 @@ export default function ProductCard({ p }) {
         <h3 style={{ margin: '8px 0 12px' }}>{p.name}</h3>
         
         <div className="row">
-          <b>₹{p.price?.toLocaleString('en-IN')}</b>
+          <b>₹{displayPrice.toLocaleString('en-IN')}</b>
           <button disabled={p.stock === 0} onClick={() => add(p)}>
             {p.stock === 0 ? 'Out of Stock' : 'Add to Bag'}
           </button>

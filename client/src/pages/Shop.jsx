@@ -2,17 +2,13 @@ import { useState, useEffect } from 'react';
 import ProductCard from '../components/ProductCard';
 import { getStoredProducts } from '../data/initialProducts';
 
-const getAdminProducts = () => {
-  return getStoredProducts();
-};
-
 export default function Shop() {
-  const [items, setItems] = useState(() => getAdminProducts());
+  const [items, setItems] = useState(() => getStoredProducts() || []);
   const [q, setQ] = useState('');
   const [cat, setCat] = useState('');
 
   const loadProducts = () => {
-    setItems([...getAdminProducts()]);
+    setItems([...(getStoredProducts() || [])]);
   };
 
   useEffect(() => {
@@ -26,11 +22,12 @@ export default function Shop() {
   }, []);
 
   // Dynamically extract categories from admin products
-  const categories = Array.from(new Set(items.map(i => i.category).filter(Boolean)));
+  const categories = Array.from(new Set((items || []).map(i => i?.category).filter(Boolean)));
 
-  const filtered = items.filter(i => 
+  const filtered = (items || []).filter(i => 
+    i &&
     (!cat || i.category === cat) &&
-    (!q || i.name.toLowerCase().includes(q.toLowerCase()) || (i.category && i.category.toLowerCase().includes(q.toLowerCase())))
+    (!q || (i.name && i.name.toLowerCase().includes(q.toLowerCase())) || (i.category && i.category.toLowerCase().includes(q.toLowerCase())))
   );
 
   return (
@@ -51,7 +48,7 @@ export default function Shop() {
             All ({items.length})
           </button>
           {categories.map(c => {
-            const count = items.filter(i => i.category === c).length;
+            const count = items.filter(i => i && i.category === c).length;
             return (
               <button key={c} onClick={() => setCat(c)} style={{ padding: '10px 18px', background: cat === c ? 'var(--text-dark)' : '#fff', color: cat === c ? '#fff' : 'var(--text-dark)', border: '1px solid var(--border-light)', borderRadius: '20px', cursor: 'pointer' }}>
                 {c} ({count})

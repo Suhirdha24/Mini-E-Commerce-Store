@@ -1,16 +1,17 @@
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
+import { safeGetJSON } from '../utils/storage';
 
 export default function Profile() {
   const { user } = useAuth();
   const [savedAddress, setSavedAddress] = useState(null);
 
-  const userAddressKey = user ? `saved_address_${user.email}` : 'saved_address_guest';
+  const userAddressKey = user?.email ? `saved_address_${String(user.email).toLowerCase()}` : 'saved_address_guest';
 
   useEffect(() => {
-    const saved = localStorage.getItem(userAddressKey);
-    if (saved) setSavedAddress(JSON.parse(saved));
+    const saved = safeGetJSON(userAddressKey, null);
+    if (saved) setSavedAddress(saved);
   }, [userAddressKey]);
 
   return (

@@ -1,5 +1,6 @@
 import { createContext, useContext, useEffect, useState } from 'react';
 import api from '../api/api';
+import { safeGetJSON, safeSetJSON, safeRemove } from '../utils/storage';
 
 const AuthContext = createContext();
 
@@ -11,24 +12,28 @@ export function AuthProvider({ children }) {
 
   useEffect(() => {
     const token = localStorage.getItem('token');
-    const savedUser = localStorage.getItem('user_data');
+    const savedUser = safeGetJSON('user_data', null);
 
     if (token) {
       api.get('/auth/me')
         .then(r => {
-          setUser(r.data.user);
-          localStorage.setItem('user_data', JSON.stringify(r.data.user));
+          if (r.data?.user) {
+            setUser(r.data.user);
+            safeSetJSON('user_data', r.data.user);
+          } else if (savedUser) {
+            setUser(savedUser);
+          }
         })
         .catch(() => {
           if (savedUser) {
-            setUser(JSON.parse(savedUser));
+            setUser(savedUser);
           } else {
-            localStorage.removeItem('token');
+            safeRemove('token');
           }
         })
         .finally(() => setLoading(false));
     } else {
-      if (savedUser) setUser(JSON.parse(savedUser));
+      if (savedUser) setUser(savedUser);
       setLoading(false);
     }
   }, []);
@@ -41,27 +46,31 @@ export function AuthProvider({ children }) {
     if (cleanEmail === 'admin@ministore.com' && cleanPassword === 'Admin@123') {
       const adminUser = { id: 'admin_1', name: 'Store Admin', email: 'admin@ministore.com', role: 'admin' };
       localStorage.setItem('token', 'admin_jwt_token_123');
-      localStorage.setItem('user_data', JSON.stringify(adminUser));
+      safeSetJSON('user_data', adminUser);
       setUser(adminUser);
       return adminUser;
     }
 
     try {
       const r = await api.post('/auth/login', { email: cleanEmail, password: cleanPassword });
-      localStorage.setItem('token', r.data.token);
-      localStorage.setItem('user_data', JSON.stringify(r.data.user));
-      setUser(r.data.user);
-      return r.data.user;
+      if (r.data?.token) {
+        localStorage.setItem('token', r.data.token);
+      }
+      if (r.data?.user) {
+        safeSetJSON('user_data', r.data.user);
+        setUser(r.data.user);
+      }
+      return r.data?.user;
     } catch (err) {
-      const registeredUsers = JSON.parse(localStorage.getItem('registered_users') || '[]');
-      const found = registeredUsers.find(
-        u => u.email.trim().toLowerCase() === cleanEmail && u.password.trim() === cleanPassword
+      const registeredUsers = safeGetJSON('registered_users', []);
+      const found = Array.isArray(registeredUsers) && registeredUsers.find(
+        u => u && u.email && u.email.trim().toLowerCase() === cleanEmail && u.password && u.password.trim() === cleanPassword
       );
 
       if (found) {
         const loggedUser = { id: found.id, name: found.name, email: found.email, role: found.role || 'user' };
         localStorage.setItem('token', 'token_' + found.id);
-        localStorage.setItem('user_data', JSON.stringify(loggedUser));
+        safeSetJSON('user_data', loggedUser);
         setUser(loggedUser);
         return loggedUser;
       }
@@ -76,11 +85,14 @@ export function AuthProvider({ children }) {
     const cleanEmail = (email || '').trim().toLowerCase();
     const cleanPassword = (password || '').trim();
 
-    const registeredUsers = JSON.parse(localStorage.getItem('registered_users') || '[]');
+    const registeredUsers = safeGetJSON('registered_users', []);
 
     // REJECT DUPLICATE REGISTRATIONS
-    const existing = registeredUsers.find(
-      u => u.email.trim().toLowerCase() === cleanEmail || u.name.trim().toLowerCase() === cleanName.toLowerCase()
+    const existing = Array.isArray(registeredUsers) && registeredUsers.find(
+      u => u && (
+        (u.email && u.email.trim().toLowerCase() === cleanEmail) ||
+        (u.name && u.name.trim().toLowerCase() === cleanName.toLowerCase())
+      )
     );
     
     if (existing) {
@@ -95,8 +107,8 @@ export function AuthProvider({ children }) {
       role: 'user'
     };
 
-    registeredUsers.push(newUser);
-    localStorage.setItem('registered_users', JSON.stringify(registeredUsers));
+    const updatedUsers = Array.isArray(registeredUsers) ? [...registeredUsers, newUser] : [newUser];
+    safeSetJSON('registered_users', updatedUsers);
 
     try {
       await api.post('/auth/register', { name: cleanName, email: cleanEmail, password: cleanPassword });
@@ -104,8 +116,8 @@ export function AuthProvider({ children }) {
   };
 
   const logout = () => {
-    localStorage.removeItem('token');
-    localStorage.removeItem('user_data');
+    safeRemove('token');
+    safeRemove('user_data');
     setUser(null);
   };
 

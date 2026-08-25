@@ -1,5 +1,4 @@
 import { Routes, Route, Navigate } from "react-router-dom";
-import { useAuth } from "./context/AuthContext";
 import Layout from "./components/Layout";
 import Home from "./pages/Home";
 import Shop from "./pages/Shop";
@@ -15,12 +14,9 @@ import About from "./pages/About";
 import Admin from "./pages/Admin";
 
 function App() {
-  const { user } = useAuth();
-
   return (
     <Routes>
       {/* AUTHENTICATION ROUTES */}
-      <Route path="/" element={user ? <Navigate to="/home" replace /> : <Auth mode="login" />} />
       <Route path="/login" element={<Auth mode="login" />} />
       <Route path="/register" element={<Auth mode="register" />} />
       {/* SEPARATE DEDICATED ADMIN LOGIN ROUTE */}
@@ -28,6 +24,7 @@ function App() {
 
       {/* MAIN WEBSITE LAYOUT ROUTES */}
       <Route element={<Layout />}>
+        <Route path="/" element={<Home />} />
         <Route path="/home" element={<Home />} />
         <Route path="/shop" element={<Shop />} />
         <Route path="/product/:id" element={<Product />} />
@@ -41,6 +38,9 @@ function App() {
         <Route path="/orders/:id" element={<OrderDetail />} />
         <Route path="/admin" element={<Admin />} />
       </Route>
+
+      {/* FALLBACK CATCH-ALL ROUTE */}
+      <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>
   );
 }

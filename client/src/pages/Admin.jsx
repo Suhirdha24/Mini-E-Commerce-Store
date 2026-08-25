@@ -1,11 +1,11 @@
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
-import api from '../api/api';
 import { getStoredProducts, initialAdminProducts } from '../data/initialProducts';
+import { safeGetJSON, safeSetJSON } from '../utils/storage';
 
 export default function Admin() {
   const [tab, setTab] = useState('dashboard'); // 'dashboard' | 'inventory' | 'add' | 'orders' | 'customers' | 'coupons'
-  const [products, setProducts] = useState(() => getStoredProducts());
+  const [products, setProducts] = useState(() => getStoredProducts() || []);
   const [orders, setOrders] = useState([]);
   const [editingId, setEditingId] = useState(null);
   const [successMsg, setSuccessMsg] = useState('');
@@ -27,11 +27,12 @@ export default function Admin() {
     sku: '', name: '', description: '', regularPrice: '', salePrice: '', costPrice: '', category: 'Bags', image: '', stock: 10, active: true
   });
 
-  const getPId = p => String(p._id || p.id);
+  const getPId = p => String(p?._id || p?.id || '');
 
   const saveProducts = (newList) => {
-    setProducts(newList);
-    localStorage.setItem('admin_products', JSON.stringify(newList));
+    const list = Array.isArray(newList) ? newList : [];
+    setProducts(list);
+    safeSetJSON('admin_products', list);
     window.dispatchEvent(new Event('productsUpdated'));
   };
 
@@ -44,12 +45,8 @@ export default function Admin() {
   };
 
   useEffect(() => {
-    const localOrders = JSON.parse(localStorage.getItem('user_orders') || '[]');
-    setOrders(localOrders);
-    // Ensure initial storage sync
-    if (!localStorage.getItem('admin_products')) {
-      localStorage.setItem('admin_products', JSON.stringify(products));
-    }
+    const localOrders = safeGetJSON('user_orders', []);
+    setOrders(Array.isArray(localOrders) ? localOrders.filter(Boolean) : []);
   }, []);
 
   const handleAdjustPrice = (product, delta) => {
@@ -57,7 +54,7 @@ export default function Admin() {
     const currentPrice = Number(product.salePrice || product.regularPrice || product.price || 0);
     const newPrice = Math.max(1, currentPrice + delta);
 
-    const newList = products.map(p => {
+    const newList = (products || []).map(p => {
       if (getPId(p) === pId) {
         return {
           ...p,
@@ -73,9 +70,9 @@ export default function Admin() {
 
   const handleAdjustStock = (product, delta, reason) => {
     const pId = getPId(product);
-    const newStock = Math.max(0, (product.stock || 0) + delta);
+    const newStock = Math.max(0, Number(product.stock || 0) + delta);
 
-    const newList = products.map(p => {
+    const newList = (products || []).map(p => {
       if (getPId(p) === pId) return { ...p, stock: newStock, active: newStock > 0 };
       return p;
     });
@@ -93,7 +90,7 @@ export default function Admin() {
   };
 
   const handleToggleStatus = (productId) => {
-    const newList = products.map(p => {
+    const newList = (products || []).map(p => {
       if (getPId(p) === String(productId)) return { ...p, active: !p.active };
       return p;
     });
@@ -101,7 +98,7 @@ export default function Admin() {
   };
 
   const handleDeleteProduct = (productId) => {
-    const newList = products.filter(p => getPId(p) !== String(productId));
+    const newList = (products || []).filter(p => getPId(p) !== String(productId));
     saveProducts(newList);
   };
 
@@ -115,7 +112,7 @@ export default function Admin() {
       return;
     }
 
-    if (!editingId && products.some(p => p.sku && p.sku.trim().toLowerCase() === form.sku.trim().toLowerCase())) {
+    if (!editingId && (products || []).some(p => p && p.sku && p.sku.trim().toLowerCase() === form.sku.trim().toLowerCase())) {
       setErrorMsg(`SKU "${form.sku}" already exists in inventory.`);
       return;
     }
@@ -132,11 +129,11 @@ export default function Admin() {
     };
 
     if (editingId) {
-      const newList = products.map(p => getPId(p) === String(editingId) ? newProd : p);
+      const newList = (products || []).map(p => getPId(p) === String(editingId) ? newProd : p);
       saveProducts(newList);
       setSuccessMsg(`✓ Product "${form.name}" updated successfully!`);
     } else {
-      const newList = [newProd, ...products];
+      const newList = [newProd, ...(products || [])];
       saveProducts(newList);
       setSuccessMsg(`✓ New product "${form.name}" added to inventory & live in Customer Store!`);
     }
@@ -154,9 +151,9 @@ export default function Admin() {
     setNewCouponDiscount('');
   };
 
-  const totalRevenue = orders.reduce((sum, o) => sum + (o.total || 0), 0);
-  const lowStockCount = products.filter(p => p.stock > 0 && p.stock < 5).length;
-  const outOfStockCount = products.filter(p => p.stock === 0).length;
+  const totalRevenue = (orders || []).reduce((sum, o) => sum + (Number(o?.total) || 0), 0);
+  const lowStockCount = (products || []).filter(p => Number(p?.stock) > 0 && Number(p?.stock) < 5).length;
+  const outOfStockCount = (products || []).filter(p => Number(p?.stock) === 0).length;
 
   return (
     <section className="page" style={{ maxWidth: '1150px', margin: '0 auto' }}>
@@ -241,7 +238,7 @@ export default function Admin() {
             <p style={{ fontSize: '14px', color: 'var(--text-muted)', lineHeight: 1.7 }}>
               Total Revenue Generated: <strong>₹{totalRevenue.toLocaleString('en-IN')}</strong><br />
               Total Product SKUs: <strong>{products.length}</strong><br />
-              Total Units in Stock: <strong>{products.reduce((s, p) => s + (p.stock || 0), 0)}</strong><br />
+              Total Units in Stock: <strong>{(products || []).reduce((s, p) => s + (Number(p?.stock) || 0), 0)}</strong><br />
               Out of Stock Products: <strong>{outOfStockCount}</strong>
             </p>
           </div>
@@ -271,8 +268,9 @@ export default function Admin() {
               </tr>
             </thead>
             <tbody>
-              {products.map(p => {
+              {(products || []).map(p => {
                 const id = getPId(p);
+                const price = Number(p.salePrice || p.regularPrice || p.price || 0);
                 return (
                   <tr key={id} style={{ borderBottom: '1px solid var(--border-light)' }}>
                     <td style={{ padding: '14px 20px', display: 'flex', alignItems: 'center', gap: '14px' }}>
@@ -284,7 +282,7 @@ export default function Admin() {
                     </td>
                     <td style={{ padding: '14px 20px' }}>
                       <div style={{ fontWeight: 700, fontSize: '15px', marginBottom: '6px' }}>
-                        ₹{(p.salePrice || p.regularPrice || p.price)?.toLocaleString('en-IN')}
+                        ₹{price.toLocaleString('en-IN')}
                       </div>
                       <div style={{ display: 'flex', gap: '4px' }}>
                         <button onClick={() => handleAdjustPrice(p, +100)} title="Increase Price by ₹100" style={{ padding: '3px 6px', border: '1px solid var(--border-light)', background: '#f3f4f6', borderRadius: '4px', cursor: 'pointer', fontSize: '11px', fontWeight: 600 }}>+₹100</button>

@@ -1,24 +1,23 @@
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
-import api from '../api/api';
 import ProductCard from '../components/ProductCard';
 import { getStoredProducts } from '../data/initialProducts';
 
 const categoryCards = [
-  { name: 'Bags', count: '15 Products', image: 'https://images.unsplash.com/photo-1548036328-c9fa89d128fa?w=600&auto=format&fit=crop&q=80' },
-  { name: 'Footwear', count: '15 Products', image: 'https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=600&auto=format&fit=crop&q=80' },
-  { name: 'Accessories', count: '15 Products', image: 'https://images.unsplash.com/photo-1524805444758-089113d48a6d?w=600&auto=format&fit=crop&q=80' },
-  { name: 'Apparel', count: '15 Products', image: 'https://images.unsplash.com/photo-1556821840-3a63f95609a7?w=600&auto=format&fit=crop&q=80' },
-  { name: 'Home', count: '15 Products', image: 'https://images.unsplash.com/photo-1507473885765-e6ed057f782c?w=600&auto=format&fit=crop&q=80' },
-  { name: 'Electronics', count: '15 Products', image: 'https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=600&auto=format&fit=crop&q=80' }
+  { name: 'Bags', count: '10 Products', image: 'https://images.unsplash.com/photo-1548036328-c9fa89d128fa?w=600&auto=format&fit=crop&q=80' },
+  { name: 'Footwear', count: '10 Products', image: 'https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=600&auto=format&fit=crop&q=80' },
+  { name: 'Accessories', count: '10 Products', image: 'https://images.unsplash.com/photo-1524805444758-089113d48a6d?w=600&auto=format&fit=crop&q=80' },
+  { name: 'Apparel', count: '10 Products', image: 'https://images.unsplash.com/photo-1556821840-3a63f95609a7?w=600&auto=format&fit=crop&q=80' },
+  { name: 'Home', count: '10 Products', image: 'https://images.unsplash.com/photo-1507473885765-e6ed057f782c?w=600&auto=format&fit=crop&q=80' },
+  { name: 'Electronics', count: '10 Products', image: 'https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=600&auto=format&fit=crop&q=80' }
 ];
 
 export default function Home() {
-  const [products, setProducts] = useState(() => getStoredProducts().slice(0, 6));
+  const [products, setProducts] = useState(() => (getStoredProducts() || []).slice(0, 6));
 
   useEffect(() => {
     const updateLocal = () => {
-      setProducts(getStoredProducts().slice(0, 6));
+      setProducts((getStoredProducts() || []).slice(0, 6));
     };
     window.addEventListener('productsUpdated', updateLocal);
     return () => window.removeEventListener('productsUpdated', updateLocal);
@@ -32,7 +31,7 @@ export default function Home() {
           <span className="script-accent">The 2026 Collection</span>
           <p className="eyebrow">NOVA PREMIUM STORE</p>
           <h1>Minimalist Luxury,<br />Beautifully Crafted.</h1>
-          <p>Explore 90 thoughtfully curated products across Bags, Footwear, Accessories, Apparel, Home, and Electronics.</p>
+          <p>Explore 60 thoughtfully curated products across Bags, Footwear, Accessories, Apparel, Home, and Electronics.</p>
           <div style={{ display: 'flex', gap: '16px', marginTop: '24px' }}>
             <Link className="primary" to="/shop">Explore Shop →</Link>
           </div>
@@ -97,13 +96,13 @@ export default function Home() {
             <h2 style={{ fontFamily: 'var(--font-serif)', fontSize: '36px' }}>Featured Collection</h2>
           </div>
           <Link to="/shop" style={{ textDecoration: 'underline', color: 'var(--text-dark)', fontWeight: 600 }}>
-            Explore All 90 Products →
+            Explore All Products →
           </Link>
         </div>
 
         <div className="grid">
-          {products.map(p => (
-            <ProductCard key={p._id || p.id} p={p} />
+          {(products || []).map(p => (
+            <ProductCard key={p._id || p.id || p.name} p={p} />
           ))}
         </div>
       </section>

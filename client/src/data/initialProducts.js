@@ -1,3 +1,5 @@
+import { safeGetJSON, safeSetJSON } from '../utils/storage';
+
 export const initialAdminProducts = [
   // BAGS (10 UNIQUE PRODUCTS & IMAGES)
   { id: 'p-b1', sku: 'SKU-BAG-01', name: 'Essential Leather Tote', category: 'Bags', regularPrice: 3200, salePrice: 2899, costPrice: 1800, price: 2899, image: 'https://images.unsplash.com/photo-1548036328-c9fa89d128fa?w=800&auto=format&fit=crop&q=80', description: 'Structured daily tote crafted from premium leather.', stock: 15, active: true },
@@ -73,15 +75,12 @@ export const initialAdminProducts = [
 ];
 
 export const getStoredProducts = () => {
-  try {
-    const raw = localStorage.getItem('admin_products');
-    if (raw) {
-      const parsed = JSON.parse(raw);
-      if (Array.isArray(parsed) && parsed.length > 0) return parsed;
-    }
-  } catch (e) {
-    // fallback
+  const stored = safeGetJSON('admin_products', null);
+  if (Array.isArray(stored) && stored.length > 0) {
+    // Validate that items are valid objects
+    const valid = stored.filter(p => p && (p.id || p._id) && p.name);
+    if (valid.length > 0) return valid;
   }
-  localStorage.setItem('admin_products', JSON.stringify(initialAdminProducts));
+  safeSetJSON('admin_products', initialAdminProducts);
   return initialAdminProducts;
 };

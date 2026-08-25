@@ -3,6 +3,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import api from '../api/api';
 import { useCart } from '../context/CartContext';
 import { useAuth } from '../context/AuthContext';
+import { safeGetJSON, safeSetJSON } from '../utils/storage';
 
 const INDIAN_STATES = ['Tamil Nadu', 'Karnataka', 'Kerala', 'Maharashtra', 'Delhi', 'Telangana', 'Andhra Pradesh', 'Gujarat'];
 const CITIES = {
@@ -27,7 +28,7 @@ export default function Checkout() {
   const [useNewAddress, setUseNewAddress] = useState(false);
   const [savedAddress, setSavedAddress] = useState(null);
 
-  const userAddressKey = user ? `saved_address_${user.email}` : 'saved_address_guest';
+  const userAddressKey = user?.email ? `saved_address_${String(user.email).toLowerCase()}` : 'saved_address_guest';
 
   const [f, setF] = useState({
     name: user?.name || '',
@@ -43,11 +44,10 @@ export default function Checkout() {
   const [successOrder, setSuccessOrder] = useState(null);
 
   useEffect(() => {
-    const saved = localStorage.getItem(userAddressKey);
+    const saved = safeGetJSON(userAddressKey, null);
     if (saved) {
-      const parsed = JSON.parse(saved);
-      setSavedAddress(parsed);
-      setF(parsed);
+      setSavedAddress(saved);
+      setF(saved);
     }
   }, [userAddressKey]);
 
@@ -58,7 +58,7 @@ export default function Checkout() {
       return;
     }
     setErr('');
-    localStorage.setItem(userAddressKey, JSON.stringify(f));
+    safeSetJSON(userAddressKey, f);
     setStep('payment');
   };
 
@@ -71,19 +71,21 @@ export default function Checkout() {
 
     setBusy(true);
 
+    const validItems = (items || []).filter(i => i && i.product);
+
     const newOrder = {
       _id: 'ORD-' + Math.random().toString(36).substring(2, 9).toUpperCase(),
       createdAt: new Date().toISOString(),
       shipping: f,
       paymentMethod: paymentMethod === 'cod' ? 'Cash on Delivery (COD)' : `UPI (${upiId})`,
-      items: items.map(i => ({
+      items: validItems.map(i => ({
         product: i.product._id || i.product.id,
         name: i.product.name,
-        price: i.product.price,
+        price: Number(i.product.price || i.product.salePrice || i.product.regularPrice || 0),
         image: i.product.image,
-        quantity: i.quantity
+        quantity: Number(i.quantity) || 1
       })),
-      total,
+      total: Number(total) || 0,
       status: 'Processing'
     };
 
@@ -91,13 +93,14 @@ export default function Checkout() {
       const r = await api.post('/orders', {
         shipping: f,
         paymentMethod: newOrder.paymentMethod,
-        items: items.map(i => ({ product: i.product._id || i.product.id, quantity: i.quantity }))
+        items: validItems.map(i => ({ product: i.product._id || i.product.id, quantity: Number(i.quantity) || 1 }))
       });
       if (r.data?._id) newOrder._id = r.data._id;
     } catch (x) {}
 
-    const existingOrders = JSON.parse(localStorage.getItem('user_orders') || '[]');
-    localStorage.setItem('user_orders', JSON.stringify([newOrder, ...existingOrders]));
+    const existingOrders = safeGetJSON('user_orders', []);
+    const updatedOrders = Array.isArray(existingOrders) ? [newOrder, ...existingOrders] : [newOrder];
+    safeSetJSON('user_orders', updatedOrders);
 
     clear();
     setBusy(false);
@@ -127,14 +130,14 @@ export default function Checkout() {
             <hr style={{ borderColor: 'var(--border-light)', margin: '12px 0' }} />
             <h4 style={{ fontFamily: 'var(--font-serif)', fontSize: '16px', marginBottom: '6px' }}>Shipping Address</h4>
             <p style={{ fontSize: '14px', color: 'var(--text-muted)' }}>
-              <strong>{successOrder.shipping.name}</strong><br />
-              {successOrder.shipping.address}, {successOrder.shipping.city}, {successOrder.shipping.state} - {successOrder.shipping.postalCode}<br />
-              Phone: {successOrder.shipping.phone}
+              <strong>{successOrder.shipping?.name}</strong><br />
+              {successOrder.shipping?.address}, {successOrder.shipping?.city}, {successOrder.shipping?.state} - {successOrder.shipping?.postalCode}<br />
+              Phone: {successOrder.shipping?.phone}
             </p>
             <hr style={{ borderColor: 'var(--border-light)', margin: '12px 0' }} />
             <div style={{ display: 'flex', justifyContent: 'space-between', fontWeight: 700, fontSize: '16px' }}>
               <span>Total Paid</span>
-              <span>₹{successOrder.total?.toLocaleString('en-IN')}</span>
+              <span>₹{Number(successOrder.total || 0).toLocaleString('en-IN')}</span>
             </div>
           </div>
 
@@ -160,7 +163,7 @@ export default function Checkout() {
           <form onSubmit={handleProceedToPayment} style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
             <h1 style={{ fontFamily: 'var(--font-serif)', fontSize: '32px' }}>Shipping Details</h1>
 
-            {/* SAVED ADDRESS VS NEW ADDRESS TOGGLE (FLIPKART STYLE) */}
+            {/* SAVED ADDRESS VS NEW ADDRESS TOGGLE */}
             {savedAddress && (
               <div style={{ background: 'var(--bg-primary)', padding: '18px', borderRadius: '10px', marginBottom: '10px' }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
@@ -231,7 +234,7 @@ export default function Checkout() {
             {err && <div style={{ color: '#dc2626', background: '#fee2e2', padding: '12px', borderRadius: '6px', fontSize: '13px' }}>{err}</div>}
 
             <button className="primary wide" style={{ marginTop: '12px' }}>
-              Proceed to Payment → (₹{total?.toLocaleString('en-IN')})
+              Proceed to Payment → (₹{Number(total || 0).toLocaleString('en-IN')})
             </button>
           </form>
         )}
@@ -239,7 +242,7 @@ export default function Checkout() {
         {step === 'payment' && (
           <form onSubmit={handleFinalPayment} style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
             <h1 style={{ fontFamily: 'var(--font-serif)', fontSize: '32px' }}>Select Payment Method</h1>
-            <p style={{ color: 'var(--text-muted)', fontSize: '14px' }}>Total Amount: <strong>₹{total?.toLocaleString('en-IN')}</strong></p>
+            <p style={{ color: 'var(--text-muted)', fontSize: '14px' }}>Total Amount: <strong>₹{Number(total || 0).toLocaleString('en-IN')}</strong></p>
 
             <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
               <label style={{ display: 'flex', alignItems: 'center', gap: '14px', padding: '16px', border: paymentMethod === 'cod' ? '2px solid var(--text-dark)' : '1px solid var(--border-light)', borderRadius: '10px', cursor: 'pointer' }}>
@@ -273,7 +276,7 @@ export default function Checkout() {
                 ← Edit Address
               </button>
               <button className="primary" disabled={busy} style={{ flex: 1 }}>
-                {busy ? 'Processing Payment...' : `Complete Payment (₹${total?.toLocaleString('en-IN')}) →`}
+                {busy ? 'Processing Payment...' : `Complete Payment (₹${Number(total || 0).toLocaleString('en-IN')}) →`}
               </button>
             </div>
           </form>

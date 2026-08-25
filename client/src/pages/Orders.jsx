@@ -1,20 +1,22 @@
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import api from '../api/api';
+import { safeGetJSON, safeSetJSON } from '../utils/storage';
 
 export default function Orders() {
   const [orders, setOrders] = useState([]);
   const [trackingOrder, setTrackingOrder] = useState(null);
 
   const loadOrders = () => {
-    const localOrders = JSON.parse(localStorage.getItem('user_orders') || '[]');
+    const localOrders = safeGetJSON('user_orders', []);
+    const validLocal = Array.isArray(localOrders) ? localOrders.filter(Boolean) : [];
     api.get('/orders/mine')
       .then((r) => {
-        const combined = [...localOrders, ...(r.data || [])];
-        const unique = Array.from(new Set(combined.map(o => o._id))).map(id => combined.find(o => o._id === id));
+        const combined = [...validLocal, ...(Array.isArray(r.data) ? r.data : [])];
+        const unique = Array.from(new Set(combined.map(o => o?._id))).filter(Boolean).map(id => combined.find(o => o?._id === id));
         setOrders(unique);
       })
-      .catch(() => setOrders(localOrders));
+      .catch(() => setOrders(validLocal));
   };
 
   useEffect(() => { loadOrders(); }, []);
@@ -24,7 +26,7 @@ export default function Orders() {
     if (confirm('Are you sure you want to cancel this order?')) {
       const updated = orders.map(o => o._id === orderId ? { ...o, status: 'Cancelled' } : o);
       setOrders(updated);
-      localStorage.setItem('user_orders', JSON.stringify(updated));
+      safeSetJSON('user_orders', updated);
       try { api.patch(`/orders/${orderId}/status`, { status: 'Cancelled' }); } catch (e) {}
     }
   };
@@ -51,7 +53,7 @@ export default function Orders() {
                 <div>
                   <b style={{ fontSize: '18px', fontFamily: 'var(--font-serif)' }}>Order #{o._id}</b>
                   <span style={{ display: 'block', color: 'var(--text-muted)', fontSize: '13px', marginTop: '2px' }}>
-                    Placed on {new Date(o.createdAt).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' })}
+                    Placed on {o.createdAt ? new Date(o.createdAt).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' }) : 'Recent'}
                   </span>
                 </div>
                 
@@ -70,7 +72,7 @@ export default function Orders() {
                   >
                     {o.status || 'Processing'}
                   </span>
-                  <b style={{ display: 'block', fontSize: '18px' }}>₹{o.total?.toLocaleString('en-IN')}</b>
+                  <b style={{ display: 'block', fontSize: '18px' }}>₹{Number(o.total || 0).toLocaleString('en-IN')}</b>
                 </div>
               </div>
 
@@ -82,7 +84,7 @@ export default function Orders() {
                       {item.image && <img src={item.image} alt={item.name} style={{ width: '50px', height: '60px', objectFit: 'cover', borderRadius: '6px' }} />}
                       <div>
                         <div style={{ fontSize: '14px', fontWeight: 600 }}>{item.name}</div>
-                        <div style={{ fontSize: '12px', color: 'var(--text-muted)' }}>Qty: {item.quantity} × ₹{item.price?.toLocaleString('en-IN')}</div>
+                        <div style={{ fontSize: '12px', color: 'var(--text-muted)' }}>Qty: {item.quantity} × ₹{Number(item.price || 0).toLocaleString('en-IN')}</div>
                       </div>
                     </div>
                   ))}
@@ -131,7 +133,7 @@ export default function Orders() {
             <div style={{ display: 'flex', flexDirection: 'column', gap: '20px', paddingLeft: '10px', borderLeft: '2px solid var(--accent-gold)' }}>
               <div style={{ position: 'relative', paddingLeft: '16px' }}>
                 <span style={{ fontWeight: 700 }}>✓ Order Placed</span>
-                <p style={{ fontSize: '12px', color: 'var(--text-muted)' }}>Confirmed on {new Date(trackingOrder.createdAt).toLocaleDateString('en-IN')}</p>
+                <p style={{ fontSize: '12px', color: 'var(--text-muted)' }}>Confirmed on {trackingOrder.createdAt ? new Date(trackingOrder.createdAt).toLocaleDateString('en-IN') : 'Recent'}</p>
               </div>
 
               <div style={{ position: 'relative', paddingLeft: '16px' }}>

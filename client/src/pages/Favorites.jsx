@@ -2,17 +2,18 @@ import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import ProductCard from '../components/ProductCard';
 import { useAuth } from '../context/AuthContext';
+import { safeGetJSON, safeSetJSON } from '../utils/storage';
 
 export default function Favorites() {
   const { user } = useAuth();
   const [favoriteItems, setFavoriteItems] = useState([]);
 
   // User storage key
-  const userKey = user?.email ? `fav_${user.email.toLowerCase()}` : 'fav_guest';
+  const userKey = user?.email ? `fav_${String(user.email).toLowerCase()}` : 'fav_guest';
 
   const loadFavorites = () => {
-    const favs = JSON.parse(localStorage.getItem(userKey) || '[]');
-    setFavoriteItems(favs);
+    const favs = safeGetJSON(userKey, []);
+    setFavoriteItems(Array.isArray(favs) ? favs.filter(Boolean) : []);
   };
 
   useEffect(() => {
@@ -29,8 +30,8 @@ export default function Favorites() {
   }, [userKey]);
 
   const removeFav = (productId) => {
-    const favs = favoriteItems.filter(item => (item._id || item.id) !== productId);
-    localStorage.setItem(userKey, JSON.stringify(favs));
+    const favs = favoriteItems.filter(item => item && String(item._id || item.id) !== String(productId));
+    safeSetJSON(userKey, favs);
     setFavoriteItems(favs);
     window.dispatchEvent(new Event('favoritesUpdated'));
   };

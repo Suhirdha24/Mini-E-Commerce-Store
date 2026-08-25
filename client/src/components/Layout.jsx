@@ -12,6 +12,8 @@ export default function Layout() {
     navigate('/login');
   };
 
+  const displayName = user?.name ? String(user.name).split(' ')[0] : 'User';
+
   return (
     <>
       <header>
@@ -32,7 +34,7 @@ export default function Layout() {
           {user ? (
             <>
               <span style={{ fontSize: '13px', fontWeight: 600, whiteSpace: 'nowrap', color: 'var(--text-dark)' }}>
-                Hi, {user.name?.split(' ')[0]}
+                Hi, {displayName}
               </span>
 
               {user?.role === 'admin' && (
@@ -58,7 +60,7 @@ export default function Layout() {
               )}
 
               <Link className="cart-btn" to="/cart">
-                Bag ({count})
+                Bag ({count || 0})
               </Link>
               <button 
                 onClick={handleLogout} 
@@ -80,7 +82,7 @@ export default function Layout() {
               <Link to="/login">Login</Link>
               <Link to="/register">Register</Link>
               <Link className="cart-btn" to="/cart">
-                Bag ({count})
+                Bag ({count || 0})
               </Link>
             </>
           )}
