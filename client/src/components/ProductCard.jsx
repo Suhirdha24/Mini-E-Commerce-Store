@@ -6,14 +6,14 @@ import { useAuth } from '../context/AuthContext';
 export default function ProductCard({ p }) {
   const { add } = useCart();
   const { user } = useAuth();
-  const productId = p._id || p.id;
+  const productId = p.id || p._id;
   const [isFav, setIsFav] = useState(false);
 
   const userKey = user?.email ? `fav_${user.email.toLowerCase()}` : 'fav_guest';
 
   useEffect(() => {
     const favs = JSON.parse(localStorage.getItem(userKey) || '[]');
-    setIsFav(favs.some(item => (item._id || item.id) === productId));
+    setIsFav(favs.some(item => String(item.id || item._id).toLowerCase() === String(productId).toLowerCase()));
   }, [productId, userKey]);
 
   const toggleFavorite = (e) => {
@@ -21,7 +21,7 @@ export default function ProductCard({ p }) {
     e.stopPropagation();
     let favs = JSON.parse(localStorage.getItem(userKey) || '[]');
     if (isFav) {
-      favs = favs.filter(item => (item._id || item.id) !== productId);
+      favs = favs.filter(item => String(item.id || item._id).toLowerCase() !== String(productId).toLowerCase());
     } else {
       favs.push(p);
     }
@@ -32,7 +32,6 @@ export default function ProductCard({ p }) {
 
   return (
     <article className="card" style={{ position: 'relative' }}>
-      {/* HEART FAVORITE BUTTON */}
       <button
         onClick={toggleFavorite}
         style={{
@@ -56,7 +55,7 @@ export default function ProductCard({ p }) {
         {isFav ? '♥' : '♡'}
       </button>
 
-      {/* DYNAMIC PRODUCT LINK FIX */}
+      {/* DYNAMIC PRODUCT LINK BY UNIQUE ITEM ID */}
       <Link to={`/product/${productId}`}>
         <img src={p.image} alt={p.name} />
       </Link>
@@ -64,8 +63,6 @@ export default function ProductCard({ p }) {
       <div className="card-body">
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
           <div className="muted">{p.category}</div>
-          
-          {/* STOCK VISIBILITY FEATURE */}
           {p.stock === 0 ? (
             <span style={{ fontSize: '11px', color: '#dc2626', fontWeight: 700 }}>Out of Stock</span>
           ) : p.stock < 5 ? (
