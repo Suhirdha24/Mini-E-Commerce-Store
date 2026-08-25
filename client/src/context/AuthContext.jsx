@@ -38,7 +38,6 @@ export function AuthProvider({ children }) {
     const cleanEmail = (email || '').trim().toLowerCase();
     const cleanPassword = (password || '').trim();
 
-    // 1. Built-in Admin Portal Sign In Fallback
     if (cleanEmail === 'admin@ministore.com' && cleanPassword === 'Admin@123') {
       const adminUser = { id: 'admin_1', name: 'Store Admin', email: 'admin@ministore.com', role: 'admin' };
       localStorage.setItem('token', 'admin_jwt_token_123');
@@ -47,7 +46,6 @@ export function AuthProvider({ children }) {
       return adminUser;
     }
 
-    // 2. Try Backend API Login
     try {
       const r = await api.post('/auth/login', { email: cleanEmail, password: cleanPassword });
       localStorage.setItem('token', r.data.token);
@@ -55,7 +53,6 @@ export function AuthProvider({ children }) {
       setUser(r.data.user);
       return r.data.user;
     } catch (err) {
-      // 3. Fallback: Check local registered users list
       const registeredUsers = JSON.parse(localStorage.getItem('registered_users') || '[]');
       const found = registeredUsers.find(
         u => u.email.trim().toLowerCase() === cleanEmail && u.password.trim() === cleanPassword
@@ -75,20 +72,24 @@ export function AuthProvider({ children }) {
 
   const register = async (userData) => {
     const { name, email, password } = userData;
+    const cleanName = (name || '').trim();
     const cleanEmail = (email || '').trim().toLowerCase();
     const cleanPassword = (password || '').trim();
 
     const registeredUsers = JSON.parse(localStorage.getItem('registered_users') || '[]');
 
-    // Check duplicate email
-    const existing = registeredUsers.find(u => u.email.trim().toLowerCase() === cleanEmail);
+    // REJECT DUPLICATE REGISTRATIONS
+    const existing = registeredUsers.find(
+      u => u.email.trim().toLowerCase() === cleanEmail || u.name.trim().toLowerCase() === cleanName.toLowerCase()
+    );
+    
     if (existing) {
-      throw new Error('An account with this email address already exists.');
+      throw new Error('An account with this Name or Email already exists. Please sign in instead.');
     }
 
     const newUser = {
       id: 'usr_' + Date.now(),
-      name: name.trim(),
+      name: cleanName,
       email: cleanEmail,
       password: cleanPassword,
       role: 'user'
@@ -97,12 +98,9 @@ export function AuthProvider({ children }) {
     registeredUsers.push(newUser);
     localStorage.setItem('registered_users', JSON.stringify(registeredUsers));
 
-    // Also attempt sending to Backend API
     try {
-      await api.post('/auth/register', { name: name.trim(), email: cleanEmail, password: cleanPassword });
-    } catch (err) {
-      // Handled gracefully since user is stored locally
-    }
+      await api.post('/auth/register', { name: cleanName, email: cleanEmail, password: cleanPassword });
+    } catch (err) {}
   };
 
   const logout = () => {
