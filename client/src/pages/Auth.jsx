@@ -16,16 +16,17 @@ export default function Auth({ mode = 'login' }) {
     password: isAdminLogin ? 'Admin@123' : '' 
   });
   const [err, setErr] = useState('');
+  const [loading, setLoading] = useState(false);
   const [msg] = useState(loc.state?.msg || '');
 
   const submit = async (e) => {
     e.preventDefault();
     setErr('');
+    setLoading(true);
 
     try {
       if (isLogin) {
         await login(f);
-        // If logging in via Admin Portal, redirect to /admin dashboard
         if (isAdminLogin || f.email.toLowerCase().includes('admin')) {
           nav('/admin');
         } else {
@@ -33,10 +34,13 @@ export default function Auth({ mode = 'login' }) {
         }
       } else {
         await register(f);
-        nav('/login', { state: { msg: 'Account created successfully! Please sign in below.' } });
+        nav('/login', { state: { msg: 'Account created in database! Please sign in below.' } });
       }
     } catch (x) {
-      setErr(x.response?.data?.message || 'Invalid email or password. Please try again.');
+      const errorText = x.response?.data?.message || x.message || 'Unable to connect to server. Please check your network connection.';
+      setErr(errorText);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -50,7 +54,7 @@ export default function Auth({ mode = 'login' }) {
         </h1>
         
         {msg && <div style={{ background: '#def7ec', color: '#03543f', padding: '12px', borderRadius: '6px', fontSize: '13px' }}>{msg}</div>}
-        {err && <div className="alert">{err}</div>}
+        {err && <div className="alert" style={{ background: '#fee2e2', color: '#dc2626', padding: '12px', borderRadius: '6px', fontSize: '13px', margin: '12px 0' }}>{err}</div>}
 
         {!isLogin && (
           <input
@@ -88,8 +92,8 @@ export default function Auth({ mode = 'login' }) {
           />
         </div>
 
-        <button className="primary wide" style={{ marginTop: '8px' }}>
-          {isAdminLogin ? 'Sign In to Admin Portal →' : isLogin ? 'Sign In' : 'Create Account'}
+        <button className="primary wide" disabled={loading} style={{ marginTop: '8px' }}>
+          {loading ? 'Please wait...' : isAdminLogin ? 'Sign In to Admin Portal →' : isLogin ? 'Sign In' : 'Create Account'}
         </button>
         
         {/* NAVIGATION LINKS BETWEEN CUSTOMER & ADMIN LOGIN */}
@@ -102,7 +106,6 @@ export default function Auth({ mode = 'login' }) {
             <>
               <div>New to NOVA? <Link to="/register" style={{ color: 'var(--text-dark)', fontWeight: 600 }}>Create an account</Link></div>
               <hr style={{ borderColor: 'var(--border-light)', margin: '8px 0' }} />
-              {/* DEDICATED LINK TO ADMIN PORTAL */}
               <div style={{ fontSize: '13px' }}>
                 Are you a Store Admin / Retailer? <Link to="/admin-login" style={{ color: 'var(--accent-gold)', fontWeight: 700 }}>Sign in to Admin Portal →</Link>
               </div>
