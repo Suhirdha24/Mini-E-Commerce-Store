@@ -1,8 +1,25 @@
 import axios from 'axios';
 
+const getBaseUrl = () => {
+  let envUrl = import.meta.env.VITE_API_URL;
+  if (!envUrl || envUrl.trim() === '') {
+    return 'http://localhost:5000/api';
+  }
+  envUrl = envUrl.trim();
+  if (envUrl.endsWith('/')) {
+    envUrl = envUrl.slice(0, -1);
+  }
+  if (!envUrl.endsWith('/api')) {
+    envUrl = `${envUrl}/api`;
+  }
+  return envUrl;
+};
+
 const api = axios.create({
-  baseURL: import.meta.env.VITE_API_URL || 'http://localhost:5000/api',
-  withCredentials: true,
+  baseURL: getBaseUrl(),
+  headers: {
+    'Content-Type': 'application/json'
+  }
 });
 
 api.interceptors.request.use((config) => {

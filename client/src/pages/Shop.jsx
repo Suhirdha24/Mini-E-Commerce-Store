@@ -1,27 +1,35 @@
 import { useState, useEffect } from 'react';
 import ProductCard from '../components/ProductCard';
-import { getStoredProducts } from '../data/initialProducts';
+import { initialAdminProducts } from '../data/initialProducts';
+import api from '../api/api';
 
 export default function Shop() {
-  const [items, setItems] = useState(() => getStoredProducts() || []);
+  const [items, setItems] = useState(initialAdminProducts || []);
+  const [loading, setLoading] = useState(false);
   const [q, setQ] = useState('');
   const [cat, setCat] = useState('');
 
   const loadProducts = () => {
-    setItems([...(getStoredProducts() || [])]);
+    setLoading(true);
+    api.get('/products?limit=100')
+      .then(res => {
+        if (res.data?.items && Array.isArray(res.data.items) && res.data.items.length > 0) {
+          setItems(res.data.items);
+        } else if (Array.isArray(res.data) && res.data.length > 0) {
+          setItems(res.data);
+        }
+      })
+      .catch(() => {
+        // Fallback to initial seed products if offline
+      })
+      .finally(() => setLoading(false));
   };
 
   useEffect(() => {
     loadProducts();
-    window.addEventListener('productsUpdated', loadProducts);
-    window.addEventListener('storage', loadProducts);
-    return () => {
-      window.removeEventListener('productsUpdated', loadProducts);
-      window.removeEventListener('storage', loadProducts);
-    };
   }, []);
 
-  // Dynamically extract categories from admin products
+  // Dynamically extract categories from products
   const categories = Array.from(new Set((items || []).map(i => i?.category).filter(Boolean)));
 
   const filtered = (items || []).filter(i => 
@@ -32,7 +40,7 @@ export default function Shop() {
 
   return (
     <section className="page">
-      <p className="eyebrow">ADMIN MANAGED CATALOG ({items.length} PRODUCTS)</p>
+      <p className="eyebrow">STORE CATALOG ({items.length} PRODUCTS)</p>
       <h1 style={{ fontFamily: 'var(--font-serif)', fontSize: '44px', marginBottom: '16px' }}>Shop Everything</h1>
 
       <div style={{ display: 'flex', gap: '16px', flexWrap: 'wrap', margin: '24px 0 36px' }}>
@@ -61,12 +69,12 @@ export default function Shop() {
       {filtered.length === 0 ? (
         <div style={{ textAlign: 'center', padding: '60px 20px', background: '#fff', borderRadius: '12px', border: '1px solid var(--border-light)', margin: '20px 0' }}>
           <h3 style={{ fontFamily: 'var(--font-serif)', fontSize: '24px', marginBottom: '8px' }}>No Products Available</h3>
-          <p style={{ color: 'var(--text-muted)' }}>There are no products matching your selection. Add or update products in the Admin Module to see them here!</p>
+          <p style={{ color: 'var(--text-muted)' }}>There are no products matching your selection.</p>
         </div>
       ) : (
         <div className="grid">
           {filtered.map(p => (
-            <ProductCard key={p._id || p.id || p.name} p={p} />
+            <ProductCard key={p._id || p.id || p.sku || p.name} p={p} />
           ))}
         </div>
       )}

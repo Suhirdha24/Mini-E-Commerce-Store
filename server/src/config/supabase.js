@@ -1,5 +1,6 @@
 import { createClient } from '@supabase/supabase-js';
 import pg from 'pg';
+import bcrypt from 'bcryptjs';
 import dotenv from 'dotenv';
 dotenv.config();
 
@@ -21,13 +22,16 @@ export const supabase = isSupabaseConfigured && supabaseUrl && supabaseKey
     })
   : null;
 
-// 2. PostgreSQL Connection Pool
+// 2. PostgreSQL Connection Pool with keepalive and robust pool options
 export const pool = databaseUrl
   ? new Pool({
       connectionString: databaseUrl,
       ssl: {
         rejectUnauthorized: false
-      }
+      },
+      max: 20,
+      idleTimeoutMillis: 30000,
+      connectionTimeoutMillis: 10000
     })
   : null;
 
@@ -39,7 +43,7 @@ export const query = async (text, params) => {
   return pool.query(text, params);
 };
 
-// Initialize PostgreSQL Tables automatically
+// Initialize PostgreSQL Tables automatically & Ensure Default Admin
 export const initSupabaseDB = async () => {
   if (pool) {
     try {
@@ -85,6 +89,19 @@ export const initSupabaseDB = async () => {
           updated_at TIMESTAMPTZ DEFAULT NOW()
         );
       `);
+
+      // Ensure Default Admin User exists in Supabase DB for cross-device admin login
+      const adminEmail = 'admin@ministore.com';
+      const adminCheck = await pool.query(`SELECT id FROM users WHERE email = $1`, [adminEmail]);
+      if (adminCheck.rows.length === 0) {
+        const hashedPassword = await bcrypt.hash('Admin@123', 10);
+        await pool.query(
+          `INSERT INTO users (name, email, password, role) VALUES ($1, $2, $3, $4)`,
+          ['Store Admin', adminEmail, hashedPassword, 'admin']
+        );
+        console.log("✓ Default Admin account (admin@ministore.com) provisioned in Supabase DB.");
+      }
+
       console.log("✓ Supabase PostgreSQL tables verified & ready!");
     } catch (err) {
       console.error("Warning: Supabase PostgreSQL direct init error:", err.message);
@@ -92,6 +109,6 @@ export const initSupabaseDB = async () => {
   } else if (supabase) {
     console.log("✓ Connected to Supabase via JavaScript Client API");
   } else {
-    console.log("ℹ️ Supabase environment variables not yet provided in server/.env. Add SUPABASE_URL & SUPABASE_KEY or DATABASE_URL to connect.");
+    console.log("ℹ️ Supabase environment variables not yet provided in server/.env.");
   }
 };

@@ -16,25 +16,23 @@ connectDB();
 
 const app = express();
 
-const clientUrl = process.env.CLIENT_URL || 'http://localhost:5173';
+// Enable CORS for all origins and devices (Mobile, Desktop, Vercel preview URLs)
 app.use(
   cors({
-    origin: (origin, callback) => {
-      if (!origin || origin === clientUrl || /^http:\/\/(localhost|127\.0\.0\.1):\d+$/.test(origin)) {
-        callback(null, true);
-      } else {
-        callback(null, true);
-      }
-    },
+    origin: true,
     credentials: true,
+    methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
+    allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With']
   })
 );
+
+app.options('*', cors());
 
 app.use(express.json());
 app.use(morgan('dev'));
 
 app.get('/api/health', (req, res) => {
-  res.json({ status: 'ok', uptime: process.uptime() });
+  res.json({ status: 'ok', uptime: process.uptime(), timestamp: new Date().toISOString() });
 });
 
 app.use('/api/auth', authRoutes);

@@ -3,7 +3,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import api from '../api/api';
 import { useCart } from '../context/CartContext';
 import { useAuth } from '../context/AuthContext';
-import { safeGetJSON, safeSetJSON } from '../utils/storage';
+import { safeGetJSON, safeSetJSON } from '../utils/storage.js';
 
 const INDIAN_STATES = ['Tamil Nadu', 'Karnataka', 'Kerala', 'Maharashtra', 'Delhi', 'Telangana', 'Andhra Pradesh', 'Gujarat'];
 const CITIES = {
@@ -51,6 +51,27 @@ export default function Checkout() {
     }
   }, [userAddressKey]);
 
+  // If user is not logged in, redirect to login with return path
+  if (!user) {
+    return (
+      <section className="page" style={{ maxWidth: '500px', margin: '40px auto', textAlign: 'center' }}>
+        <div style={{ background: '#fff', padding: '40px', borderRadius: '16px', border: '1px solid var(--border-light)', boxShadow: 'var(--shadow-md)' }}>
+          <div style={{ fontSize: '48px', marginBottom: '16px' }}>🔐</div>
+          <h2 style={{ fontFamily: 'var(--font-serif)', fontSize: '28px', marginBottom: '12px' }}>Please Log In</h2>
+          <p style={{ color: 'var(--text-muted)', marginBottom: '24px', fontSize: '14px' }}>
+            You need to be signed in to your account to place and track your order.
+          </p>
+          <div style={{ display: 'flex', gap: '12px', justifyContent: 'center' }}>
+            <Link className="primary" to="/login">Sign In</Link>
+            <Link to="/register" style={{ padding: '12px 24px', textDecoration: 'none', border: '1px solid var(--border-light)', borderRadius: '30px', fontWeight: 600, color: 'var(--text-dark)' }}>
+              Create Account
+            </Link>
+          </div>
+        </div>
+      </section>
+    );
+  }
+
   const handleProceedToPayment = (e) => {
     e.preventDefault();
     if (!f.name || !f.address || !f.postalCode || !f.phone) {
@@ -69,75 +90,74 @@ export default function Checkout() {
       return;
     }
 
+    const validItems = (items || []).filter(i => i && (i.product || i.id || i._id));
+    if (validItems.length === 0) {
+      setErr('Your shopping cart is empty.');
+      return;
+    }
+
     setBusy(true);
+    setErr('');
 
-    const validItems = (items || []).filter(i => i && i.product);
+    const formattedPaymentMethod = paymentMethod === 'cod' ? 'Cash on Delivery (COD)' : `UPI (${upiId})`;
 
-    const newOrder = {
-      _id: 'ORD-' + Math.random().toString(36).substring(2, 9).toUpperCase(),
-      createdAt: new Date().toISOString(),
+    const orderPayload = {
       shipping: f,
-      paymentMethod: paymentMethod === 'cod' ? 'Cash on Delivery (COD)' : `UPI (${upiId})`,
+      paymentMethod: formattedPaymentMethod,
       items: validItems.map(i => ({
-        product: i.product._id || i.product.id,
-        name: i.product.name,
-        price: Number(i.product.price || i.product.salePrice || i.product.regularPrice || 0),
-        image: i.product.image,
+        product: i.product?._id || i.product?.id || i.id || i._id,
         quantity: Number(i.quantity) || 1
-      })),
-      total: Number(total) || 0,
-      status: 'Processing'
+      }))
     };
 
     try {
-      const r = await api.post('/orders', {
-        shipping: f,
-        paymentMethod: newOrder.paymentMethod,
-        items: validItems.map(i => ({ product: i.product._id || i.product.id, quantity: Number(i.quantity) || 1 }))
-      });
-      if (r.data?._id) newOrder._id = r.data._id;
-    } catch (x) {}
+      const response = await api.post('/orders', orderPayload);
+      const placedOrder = response.data;
 
-    const existingOrders = safeGetJSON('user_orders', []);
-    const updatedOrders = Array.isArray(existingOrders) ? [newOrder, ...existingOrders] : [newOrder];
-    safeSetJSON('user_orders', updatedOrders);
-
-    clear();
-    setBusy(false);
-    setSuccessOrder(newOrder);
-    setStep('success');
+      clear();
+      setBusy(false);
+      setSuccessOrder(placedOrder);
+      setStep('success');
+    } catch (apiErr) {
+      setBusy(false);
+      const errMsg = apiErr.response?.data?.message || apiErr.message || 'Failed to place order. Please try again.';
+      setErr(errMsg);
+    }
   };
 
   if (step === 'success' && successOrder) {
+    const orderItems = Array.isArray(successOrder.items) ? successOrder.items : JSON.parse(successOrder.items || '[]');
+    const orderId = successOrder.id || successOrder._id || 'CONFIRMED';
+
     return (
       <section className="page" style={{ maxWidth: '650px', margin: '40px auto', textAlign: 'center' }}>
         <div style={{ background: '#fff', padding: '44px', borderRadius: '16px', border: '1px solid var(--border-light)', boxShadow: 'var(--shadow-md)' }}>
           <div style={{ fontSize: '54px', marginBottom: '16px' }}>🎉</div>
           <span className="script-accent">Thank you for your purchase</span>
-          <p className="eyebrow" style={{ marginTop: '6px' }}>ORDER CONFIRMED</p>
+          <p className="eyebrow" style={{ marginTop: '6px' }}>ORDER CONFIRMED & SAVED TO DATABASE</p>
           <h1 style={{ fontFamily: 'var(--font-serif)', fontSize: '36px', margin: '8px 0 16px' }}>
             Payment Successful!
           </h1>
           <p style={{ color: 'var(--text-muted)', marginBottom: '24px' }}>
-            Order ID: <strong>#{successOrder._id}</strong>
+            Order ID: <strong>#{orderId}</strong>
           </p>
 
           <div style={{ background: 'var(--bg-primary)', padding: '20px', borderRadius: '10px', textAlign: 'left', marginBottom: '28px' }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '12px' }}>
               <span>Payment Method:</span>
-              <strong>{successOrder.paymentMethod}</strong>
+              <strong>{successOrder.payment_method || successOrder.paymentMethod}</strong>
             </div>
             <hr style={{ borderColor: 'var(--border-light)', margin: '12px 0' }} />
             <h4 style={{ fontFamily: 'var(--font-serif)', fontSize: '16px', marginBottom: '6px' }}>Shipping Address</h4>
             <p style={{ fontSize: '14px', color: 'var(--text-muted)' }}>
-              <strong>{successOrder.shipping?.name}</strong><br />
-              {successOrder.shipping?.address}, {successOrder.shipping?.city}, {successOrder.shipping?.state} - {successOrder.shipping?.postalCode}<br />
-              Phone: {successOrder.shipping?.phone}
+              <strong>{f.name}</strong><br />
+              {f.address}, {f.city}, {f.state} - {f.postalCode}<br />
+              Phone: {f.phone}
             </p>
             <hr style={{ borderColor: 'var(--border-light)', margin: '12px 0' }} />
             <div style={{ display: 'flex', justifyContent: 'space-between', fontWeight: 700, fontSize: '16px' }}>
               <span>Total Paid</span>
-              <span>₹{Number(successOrder.total || 0).toLocaleString('en-IN')}</span>
+              <span>₹{Number(successOrder.total || total || 0).toLocaleString('en-IN')}</span>
             </div>
           </div>
 

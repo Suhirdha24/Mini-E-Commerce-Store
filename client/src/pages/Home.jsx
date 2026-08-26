@@ -1,7 +1,8 @@
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import ProductCard from '../components/ProductCard';
-import { getStoredProducts } from '../data/initialProducts';
+import { initialAdminProducts } from '../data/initialProducts';
+import api from '../api/api';
 
 const categoryCards = [
   { name: 'Bags', count: '10 Products', image: 'https://images.unsplash.com/photo-1548036328-c9fa89d128fa?w=600&auto=format&fit=crop&q=80' },
@@ -13,14 +14,16 @@ const categoryCards = [
 ];
 
 export default function Home() {
-  const [products, setProducts] = useState(() => (getStoredProducts() || []).slice(0, 6));
+  const [products, setProducts] = useState(initialAdminProducts.slice(0, 6));
 
   useEffect(() => {
-    const updateLocal = () => {
-      setProducts((getStoredProducts() || []).slice(0, 6));
-    };
-    window.addEventListener('productsUpdated', updateLocal);
-    return () => window.removeEventListener('productsUpdated', updateLocal);
+    api.get('/products?limit=6')
+      .then(res => {
+        if (res.data?.items && Array.isArray(res.data.items) && res.data.items.length > 0) {
+          setProducts(res.data.items);
+        }
+      })
+      .catch(() => {});
   }, []);
 
   return (
@@ -102,7 +105,7 @@ export default function Home() {
 
         <div className="grid">
           {(products || []).map(p => (
-            <ProductCard key={p._id || p.id || p.name} p={p} />
+            <ProductCard key={p._id || p.id || p.sku || p.name} p={p} />
           ))}
         </div>
       </section>

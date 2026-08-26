@@ -1,12 +1,14 @@
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { getStoredProducts, initialAdminProducts } from '../data/initialProducts';
-import { safeGetJSON, safeSetJSON } from '../utils/storage';
+import api from '../api/api';
+import { useAuth } from '../context/AuthContext';
 
 export default function Admin() {
-  const [tab, setTab] = useState('dashboard'); // 'dashboard' | 'inventory' | 'add' | 'orders' | 'customers' | 'coupons'
-  const [products, setProducts] = useState(() => getStoredProducts() || []);
+  const { user } = useAuth();
+  const [tab, setTab] = useState('dashboard'); // 'dashboard' | 'inventory' | 'add' | 'orders' | 'coupons'
+  const [products, setProducts] = useState([]);
   const [orders, setOrders] = useState([]);
+  const [loading, setLoading] = useState(true);
   const [editingId, setEditingId] = useState(null);
   const [successMsg, setSuccessMsg] = useState('');
   const [errorMsg, setErrorMsg] = useState('');
@@ -19,90 +21,104 @@ export default function Admin() {
   const [newCouponCode, setNewCouponCode] = useState('');
   const [newCouponDiscount, setNewCouponDiscount] = useState('');
 
-  const [auditLogs, setAuditLogs] = useState([
-    { id: 'log-1', timestamp: new Date().toLocaleString('en-IN'), sku: 'SKU-BAG-01', productName: 'Essential Leather Tote', change: '+5', reason: 'Restock Shipment', updatedBy: 'Admin' }
-  ]);
-
   const [form, setForm] = useState({
     sku: '', name: '', description: '', regularPrice: '', salePrice: '', costPrice: '', category: 'Bags', image: '', stock: 10, active: true
   });
 
-  const getPId = p => String(p?._id || p?.id || '');
+  const getPId = p => String(p?.id || p?._id || '');
 
-  const saveProducts = (newList) => {
-    const list = Array.isArray(newList) ? newList : [];
-    setProducts(list);
-    safeSetJSON('admin_products', list);
-    window.dispatchEvent(new Event('productsUpdated'));
-  };
+  // Load all products and global customer orders directly from Cloud PostgreSQL
+  const loadAdminData = async () => {
+    setLoading(true);
+    try {
+      const [prodRes, orderRes] = await Promise.all([
+        api.get('/products?limit=100'),
+        api.get('/orders/admin/all').catch(() => ({ data: [] }))
+      ]);
 
-  const handleResetDefaultCatalog = () => {
-    if (window.confirm('Reset catalog to default 60 products? This will update all product categories.')) {
-      saveProducts(initialAdminProducts);
-      setSuccessMsg('✓ Store reset to 60 default products (10 per category)!');
-      setTimeout(() => setSuccessMsg(''), 2500);
+      if (prodRes.data?.items) {
+        setProducts(prodRes.data.items);
+      } else if (Array.isArray(prodRes.data)) {
+        setProducts(prodRes.data);
+      }
+
+      if (Array.isArray(orderRes.data)) {
+        setOrders(orderRes.data);
+      }
+    } catch (err) {
+      setErrorMsg('Failed to load database data: ' + (err.response?.data?.message || err.message));
+    } finally {
+      setLoading(false);
     }
   };
 
   useEffect(() => {
-    const localOrders = safeGetJSON('user_orders', []);
-    setOrders(Array.isArray(localOrders) ? localOrders.filter(Boolean) : []);
+    loadAdminData();
   }, []);
 
-  const handleAdjustPrice = (product, delta) => {
+  const handleAdjustPrice = async (product, delta) => {
     const pId = getPId(product);
     const currentPrice = Number(product.salePrice || product.regularPrice || product.price || 0);
     const newPrice = Math.max(1, currentPrice + delta);
 
-    const newList = (products || []).map(p => {
-      if (getPId(p) === pId) {
-        return {
-          ...p,
-          price: newPrice,
-          salePrice: newPrice,
-          regularPrice: Math.max(newPrice, Number(p.regularPrice || newPrice))
-        };
-      }
-      return p;
-    });
-    saveProducts(newList);
+    try {
+      await api.put(`/products/${pId}`, {
+        price: newPrice,
+        salePrice: newPrice
+      });
+      setProducts(products.map(p => getPId(p) === pId ? { ...p, price: newPrice, salePrice: newPrice } : p));
+    } catch (err) {
+      alert('Failed to update price in database: ' + (err.response?.data?.message || err.message));
+    }
   };
 
-  const handleAdjustStock = (product, delta, reason) => {
+  const handleAdjustStock = async (product, delta) => {
     const pId = getPId(product);
     const newStock = Math.max(0, Number(product.stock || 0) + delta);
 
-    const newList = (products || []).map(p => {
-      if (getPId(p) === pId) return { ...p, stock: newStock, active: newStock > 0 };
-      return p;
-    });
-    saveProducts(newList);
-
-    setAuditLogs([{
-      id: 'log-' + Date.now(),
-      timestamp: new Date().toLocaleString('en-IN'),
-      sku: product.sku || 'N/A',
-      productName: product.name,
-      change: delta > 0 ? `+${delta}` : `${delta}`,
-      reason: reason || 'Stock Adjustment',
-      updatedBy: 'Admin Store Manager'
-    }, ...auditLogs]);
+    try {
+      await api.put(`/products/${pId}`, {
+        stock: newStock,
+        active: newStock > 0
+      });
+      setProducts(products.map(p => getPId(p) === pId ? { ...p, stock: newStock, active: newStock > 0 } : p));
+    } catch (err) {
+      alert('Failed to adjust stock in database: ' + (err.response?.data?.message || err.message));
+    }
   };
 
-  const handleToggleStatus = (productId) => {
-    const newList = (products || []).map(p => {
-      if (getPId(p) === String(productId)) return { ...p, active: !p.active };
-      return p;
-    });
-    saveProducts(newList);
+  const handleToggleStatus = async (productId, currentActive) => {
+    try {
+      await api.put(`/products/${productId}`, {
+        active: !currentActive
+      });
+      setProducts(products.map(p => getPId(p) === String(productId) ? { ...p, active: !currentActive } : p));
+    } catch (err) {
+      alert('Failed to toggle status: ' + (err.response?.data?.message || err.message));
+    }
   };
 
-  const handleDeleteProduct = (productId) => {
-    const newList = (products || []).filter(p => getPId(p) !== String(productId));
-    saveProducts(newList);
+  const handleDeleteProduct = async (productId) => {
+    if (window.confirm('Delete this product permanently from the cloud database?')) {
+      try {
+        await api.delete(`/products/${productId}`);
+        setProducts(products.filter(p => getPId(p) !== String(productId)));
+      } catch (err) {
+        alert('Failed to delete product: ' + (err.response?.data?.message || err.message));
+      }
+    }
   };
 
-  const handleSubmitProduct = (e) => {
+  const handleUpdateOrderStatus = async (orderId, newStatus) => {
+    try {
+      await api.patch(`/orders/${orderId}/status`, { status: newStatus });
+      setOrders(orders.map(o => (o.id === orderId || o._id === orderId) ? { ...o, status: newStatus } : o));
+    } catch (err) {
+      alert('Failed to update order status: ' + (err.response?.data?.message || err.message));
+    }
+  };
+
+  const handleSubmitProduct = async (e) => {
     e.preventDefault();
     setErrorMsg('');
     setSuccessMsg('');
@@ -112,14 +128,7 @@ export default function Admin() {
       return;
     }
 
-    if (!editingId && (products || []).some(p => p && p.sku && p.sku.trim().toLowerCase() === form.sku.trim().toLowerCase())) {
-      setErrorMsg(`SKU "${form.sku}" already exists in inventory.`);
-      return;
-    }
-
-    const newProd = {
-      _id: editingId || 'p-' + Date.now(),
-      id: editingId || 'p-' + Date.now(),
+    const payload = {
       ...form,
       regularPrice: Number(form.regularPrice),
       salePrice: form.salePrice ? Number(form.salePrice) : Number(form.regularPrice),
@@ -128,19 +137,25 @@ export default function Admin() {
       stock: Number(form.stock)
     };
 
-    if (editingId) {
-      const newList = (products || []).map(p => getPId(p) === String(editingId) ? newProd : p);
-      saveProducts(newList);
-      setSuccessMsg(`✓ Product "${form.name}" updated successfully!`);
-    } else {
-      const newList = [newProd, ...(products || [])];
-      saveProducts(newList);
-      setSuccessMsg(`✓ New product "${form.name}" added to inventory & live in Customer Store!`);
-    }
+    try {
+      if (editingId) {
+        const res = await api.put(`/products/${editingId}`, payload);
+        const updated = res.data;
+        setProducts(products.map(p => getPId(p) === String(editingId) ? updated : p));
+        setSuccessMsg(`✓ Product "${form.name}" updated successfully in Supabase DB!`);
+      } else {
+        const res = await api.post('/products', payload);
+        const created = res.data;
+        setProducts([created, ...products]);
+        setSuccessMsg(`✓ New product "${form.name}" added to Supabase DB & live in Store!`);
+      }
 
-    setForm({ sku: '', name: '', description: '', regularPrice: '', salePrice: '', costPrice: '', category: 'Bags', image: '', stock: 10, active: true });
-    setEditingId(null);
-    setTimeout(() => { setSuccessMsg(''); setTab('inventory'); }, 1200);
+      setForm({ sku: '', name: '', description: '', regularPrice: '', salePrice: '', costPrice: '', category: 'Bags', image: '', stock: 10, active: true });
+      setEditingId(null);
+      setTimeout(() => { setSuccessMsg(''); setTab('inventory'); }, 1200);
+    } catch (err) {
+      setErrorMsg('Database save error: ' + (err.response?.data?.message || err.message));
+    }
   };
 
   const handleCreateCoupon = (e) => {
@@ -153,24 +168,37 @@ export default function Admin() {
 
   const totalRevenue = (orders || []).reduce((sum, o) => sum + (Number(o?.total) || 0), 0);
   const lowStockCount = (products || []).filter(p => Number(p?.stock) > 0 && Number(p?.stock) < 5).length;
-  const outOfStockCount = (products || []).filter(p => Number(p?.stock) === 0).length;
+
+  if (user && user.role !== 'admin') {
+    return (
+      <section className="page" style={{ maxWidth: '500px', margin: '40px auto', textAlign: 'center' }}>
+        <div style={{ background: '#fff', padding: '40px', borderRadius: '16px', border: '1px solid var(--border-light)', boxShadow: 'var(--shadow-md)' }}>
+          <div style={{ fontSize: '48px', marginBottom: '16px' }}>🔒</div>
+          <h2 style={{ fontFamily: 'var(--font-serif)', fontSize: '28px', marginBottom: '12px' }}>Admin Access Only</h2>
+          <p style={{ color: 'var(--text-muted)', marginBottom: '24px', fontSize: '14px' }}>
+            You are logged in as customer (<strong>{user.email}</strong>). Please sign in with an Administrator account to view this dashboard.
+          </p>
+          <Link className="primary" to="/login">Sign in as Admin</Link>
+        </div>
+      </section>
+    );
+  }
 
   return (
     <section className="page" style={{ maxWidth: '1150px', margin: '0 auto' }}>
-      {/* DISTINCT STANDALONE ADMIN HEADER BANNER */}
+      {/* STANDALONE ADMIN HEADER BANNER */}
       <div style={{ background: '#0f172a', color: '#fff', padding: '16px 24px', borderRadius: '12px', marginBottom: '28px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '16px' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
           <span style={{ fontSize: '24px' }}>🛡️</span>
           <div>
-            <h3 style={{ margin: 0, fontSize: '18px', color: '#f8fafc', fontWeight: 700, fontFamily: 'var(--font-serif)' }}>NOVA MANAGEMENT CONSOLE</h3>
-            <span style={{ fontSize: '12px', color: '#94a3b8' }}>Standalone Admin Portal | Isolated Inventory & Order Controls</span>
+            <h3 style={{ margin: 0, fontSize: '18px', color: '#f8fafc', fontWeight: 700, fontFamily: 'var(--font-serif)' }}>NOVA CLOUD MANAGEMENT CONSOLE</h3>
+            <span style={{ fontSize: '12px', color: '#94a3b8' }}>Connected to Supabase PostgreSQL Database</span>
           </div>
         </div>
         <div style={{ display: 'flex', gap: '12px', alignItems: 'center' }}>
-          <button onClick={handleResetDefaultCatalog} style={{ background: '#334155', border: '1px solid #475569', color: '#f8fafc', padding: '6px 14px', borderRadius: '8px', fontSize: '12px', fontWeight: 600, cursor: 'pointer' }}>
-            🔄 Reset 60 Products
+          <button onClick={loadAdminData} style={{ background: '#334155', border: '1px solid #475569', color: '#f8fafc', padding: '6px 14px', borderRadius: '8px', fontSize: '12px', fontWeight: 600, cursor: 'pointer' }}>
+            🔄 Refresh Live DB
           </button>
-          <span style={{ background: '#1e293b', border: '1px solid #334155', color: '#38bdf8', padding: '6px 14px', borderRadius: '20px', fontSize: '12px', fontWeight: 600 }}>🟢 Management Console Active</span>
           <Link to="/shop" style={{ background: '#3b82f6', color: '#fff', padding: '6px 14px', borderRadius: '8px', fontSize: '13px', fontWeight: 600, textDecoration: 'none' }}>
             🛍️ View Customer Store →
           </Link>
@@ -180,7 +208,7 @@ export default function Admin() {
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '32px' }}>
         <div>
           <p className="eyebrow">ENTERPRISE ADMIN PORTAL</p>
-          <h1 style={{ fontFamily: 'var(--font-serif)', fontSize: '38px' }}>Store & Management Dashboard</h1>
+          <h1 style={{ fontFamily: 'var(--font-serif)', fontSize: '38px' }}>Store Management Dashboard</h1>
         </div>
 
         <button className="primary" onClick={() => { setEditingId(null); setTab('add'); }}>
@@ -191,12 +219,12 @@ export default function Admin() {
       {/* DASHBOARD METRICS CARDS */}
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '20px', marginBottom: '32px' }}>
         <div style={{ background: '#fff', padding: '20px', borderRadius: '12px', border: '1px solid var(--border-light)' }}>
-          <span style={{ fontSize: '12px', color: 'var(--text-muted)', fontWeight: 600 }}>TOTAL SALES REVENUE</span>
+          <span style={{ fontSize: '12px', color: 'var(--text-muted)', fontWeight: 600 }}>GLOBAL REVENUE</span>
           <h2 style={{ fontFamily: 'var(--font-serif)', fontSize: '26px', marginTop: '4px' }}>₹{totalRevenue.toLocaleString('en-IN')}</h2>
         </div>
 
         <div style={{ background: '#fff', padding: '20px', borderRadius: '12px', border: '1px solid var(--border-light)' }}>
-          <span style={{ fontSize: '12px', color: 'var(--text-muted)', fontWeight: 600 }}>CUSTOMER ORDERS</span>
+          <span style={{ fontSize: '12px', color: 'var(--text-muted)', fontWeight: 600 }}>TOTAL DB ORDERS</span>
           <h2 style={{ fontFamily: 'var(--font-serif)', fontSize: '26px', marginTop: '4px' }}>{orders.length} Orders</h2>
         </div>
 
@@ -217,7 +245,7 @@ export default function Admin() {
           📊 Overview
         </button>
         <button onClick={() => setTab('inventory')} style={{ padding: '10px 20px', background: 'none', border: 'none', borderBottom: tab === 'inventory' ? '2px solid var(--text-dark)' : 'none', fontWeight: tab === 'inventory' ? 700 : 500, cursor: 'pointer' }}>
-          📦 Inventory & Stock
+          📦 Inventory & Stock ({products.length})
         </button>
         <button onClick={() => setTab('add')} style={{ padding: '10px 20px', background: 'none', border: 'none', borderBottom: tab === 'add' ? '2px solid var(--text-dark)' : 'none', fontWeight: tab === 'add' ? 700 : 500, cursor: 'pointer' }}>
           + Add Product
@@ -230,26 +258,30 @@ export default function Admin() {
         </button>
       </div>
 
-      {/* TAB 1: EXECUTIVE DASHBOARD */}
+      {/* TAB 1: OVERVIEW */}
       {tab === 'dashboard' && (
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '24px' }}>
           <div style={{ background: '#fff', padding: '24px', borderRadius: '12px', border: '1px solid var(--border-light)' }}>
-            <h3 style={{ fontFamily: 'var(--font-serif)', fontSize: '20px', marginBottom: '16px' }}>Store Performance Summary</h3>
-            <p style={{ fontSize: '14px', color: 'var(--text-muted)', lineHeight: 1.7 }}>
-              Total Revenue Generated: <strong>₹{totalRevenue.toLocaleString('en-IN')}</strong><br />
-              Total Product SKUs: <strong>{products.length}</strong><br />
-              Total Units in Stock: <strong>{(products || []).reduce((s, p) => s + (Number(p?.stock) || 0), 0)}</strong><br />
-              Out of Stock Products: <strong>{outOfStockCount}</strong>
+            <h3 style={{ fontFamily: 'var(--font-serif)', fontSize: '20px', marginBottom: '16px' }}>Supabase PostgreSQL Status</h3>
+            <p style={{ fontSize: '14px', color: 'var(--text-muted)', lineHeight: 1.8 }}>
+              Database Host: <strong>Supabase Cloud</strong><br />
+              Total Revenue Recorded: <strong>₹{totalRevenue.toLocaleString('en-IN')}</strong><br />
+              Total Active Products: <strong>{products.filter(p => p.active !== false).length}</strong><br />
+              Total Customers Placed Orders: <strong>{new Set(orders.map(o => o.user_id || o.customerEmail)).size}</strong>
             </p>
           </div>
 
           <div style={{ background: '#fff', padding: '24px', borderRadius: '12px', border: '1px solid var(--border-light)' }}>
-            <h3 style={{ fontFamily: 'var(--font-serif)', fontSize: '20px', marginBottom: '16px' }}>Stock Audit Log Activity</h3>
-            {auditLogs.slice(0, 3).map(log => (
-              <div key={log.id} style={{ fontSize: '13px', borderBottom: '1px solid var(--border-light)', paddingBottom: '8px', marginBottom: '8px' }}>
-                <strong>{log.productName}</strong> ({log.change} Units) — <span style={{ color: 'var(--text-muted)' }}>{log.reason}</span>
+            <h3 style={{ fontFamily: 'var(--font-serif)', fontSize: '20px', marginBottom: '16px' }}>Recent Customer Orders</h3>
+            {orders.slice(0, 4).map(o => (
+              <div key={o.id || o._id} style={{ fontSize: '13px', borderBottom: '1px solid var(--border-light)', paddingBottom: '8px', marginBottom: '8px', display: 'flex', justifyContent: 'space-between' }}>
+                <div>
+                  <strong>Order #{o.id || o._id}</strong> — <span style={{ color: 'var(--text-muted)' }}>{o.customerName || 'Customer'}</span>
+                </div>
+                <b>₹{Number(o.total || 0).toLocaleString('en-IN')}</b>
               </div>
             ))}
+            {orders.length === 0 && <p style={{ color: 'var(--text-muted)', fontSize: '14px' }}>No orders placed in database yet.</p>}
           </div>
         </div>
       )}
@@ -261,7 +293,7 @@ export default function Admin() {
             <thead>
               <tr style={{ background: 'var(--bg-primary)', borderBottom: '1px solid var(--border-light)', color: 'var(--text-muted)' }}>
                 <th style={{ padding: '14px 20px' }}>Product</th>
-                <th style={{ padding: '14px 20px' }}>Price</th>
+                <th style={{ padding: '14px 20px' }}>Price (₹)</th>
                 <th style={{ padding: '14px 20px' }}>Stock Adjustment</th>
                 <th style={{ padding: '14px 20px' }}>Status</th>
                 <th style={{ padding: '14px 20px', textAlign: 'right' }}>Actions</th>
@@ -286,21 +318,19 @@ export default function Admin() {
                       </div>
                       <div style={{ display: 'flex', gap: '4px' }}>
                         <button onClick={() => handleAdjustPrice(p, +100)} title="Increase Price by ₹100" style={{ padding: '3px 6px', border: '1px solid var(--border-light)', background: '#f3f4f6', borderRadius: '4px', cursor: 'pointer', fontSize: '11px', fontWeight: 600 }}>+₹100</button>
-                        <button onClick={() => handleAdjustPrice(p, +500)} title="Increase Price by ₹500" style={{ padding: '3px 6px', border: '1px solid var(--border-light)', background: '#f3f4f6', borderRadius: '4px', cursor: 'pointer', fontSize: '11px', fontWeight: 600 }}>+₹500</button>
                         <button onClick={() => handleAdjustPrice(p, -100)} title="Decrease Price by ₹100" style={{ padding: '3px 6px', border: '1px solid var(--border-light)', background: '#fff', borderRadius: '4px', cursor: 'pointer', fontSize: '11px' }}>-₹100</button>
                       </div>
                     </td>
                     <td style={{ padding: '14px 20px' }}>
                       <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-                        <button onClick={() => handleAdjustStock(p, -1, 'Manual Reduction')} style={{ width: '28px', height: '28px', border: '1px solid var(--border-light)', background: '#fff', borderRadius: '4px', cursor: 'pointer', fontWeight: 700 }}>-</button>
+                        <button onClick={() => handleAdjustStock(p, -1)} style={{ width: '28px', height: '28px', border: '1px solid var(--border-light)', background: '#fff', borderRadius: '4px', cursor: 'pointer', fontWeight: 700 }}>-</button>
                         <b style={{ minWidth: '28px', textAlign: 'center', fontSize: '15px' }}>{p.stock}</b>
-                        <button onClick={() => handleAdjustStock(p, +1, 'Stock Increase (+1)')} style={{ padding: '4px 8px', border: '1px solid var(--border-light)', background: 'var(--bg-primary)', borderRadius: '4px', cursor: 'pointer', fontSize: '11px', fontWeight: 600 }}>+1</button>
-                        <button onClick={() => handleAdjustStock(p, +5, 'Restock (+5)')} style={{ padding: '4px 8px', border: '1px solid var(--border-light)', background: 'var(--bg-primary)', borderRadius: '4px', cursor: 'pointer', fontSize: '11px', fontWeight: 600 }}>+5</button>
-                        <button onClick={() => handleAdjustStock(p, +10, 'Bulk Restock (+10)')} style={{ padding: '4px 8px', border: '1px solid var(--border-light)', background: 'var(--bg-primary)', borderRadius: '4px', cursor: 'pointer', fontSize: '11px', fontWeight: 600 }}>+10</button>
+                        <button onClick={() => handleAdjustStock(p, +1)} style={{ padding: '4px 8px', border: '1px solid var(--border-light)', background: 'var(--bg-primary)', borderRadius: '4px', cursor: 'pointer', fontSize: '11px', fontWeight: 600 }}>+1</button>
+                        <button onClick={() => handleAdjustStock(p, +5)} style={{ padding: '4px 8px', border: '1px solid var(--border-light)', background: 'var(--bg-primary)', borderRadius: '4px', cursor: 'pointer', fontSize: '11px', fontWeight: 600 }}>+5</button>
                       </div>
                     </td>
                     <td style={{ padding: '14px 20px' }}>
-                      <button onClick={() => handleToggleStatus(id)} style={{ background: p.active !== false ? '#def7ec' : '#fee2e2', color: p.active !== false ? '#03543f' : '#dc2626', border: 'none', padding: '4px 12px', borderRadius: '12px', fontSize: '12px', fontWeight: 700, cursor: 'pointer' }}>
+                      <button onClick={() => handleToggleStatus(id, p.active !== false)} style={{ background: p.active !== false ? '#def7ec' : '#fee2e2', color: p.active !== false ? '#03543f' : '#dc2626', border: 'none', padding: '4px 12px', borderRadius: '12px', fontSize: '12px', fontWeight: 700, cursor: 'pointer' }}>
                         {p.active !== false ? 'Active' : 'Inactive'}
                       </button>
                     </td>
@@ -319,7 +349,7 @@ export default function Admin() {
       {/* TAB 3: ADD NEW PRODUCT WORKFLOW */}
       {tab === 'add' && (
         <div style={{ background: '#fff', padding: '36px', borderRadius: '16px', border: '1px solid var(--border-light)', maxWidth: '640px', margin: '0 auto' }}>
-          <h2 style={{ fontFamily: 'var(--font-serif)', fontSize: '28px', marginBottom: '20px' }}>{editingId ? 'Edit Product' : 'Add New Product'}</h2>
+          <h2 style={{ fontFamily: 'var(--font-serif)', fontSize: '28px', marginBottom: '20px' }}>{editingId ? 'Edit Product' : 'Add New Product to Cloud DB'}</h2>
           {successMsg && <div style={{ background: '#def7ec', color: '#03543f', padding: '12px', borderRadius: '8px', marginBottom: '16px', fontWeight: 600 }}>{successMsg}</div>}
           {errorMsg && <div style={{ background: '#fee2e2', color: '#dc2626', padding: '12px', borderRadius: '8px', marginBottom: '16px', fontWeight: 600 }}>{errorMsg}</div>}
 
@@ -367,12 +397,98 @@ export default function Admin() {
               <input required placeholder="https://images.unsplash.com/..." value={form.image} onChange={e => setForm({ ...form, image: e.target.value })} />
             </div>
 
-            <button className="primary" style={{ marginTop: '12px' }}>{editingId ? 'Save Changes' : 'Create Product'}</button>
+            <button className="primary" style={{ marginTop: '12px' }}>{editingId ? 'Save Changes to Supabase' : 'Create Product in Supabase'}</button>
           </form>
         </div>
       )}
 
-      {/* TAB 4: COUPONS MANAGEMENT */}
+      {/* TAB 4: ALL CUSTOMER ORDERS (GLOBAL DB) */}
+      {tab === 'orders' && (
+        <div style={{ background: '#fff', borderRadius: '12px', border: '1px solid var(--border-light)', overflow: 'hidden' }}>
+          <div style={{ padding: '16px 20px', borderBottom: '1px solid var(--border-light)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+            <h3 style={{ fontFamily: 'var(--font-serif)', fontSize: '20px', margin: 0 }}>Worldwide Customer Orders</h3>
+            <span style={{ fontSize: '13px', color: 'var(--text-muted)' }}>{orders.length} total orders recorded in Supabase</span>
+          </div>
+
+          {orders.length === 0 ? (
+            <div style={{ textAlign: 'center', padding: '40px', color: 'var(--text-muted)' }}>
+              No customer orders in database yet. Orders placed by customers from any device will appear here in real time.
+            </div>
+          ) : (
+            <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left', fontSize: '14px' }}>
+              <thead>
+                <tr style={{ background: 'var(--bg-primary)', borderBottom: '1px solid var(--border-light)', color: 'var(--text-muted)' }}>
+                  <th style={{ padding: '14px 20px' }}>Order ID</th>
+                  <th style={{ padding: '14px 20px' }}>Customer</th>
+                  <th style={{ padding: '14px 20px' }}>Items</th>
+                  <th style={{ padding: '14px 20px' }}>Total Amount</th>
+                  <th style={{ padding: '14px 20px' }}>Status</th>
+                  <th style={{ padding: '14px 20px', textAlign: 'right' }}>Update Status</th>
+                </tr>
+              </thead>
+              <tbody>
+                {orders.map(o => {
+                  const orderId = o.id || o._id;
+                  const rawItems = Array.isArray(o.items) ? o.items : JSON.parse(o.items || '[]');
+                  const rawShipping = typeof o.shipping === 'object' ? o.shipping : JSON.parse(o.shipping || '{}');
+
+                  return (
+                    <tr key={orderId} style={{ borderBottom: '1px solid var(--border-light)' }}>
+                      <td style={{ padding: '14px 20px' }}>
+                        <strong>#{orderId}</strong>
+                        <div style={{ fontSize: '12px', color: 'var(--text-muted)' }}>{o.paymentMethod || o.payment_method || 'COD'}</div>
+                      </td>
+                      <td style={{ padding: '14px 20px' }}>
+                        <strong>{o.customerName || rawShipping.name || 'Customer'}</strong>
+                        <div style={{ fontSize: '12px', color: 'var(--text-muted)' }}>
+                          {rawShipping.city ? `${rawShipping.city}, ${rawShipping.state}` : (o.customerEmail || 'N/A')}
+                        </div>
+                      </td>
+                      <td style={{ padding: '14px 20px' }}>
+                        {rawItems.map((it, idx) => (
+                          <div key={idx} style={{ fontSize: '13px' }}>
+                            {it.name} (x{it.quantity})
+                          </div>
+                        ))}
+                      </td>
+                      <td style={{ padding: '14px 20px' }}>
+                        <strong style={{ fontSize: '15px' }}>₹{Number(o.total || 0).toLocaleString('en-IN')}</strong>
+                      </td>
+                      <td style={{ padding: '14px 20px' }}>
+                        <span style={{ 
+                          padding: '4px 10px', 
+                          borderRadius: '12px', 
+                          fontSize: '12px', 
+                          fontWeight: 700,
+                          background: o.status === 'Cancelled' ? '#fee2e2' : o.status === 'Delivered' ? '#def7ec' : '#fef3c7',
+                          color: o.status === 'Cancelled' ? '#dc2626' : o.status === 'Delivered' ? '#03543f' : '#92400e'
+                        }}>
+                          {o.status || 'Processing'}
+                        </span>
+                      </td>
+                      <td style={{ padding: '14px 20px', textAlign: 'right' }}>
+                        <select 
+                          value={o.status || 'Processing'} 
+                          onChange={(e) => handleUpdateOrderStatus(orderId, e.target.value)}
+                          style={{ padding: '6px 10px', borderRadius: '6px', fontSize: '12px', border: '1px solid var(--border-light)', cursor: 'pointer' }}
+                        >
+                          <option value="Placed">Placed</option>
+                          <option value="Processing">Processing</option>
+                          <option value="Shipped">Shipped</option>
+                          <option value="Delivered">Delivered</option>
+                          <option value="Cancelled">Cancelled</option>
+                        </select>
+                      </td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
+          )}
+        </div>
+      )}
+
+      {/* TAB 5: COUPONS */}
       {tab === 'coupons' && (
         <div style={{ background: '#fff', padding: '28px', borderRadius: '12px', border: '1px solid var(--border-light)', maxWidth: '600px', margin: '0 auto' }}>
           <h3 style={{ fontFamily: 'var(--font-serif)', fontSize: '22px', marginBottom: '16px' }}>Discount & Promo Coupons</h3>

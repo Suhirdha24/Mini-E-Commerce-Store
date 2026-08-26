@@ -2,20 +2,19 @@ import { useEffect, useState } from 'react';
 import { Link, useParams } from 'react-router-dom';
 import { useCart } from '../context/CartContext';
 import { useAuth } from '../context/AuthContext';
-import { getStoredProducts } from '../data/initialProducts';
-import { safeGetJSON, safeSetJSON } from '../utils/storage';
+import { initialAdminProducts } from '../data/initialProducts';
+import { safeGetJSON, safeSetJSON } from '../utils/storage.js';
+import api from '../api/api';
 
-const getProductById = (targetId) => {
-  const allProds = getStoredProducts() || [];
-  if (!allProds.length) return null;
-  if (!targetId) return allProds[0];
+const findFallbackProduct = (targetId) => {
+  if (!targetId) return initialAdminProducts[0];
   const cleanId = String(targetId).trim().toLowerCase();
-  return allProds.find(item => 
+  return initialAdminProducts.find(item => 
     item && (
-      String(item.id || item._id).trim().toLowerCase() === cleanId ||
+      String(item.id || item._id || item.sku).trim().toLowerCase() === cleanId ||
       (item.name && item.name.toLowerCase().replace(/[^a-z0-9]+/g, '-').includes(cleanId))
     )
-  ) || allProds[0];
+  ) || initialAdminProducts[0];
 };
 
 export default function Product() {
@@ -24,40 +23,35 @@ export default function Product() {
   const { user } = useAuth();
   const userKey = user?.email ? `fav_${String(user.email).toLowerCase()}` : 'fav_guest';
 
-  const [p, setP] = useState(() => getProductById(id));
+  const [p, setP] = useState(() => findFallbackProduct(id));
   const [q, setQ] = useState(1);
   const [isFav, setIsFav] = useState(false);
   const [addedMsg, setAddedMsg] = useState(false);
 
   useEffect(() => {
-    const updateProduct = () => {
-      const item = getProductById(id);
-      if (item) setP(item);
-    };
-
-    updateProduct();
-
-    window.addEventListener('productsUpdated', updateProduct);
-    window.addEventListener('storage', updateProduct);
+    // Fetch live product details from cloud DB
+    api.get(`/products/${id}`)
+      .then(res => {
+        if (res.data) setP(res.data);
+      })
+      .catch(() => {
+        const fallback = findFallbackProduct(id);
+        if (fallback) setP(fallback);
+      });
 
     const favs = safeGetJSON(userKey, []);
     if (Array.isArray(favs)) {
-      setIsFav(favs.some(item => item && String(item.id || item._id).toLowerCase() === String(id).toLowerCase()));
+      setIsFav(favs.some(item => item && String(item.id || item._id || item.sku).toLowerCase() === String(id).toLowerCase()));
     }
-
-    return () => {
-      window.removeEventListener('productsUpdated', updateProduct);
-      window.removeEventListener('storage', updateProduct);
-    };
   }, [id, userKey]);
 
   const toggleFavorite = () => {
     if (!p) return;
     let favs = safeGetJSON(userKey, []);
     if (!Array.isArray(favs)) favs = [];
-    const pId = p._id || p.id;
+    const pId = p._id || p.id || p.sku;
     if (isFav) {
-      favs = favs.filter(item => item && String(item._id || item.id).toLowerCase() !== String(pId).toLowerCase());
+      favs = favs.filter(item => item && String(item._id || item.id || item.sku).toLowerCase() !== String(pId).toLowerCase());
     } else {
       favs.push(p);
     }
@@ -81,7 +75,7 @@ export default function Product() {
     );
   }
 
-  const price = Number(p.price || p.salePrice || p.regularPrice || 0);
+  const price = Number(p.salePrice || p.regularPrice || p.price || 0);
 
   return (
     <section className="page" style={{ maxWidth: '1100px', margin: '0 auto' }}>
