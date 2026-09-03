@@ -2,9 +2,10 @@ import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { safeGetJSON } from '../utils/storage';
+import { PackageIcon, HeartIcon, ShieldIcon, CheckIcon, ArrowRightIcon } from '../components/Icons';
 
 export default function Profile() {
-  const { user } = useAuth();
+  const { user, logout } = useAuth();
   const [savedAddress, setSavedAddress] = useState(null);
 
   const userAddressKey = user?.email ? `saved_address_${String(user.email).toLowerCase()}` : 'saved_address_guest';
@@ -15,52 +16,73 @@ export default function Profile() {
   }, [userAddressKey]);
 
   return (
-    <section className="page" style={{ maxWidth: '800px', margin: '0 auto' }}>
+    <section className="page" style={{ maxWidth: '750px', margin: '0 auto' }}>
       <p className="eyebrow">USER PROFILE</p>
-      <h1 style={{ fontFamily: 'var(--font-serif)', fontSize: '38px', marginBottom: '32px' }}>My Account</h1>
+      <h1 style={{ fontSize: '24px', fontWeight: 700, margin: '4px 0 24px' }}>My Account</h1>
 
-      <div style={{ background: '#fff', padding: '36px', borderRadius: '14px', border: '1px solid var(--border-light)', boxShadow: 'var(--shadow-sm)' }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '20px', marginBottom: '28px' }}>
-          <div style={{ width: '64px', height: '64px', borderRadius: '50%', background: 'var(--text-dark)', color: '#fff', display: 'grid', placeItems: 'center', fontSize: '24px', fontWeight: 700 }}>
+      <div style={{ background: '#fff', padding: '28px', borderRadius: '12px', border: '1px solid var(--border)', boxShadow: 'var(--shadow-sm)' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '16px', marginBottom: '24px' }}>
+          <div style={{ width: '56px', height: '56px', borderRadius: '50%', background: 'var(--text-dark)', color: '#fff', display: 'grid', placeItems: 'center', fontSize: '20px', fontWeight: 600 }}>
             {user?.name?.[0]?.toUpperCase() || 'U'}
           </div>
           <div>
-            <h2 style={{ fontFamily: 'var(--font-serif)', fontSize: '24px' }}>{user?.name || 'Guest User'}</h2>
-            <p style={{ color: 'var(--text-muted)', fontSize: '14px' }}>{user?.email || 'Sign in to access your account'}</p>
+            <h2 style={{ fontSize: '18px', fontWeight: 600, margin: '0 0 4px' }}>{user?.name || 'User'}</h2>
+            <p style={{ color: 'var(--text-muted)', fontSize: '13px', margin: 0 }}>{user?.email || ''}</p>
             {user?.role === 'admin' && (
-              <span style={{ display: 'inline-block', background: 'var(--accent-gold)', color: '#fff', fontSize: '11px', padding: '2px 8px', borderRadius: '4px', fontWeight: 700, marginTop: '4px' }}>
-                ADMIN ACCOUNT
+              <span style={{ display: 'inline-block', background: '#0f172a', color: '#fff', fontSize: '11px', padding: '2px 8px', borderRadius: '4px', fontWeight: 600, marginTop: '4px' }}>
+                ADMINISTRATOR
               </span>
             )}
           </div>
         </div>
 
         {/* SAVED ADDRESS DISPLAY CARD */}
-        <div style={{ borderTop: '1px solid var(--border-light)', paddingTop: '24px', marginBottom: '24px' }}>
-          <h3 style={{ fontFamily: 'var(--font-serif)', fontSize: '18px', marginBottom: '12px' }}>📍 Saved Delivery Address</h3>
+        <div style={{ borderTop: '1px solid var(--border)', paddingTop: '20px', marginBottom: '20px' }}>
+          <h3 style={{ fontSize: '15px', fontWeight: 600, marginBottom: '10px', display: 'flex', alignItems: 'center', gap: '6px' }}>
+            <CheckIcon size={14} /> Saved Delivery Address
+          </h3>
           {savedAddress ? (
-            <div style={{ background: 'var(--bg-primary)', padding: '18px', borderRadius: '10px', fontSize: '14px' }}>
-              <strong>{savedAddress.name}</strong><br />
+            <div style={{ background: 'var(--bg-secondary)', padding: '16px', borderRadius: '8px', fontSize: '13px', border: '1px solid var(--border)' }}>
+              <strong style={{ color: 'var(--text-dark)' }}>{savedAddress.name}</strong><br />
               {savedAddress.address}, {savedAddress.city}, {savedAddress.state} - {savedAddress.postalCode}<br />
               Phone: {savedAddress.phone}
             </div>
           ) : (
-            <p style={{ color: 'var(--text-muted)', fontSize: '14px' }}>No saved address yet. Checkout an order to save your address for quick future orders!</p>
+            <p style={{ color: 'var(--text-muted)', fontSize: '13px', margin: 0 }}>No saved address yet. Your address will be saved here upon checkout.</p>
           )}
         </div>
 
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '14px', borderTop: '1px solid var(--border-light)', paddingTop: '24px' }}>
-          <Link to="/orders" style={{ textDecoration: 'none', color: 'var(--text-dark)', fontSize: '16px', fontWeight: 600 }}>
-            📦 My Orders & Tracking →
+        {/* QUICK NAVIGATION LINKS */}
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', borderTop: '1px solid var(--border)', paddingTop: '20px' }}>
+          <Link to="/orders" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', textDecoration: 'none', color: 'var(--text-dark)', fontSize: '14px', fontWeight: 500, padding: '10px 14px', background: 'var(--bg-secondary)', borderRadius: '6px' }}>
+            <span style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+              <PackageIcon size={16} /> My Orders & History
+            </span>
+            <ArrowRightIcon size={14} />
           </Link>
-          <Link to="/favorites" style={{ textDecoration: 'none', color: 'var(--text-dark)', fontSize: '16px', fontWeight: 600 }}>
-            ❤️ Saved Favorites →
+          
+          <Link to="/favorites" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', textDecoration: 'none', color: 'var(--text-dark)', fontSize: '14px', fontWeight: 500, padding: '10px 14px', background: 'var(--bg-secondary)', borderRadius: '6px' }}>
+            <span style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+              <HeartIcon size={16} /> Saved Favorites
+            </span>
+            <ArrowRightIcon size={14} />
           </Link>
+
           {user?.role === 'admin' && (
-            <Link to="/admin" style={{ textDecoration: 'none', color: 'var(--accent-gold)', fontSize: '16px', fontWeight: 600 }}>
-              👑 Admin Management Portal →
+            <Link to="/admin" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', textDecoration: 'none', color: '#0f172a', fontSize: '14px', fontWeight: 600, padding: '10px 14px', background: '#f1f5f9', borderRadius: '6px', border: '1px solid #cbd5e1' }}>
+              <span style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                <ShieldIcon size={16} /> Admin Management Console
+              </span>
+              <ArrowRightIcon size={14} />
             </Link>
           )}
+
+          <button 
+            onClick={logout}
+            style={{ marginTop: '10px', background: '#fff', border: '1px solid var(--border)', color: '#dc2626', padding: '10px 14px', borderRadius: '6px', fontSize: '13px', fontWeight: 500, cursor: 'pointer', textAlign: 'left' }}
+          >
+            Sign Out
+          </button>
         </div>
       </div>
     </section>

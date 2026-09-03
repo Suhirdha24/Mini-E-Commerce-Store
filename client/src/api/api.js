@@ -30,4 +30,21 @@ api.interceptors.request.use((config) => {
   return config;
 });
 
+// Response interceptor to handle token expiration (401 Unauthorized)
+api.interceptors.response.use(
+  (response) => response,
+  (error) => {
+    if (error.response && error.response.status === 401) {
+      // Don't auto-redirect on login or register attempt errors
+      const isAuthEndpoint = error.config?.url?.includes('/auth/login') || error.config?.url?.includes('/auth/register');
+      if (!isAuthEndpoint) {
+        localStorage.removeItem('token');
+        localStorage.removeItem('user_data');
+        window.dispatchEvent(new Event('authExpired'));
+      }
+    }
+    return Promise.reject(error);
+  }
+);
+
 export default api;

@@ -128,9 +128,11 @@ export const myOrders = async (req, res) => {
   res.json(await Order.find({ user: req.user._id }).sort({ createdAt: -1 }));
 };
 
-// GET SINGLE ORDER
+// GET SINGLE ORDER (STRICT OWNERSHIP & ADMIN AUTHORIZATION)
 export const getOne = async (req, res) => {
   const targetId = req.params.id;
+  const currentUserId = String(req.user?.id || req.user?._id);
+  const isAdmin = req.user?.role === 'admin';
 
   if (pool) {
     const r = await pool.query(
@@ -142,11 +144,24 @@ export const getOne = async (req, res) => {
       [targetId]
     );
     if (!r.rows.length) return res.status(404).json({ message: 'Order not found' });
-    return res.json(r.rows[0]);
+    const order = r.rows[0];
+
+    // Authorize: Admin or Order Owner
+    if (!isAdmin && String(order.user_id) !== currentUserId) {
+      return res.status(403).json({ message: 'Access denied: You do not have permission to view this order.' });
+    }
+
+    return res.json(order);
   }
 
   const o = await Order.findById(targetId).populate('user', 'name email');
   if (!o) return res.status(404).json({ message: 'Order not found' });
+
+  const orderOwnerId = o.user?._id ? String(o.user._id) : String(o.user);
+  if (!isAdmin && orderOwnerId !== currentUserId) {
+    return res.status(403).json({ message: 'Access denied: You do not have permission to view this order.' });
+  }
+
   res.json(o);
 };
 
@@ -167,7 +182,95 @@ export const all = async (req, res) => {
   res.json(await Order.find().populate('user', 'name email').sort({ createdAt: -1 }));
 };
 
-// UPDATE ORDER STATUS (WITH INVENTORY RESTORATION ON CANCELLATION)
+// CANCEL MY ORDER (CUSTOMER ACTION WITH STOCK RESTORATION)
+export const cancelMyOrder = async (req, res) => {
+  const targetId = req.params.id;
+  const currentUserId = String(req.user?.id || req.user?._id);
+  const isAdmin = req.user?.role === 'admin';
+
+  if (pool) {
+    const client = await pool.connect();
+    try {
+      await client.query('BEGIN');
+
+      const oRes = await client.query(
+        `SELECT id, user_id, status, items FROM orders WHERE id::text = $1 FOR UPDATE`,
+        [targetId]
+      );
+
+      if (!oRes.rows.length) {
+        throw new Error('Order not found');
+      }
+
+      const existingOrder = oRes.rows[0];
+
+      if (!isAdmin && String(existingOrder.user_id) !== currentUserId) {
+        return res.status(403).json({ message: 'Access denied: You can only cancel your own orders.' });
+      }
+
+      if (existingOrder.status === 'Cancelled') {
+        return res.status(400).json({ message: 'Order is already cancelled.' });
+      }
+
+      if (existingOrder.status === 'Delivered') {
+        return res.status(400).json({ message: 'Delivered orders cannot be cancelled.' });
+      }
+
+      // Restore inventory stock
+      const items = Array.isArray(existingOrder.items) ? existingOrder.items : JSON.parse(existingOrder.items || '[]');
+      for (const item of items) {
+        if (item.product && item.quantity) {
+          await client.query(
+            `UPDATE products SET stock = stock + $1, updated_at = NOW() WHERE id::text = $2`,
+            [Number(item.quantity), String(item.product)]
+          );
+        }
+      }
+
+      const r = await client.query(
+        `UPDATE orders SET status = 'Cancelled', updated_at = NOW() WHERE id::text = $1 RETURNING id as _id, *`,
+        [targetId]
+      );
+
+      await client.query('COMMIT');
+      return res.json(r.rows[0]);
+    } catch (err) {
+      await client.query('ROLLBACK');
+      return res.status(400).json({ message: err.message || 'Failed to cancel order' });
+    } finally {
+      client.release();
+    }
+  }
+
+  // Mongoose fallback
+  const o = await Order.findById(targetId);
+  if (!o) return res.status(404).json({ message: 'Order not found' });
+
+  const orderOwnerId = o.user?._id ? String(o.user._id) : String(o.user);
+  if (!isAdmin && orderOwnerId !== currentUserId) {
+    return res.status(403).json({ message: 'Access denied: You can only cancel your own orders.' });
+  }
+
+  if (o.status === 'Cancelled') {
+    return res.status(400).json({ message: 'Order is already cancelled.' });
+  }
+
+  if (o.status === 'Delivered') {
+    return res.status(400).json({ message: 'Delivered orders cannot be cancelled.' });
+  }
+
+  for (const item of (o.items || [])) {
+    if (item.product && item.quantity) {
+      await Product.findByIdAndUpdate(item.product, { $inc: { stock: Number(item.quantity) } });
+    }
+  }
+
+  o.status = 'Cancelled';
+  await o.save();
+  res.json(o);
+};
+
+// UPDATE ORDER STATUS (ADMIN ONLY WITH INVENTORY RESTORATION ON CANCELLATION)
 export const updateStatus = async (req, res) => {
   const { status } = req.body;
   const allowed = ['Placed', 'Processing', 'Shipped', 'Delivered', 'Cancelled'];
@@ -222,7 +325,19 @@ export const updateStatus = async (req, res) => {
     }
   }
 
-  const o = await Order.findByIdAndUpdate(targetId, { status }, { new: true });
-  if (!o) return res.status(404).json({ message: 'Order not found' });
-  res.json(o);
+  // Mongoose fallback with stock restoration
+  const existingOrder = await Order.findById(targetId);
+  if (!existingOrder) return res.status(404).json({ message: 'Order not found' });
+
+  if (status === 'Cancelled' && existingOrder.status !== 'Cancelled') {
+    for (const item of (existingOrder.items || [])) {
+      if (item.product && item.quantity) {
+        await Product.findByIdAndUpdate(item.product, { $inc: { stock: Number(item.quantity) } });
+      }
+    }
+  }
+
+  existingOrder.status = status;
+  await existingOrder.save();
+  res.json(existingOrder);
 };

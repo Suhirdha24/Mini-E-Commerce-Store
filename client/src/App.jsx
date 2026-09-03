@@ -12,6 +12,7 @@ import Profile from "./pages/Profile";
 import Favorites from "./pages/Favorites";
 import About from "./pages/About";
 import Admin from "./pages/Admin";
+import { ProtectedRoute, AdminRoute } from "./components/ProtectedRoute";
 
 function App() {
   return (
@@ -19,7 +20,6 @@ function App() {
       {/* AUTHENTICATION ROUTES */}
       <Route path="/login" element={<Auth mode="login" />} />
       <Route path="/register" element={<Auth mode="register" />} />
-      {/* SEPARATE DEDICATED ADMIN LOGIN ROUTE */}
       <Route path="/admin-login" element={<Auth mode="admin-login" />} />
 
       {/* MAIN WEBSITE LAYOUT ROUTES */}
@@ -32,11 +32,15 @@ function App() {
         <Route path="/about" element={<About />} />
         <Route path="/favorites" element={<Favorites />} />
         <Route path="/cart" element={<Cart />} />
-        <Route path="/checkout" element={<Checkout />} />
-        <Route path="/profile" element={<Profile />} />
-        <Route path="/orders" element={<Orders />} />
-        <Route path="/orders/:id" element={<OrderDetail />} />
-        <Route path="/admin" element={<Admin />} />
+
+        {/* CUSTOMER PROTECTED ROUTES */}
+        <Route path="/checkout" element={<ProtectedRoute><Checkout /></ProtectedRoute>} />
+        <Route path="/profile" element={<ProtectedRoute><Profile /></ProtectedRoute>} />
+        <Route path="/orders" element={<ProtectedRoute><Orders /></ProtectedRoute>} />
+        <Route path="/orders/:id" element={<ProtectedRoute><OrderDetail /></ProtectedRoute>} />
+
+        {/* ADMIN PROTECTED ROUTE */}
+        <Route path="/admin" element={<AdminRoute><Admin /></AdminRoute>} />
       </Route>
 
       {/* FALLBACK CATCH-ALL ROUTE */}

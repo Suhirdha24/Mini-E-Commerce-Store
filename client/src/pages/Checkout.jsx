@@ -4,6 +4,7 @@ import api from '../api/api';
 import { useCart } from '../context/CartContext';
 import { useAuth } from '../context/AuthContext';
 import { safeGetJSON, safeSetJSON } from '../utils/storage.js';
+import { CheckIcon, ArrowRightIcon } from '../components/Icons';
 
 const INDIAN_STATES = ['Tamil Nadu', 'Karnataka', 'Kerala', 'Maharashtra', 'Delhi', 'Telangana', 'Andhra Pradesh', 'Gujarat'];
 const CITIES = {
@@ -50,27 +51,6 @@ export default function Checkout() {
       setF(saved);
     }
   }, [userAddressKey]);
-
-  // If user is not logged in, redirect to login with return path
-  if (!user) {
-    return (
-      <section className="page" style={{ maxWidth: '500px', margin: '40px auto', textAlign: 'center' }}>
-        <div style={{ background: '#fff', padding: '40px', borderRadius: '16px', border: '1px solid var(--border-light)', boxShadow: 'var(--shadow-md)' }}>
-          <div style={{ fontSize: '48px', marginBottom: '16px' }}>🔐</div>
-          <h2 style={{ fontFamily: 'var(--font-serif)', fontSize: '28px', marginBottom: '12px' }}>Please Log In</h2>
-          <p style={{ color: 'var(--text-muted)', marginBottom: '24px', fontSize: '14px' }}>
-            You need to be signed in to your account to place and track your order.
-          </p>
-          <div style={{ display: 'flex', gap: '12px', justifyContent: 'center' }}>
-            <Link className="primary" to="/login">Sign In</Link>
-            <Link to="/register" style={{ padding: '12px 24px', textDecoration: 'none', border: '1px solid var(--border-light)', borderRadius: '30px', fontWeight: 600, color: 'var(--text-dark)' }}>
-              Create Account
-            </Link>
-          </div>
-        </div>
-      </section>
-    );
-  }
 
   const handleProceedToPayment = (e) => {
     e.preventDefault();
@@ -126,44 +106,46 @@ export default function Checkout() {
   };
 
   if (step === 'success' && successOrder) {
-    const orderItems = Array.isArray(successOrder.items) ? successOrder.items : JSON.parse(successOrder.items || '[]');
     const orderId = successOrder.id || successOrder._id || 'CONFIRMED';
 
     return (
-      <section className="page" style={{ maxWidth: '650px', margin: '40px auto', textAlign: 'center' }}>
-        <div style={{ background: '#fff', padding: '44px', borderRadius: '16px', border: '1px solid var(--border-light)', boxShadow: 'var(--shadow-md)' }}>
-          <div style={{ fontSize: '54px', marginBottom: '16px' }}>🎉</div>
-          <span className="script-accent">Thank you for your purchase</span>
-          <p className="eyebrow" style={{ marginTop: '6px' }}>ORDER CONFIRMED & SAVED TO DATABASE</p>
-          <h1 style={{ fontFamily: 'var(--font-serif)', fontSize: '36px', margin: '8px 0 16px' }}>
+      <section className="page" style={{ maxWidth: '600px', margin: '40px auto', textAlign: 'center' }}>
+        <div style={{ background: '#fff', padding: '36px', borderRadius: '12px', border: '1px solid var(--border)', boxShadow: 'var(--shadow-sm)' }}>
+          <div style={{ width: '56px', height: '56px', borderRadius: '50%', background: '#ecfdf5', color: '#059669', display: 'grid', placeItems: 'center', margin: '0 auto 16px' }}>
+            <CheckIcon size={28} />
+          </div>
+          <p className="eyebrow" style={{ color: '#059669', fontWeight: 600 }}>ORDER CONFIRMED</p>
+          <h1 style={{ fontSize: '24px', fontWeight: 700, margin: '8px 0 12px' }}>
             Payment Successful!
           </h1>
-          <p style={{ color: 'var(--text-muted)', marginBottom: '24px' }}>
+          <p style={{ color: 'var(--text-muted)', marginBottom: '24px', fontSize: '14px' }}>
             Order ID: <strong>#{orderId}</strong>
           </p>
 
-          <div style={{ background: 'var(--bg-primary)', padding: '20px', borderRadius: '10px', textAlign: 'left', marginBottom: '28px' }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '12px' }}>
-              <span>Payment Method:</span>
-              <strong>{successOrder.payment_method || successOrder.paymentMethod}</strong>
+          <div style={{ background: 'var(--bg-secondary)', padding: '20px', borderRadius: '8px', textAlign: 'left', marginBottom: '24px', border: '1px solid var(--border)' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '12px', fontSize: '14px' }}>
+              <span style={{ color: 'var(--text-muted)' }}>Payment Method:</span>
+              <strong style={{ color: 'var(--text-dark)' }}>{successOrder.payment_method || successOrder.paymentMethod}</strong>
             </div>
-            <hr style={{ borderColor: 'var(--border-light)', margin: '12px 0' }} />
-            <h4 style={{ fontFamily: 'var(--font-serif)', fontSize: '16px', marginBottom: '6px' }}>Shipping Address</h4>
-            <p style={{ fontSize: '14px', color: 'var(--text-muted)' }}>
-              <strong>{f.name}</strong><br />
+            <hr style={{ borderColor: 'var(--border)', margin: '12px 0' }} />
+            <h4 style={{ fontSize: '14px', fontWeight: 600, marginBottom: '6px' }}>Shipping Address</h4>
+            <p style={{ fontSize: '13px', color: 'var(--text-muted)', lineHeight: 1.5 }}>
+              <strong style={{ color: 'var(--text-dark)' }}>{f.name}</strong><br />
               {f.address}, {f.city}, {f.state} - {f.postalCode}<br />
               Phone: {f.phone}
             </p>
-            <hr style={{ borderColor: 'var(--border-light)', margin: '12px 0' }} />
-            <div style={{ display: 'flex', justifyContent: 'space-between', fontWeight: 700, fontSize: '16px' }}>
+            <hr style={{ borderColor: 'var(--border)', margin: '12px 0' }} />
+            <div style={{ display: 'flex', justifyContent: 'space-between', fontWeight: 700, fontSize: '15px' }}>
               <span>Total Paid</span>
               <span>₹{Number(successOrder.total || total || 0).toLocaleString('en-IN')}</span>
             </div>
           </div>
 
-          <div style={{ display: 'flex', gap: '16px', justifyContent: 'center' }}>
-            <button className="primary" onClick={() => nav('/orders')}>View My Orders →</button>
-            <Link to="/shop" style={{ padding: '14px 24px', textDecoration: 'none', color: 'var(--text-dark)', fontWeight: 600 }}>Continue Shopping</Link>
+          <div style={{ display: 'flex', gap: '12px', justifyContent: 'center' }}>
+            <button className="primary" onClick={() => nav('/orders')}>View My Orders</button>
+            <Link to="/shop" style={{ padding: '10px 20px', textDecoration: 'none', color: 'var(--text-dark)', fontWeight: 500, fontSize: '14px' }}>
+              Continue Shopping
+            </Link>
           </div>
         </div>
       </section>
@@ -172,22 +154,27 @@ export default function Checkout() {
 
   return (
     <section className="page" style={{ maxWidth: '600px', margin: '20px auto' }}>
-      <div style={{ background: '#fff', padding: '40px', borderRadius: '16px', border: '1px solid var(--border-light)', boxShadow: 'var(--shadow-md)' }}>
+      <div style={{ background: '#fff', padding: '32px', borderRadius: '12px', border: '1px solid var(--border)', boxShadow: 'var(--shadow-sm)' }}>
         
-        <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '28px', borderBottom: '1px solid var(--border-light)', paddingBottom: '16px' }}>
-          <div style={{ fontWeight: step === 'shipping' ? 700 : 400 }}>1. Shipping Address</div>
-          <div style={{ fontWeight: step === 'payment' ? 700 : 400 }}>2. Payment Method</div>
+        <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '24px', borderBottom: '1px solid var(--border)', paddingBottom: '14px', fontSize: '14px' }}>
+          <div style={{ fontWeight: step === 'shipping' ? 600 : 400, color: step === 'shipping' ? 'var(--text-dark)' : 'var(--text-muted)' }}>
+            1. Shipping Address
+          </div>
+          <div style={{ fontWeight: step === 'payment' ? 600 : 400, color: step === 'payment' ? 'var(--text-dark)' : 'var(--text-muted)' }}>
+            2. Payment Method
+          </div>
         </div>
 
         {step === 'shipping' && (
           <form onSubmit={handleProceedToPayment} style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
-            <h1 style={{ fontFamily: 'var(--font-serif)', fontSize: '32px' }}>Shipping Details</h1>
+            <h1 style={{ fontSize: '22px', fontWeight: 600 }}>Shipping Details</h1>
 
-            {/* SAVED ADDRESS VS NEW ADDRESS TOGGLE */}
             {savedAddress && (
-              <div style={{ background: 'var(--bg-primary)', padding: '18px', borderRadius: '10px', marginBottom: '10px' }}>
+              <div style={{ background: 'var(--bg-secondary)', padding: '16px', borderRadius: '8px', border: '1px solid var(--border)' }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
-                  <strong style={{ fontSize: '14px' }}>📍 Saved Delivery Address</strong>
+                  <strong style={{ fontSize: '13px', display: 'flex', alignItems: 'center', gap: '6px' }}>
+                    <CheckIcon size={14} /> Saved Delivery Address
+                  </strong>
                   <button 
                     type="button" 
                     onClick={() => {
@@ -195,13 +182,13 @@ export default function Checkout() {
                       if (useNewAddress) setF(savedAddress);
                       else setF({ name: user?.name || '', address: '', city: 'Erode', state: 'Tamil Nadu', postalCode: '', phone: '' });
                     }} 
-                    style={{ background: 'none', border: 'none', color: 'var(--accent-gold)', fontWeight: 700, cursor: 'pointer' }}
+                    style={{ background: 'none', border: 'none', color: 'var(--text-dark)', textDecoration: 'underline', fontWeight: 600, fontSize: '12px', cursor: 'pointer' }}
                   >
                     {useNewAddress ? 'Use Saved Address' : '+ Add New Address'}
                   </button>
                 </div>
                 {!useNewAddress && (
-                  <p style={{ fontSize: '13px', color: 'var(--text-muted)' }}>
+                  <p style={{ fontSize: '13px', color: 'var(--text-muted)', lineHeight: 1.5 }}>
                     <strong>{savedAddress.name}</strong><br />
                     {savedAddress.address}, {savedAddress.city}, {savedAddress.state} - {savedAddress.postalCode}<br />
                     Phone: {savedAddress.phone}
@@ -213,90 +200,90 @@ export default function Checkout() {
             {(useNewAddress || !savedAddress) && (
               <>
                 <div>
-                  <label style={{ display: 'block', fontSize: '13px', fontWeight: 600, marginBottom: '6px' }}>Full Name</label>
-                  <input required placeholder="Suhirdha K S" value={f.name} onChange={e => setF({ ...f, name: e.target.value })} />
+                  <label style={{ display: 'block', fontSize: '13px', fontWeight: 500, marginBottom: '6px' }}>Full Name</label>
+                  <input required placeholder="Your Full Name" value={f.name} onChange={e => setF({ ...f, name: e.target.value })} />
                 </div>
 
                 <div>
-                  <label style={{ display: 'block', fontSize: '13px', fontWeight: 600, marginBottom: '6px' }}>Street Address</label>
+                  <label style={{ display: 'block', fontSize: '13px', fontWeight: 500, marginBottom: '6px' }}>Street Address</label>
                   <input required placeholder="Door No, Street Name" value={f.address} onChange={e => setF({ ...f, address: e.target.value })} />
                 </div>
 
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '14px' }}>
                   <div>
-                    <label style={{ display: 'block', fontSize: '13px', fontWeight: 600, marginBottom: '6px' }}>State</label>
+                    <label style={{ display: 'block', fontSize: '13px', fontWeight: 500, marginBottom: '6px' }}>State</label>
                     <select value={f.state} onChange={e => setF({ ...f, state: e.target.value, city: CITIES[e.target.value]?.[0] || '' })}>
                       {INDIAN_STATES.map(st => <option key={st} value={st}>{st}</option>)}
                     </select>
                   </div>
 
                   <div>
-                    <label style={{ display: 'block', fontSize: '13px', fontWeight: 600, marginBottom: '6px' }}>City</label>
+                    <label style={{ display: 'block', fontSize: '13px', fontWeight: 500, marginBottom: '6px' }}>City</label>
                     <select value={f.city} onChange={e => setF({ ...f, city: e.target.value })}>
                       {(CITIES[f.state] || []).map(c => <option key={c} value={c}>{c}</option>)}
                     </select>
                   </div>
                 </div>
 
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '14px' }}>
                   <div>
-                    <label style={{ display: 'block', fontSize: '13px', fontWeight: 600, marginBottom: '6px' }}>Postal Code</label>
+                    <label style={{ display: 'block', fontSize: '13px', fontWeight: 500, marginBottom: '6px' }}>Postal Code</label>
                     <input required placeholder="638153" value={f.postalCode} onChange={e => setF({ ...f, postalCode: e.target.value })} />
                   </div>
                   <div>
-                    <label style={{ display: 'block', fontSize: '13px', fontWeight: 600, marginBottom: '6px' }}>Phone Number</label>
+                    <label style={{ display: 'block', fontSize: '13px', fontWeight: 500, marginBottom: '6px' }}>Phone Number</label>
                     <input required placeholder="9876543210" value={f.phone} onChange={e => setF({ ...f, phone: e.target.value })} />
                   </div>
                 </div>
               </>
             )}
 
-            {err && <div style={{ color: '#dc2626', background: '#fee2e2', padding: '12px', borderRadius: '6px', fontSize: '13px' }}>{err}</div>}
+            {err && <div style={{ color: '#dc2626', background: '#fee2e2', padding: '10px 14px', borderRadius: '6px', fontSize: '13px' }}>{err}</div>}
 
-            <button className="primary wide" style={{ marginTop: '12px' }}>
-              Proceed to Payment → (₹{Number(total || 0).toLocaleString('en-IN')})
+            <button className="primary wide" style={{ marginTop: '8px' }}>
+              Proceed to Payment (₹{Number(total || 0).toLocaleString('en-IN')})
             </button>
           </form>
         )}
 
         {step === 'payment' && (
-          <form onSubmit={handleFinalPayment} style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
-            <h1 style={{ fontFamily: 'var(--font-serif)', fontSize: '32px' }}>Select Payment Method</h1>
+          <form onSubmit={handleFinalPayment} style={{ display: 'flex', flexDirection: 'column', gap: '18px' }}>
+            <h1 style={{ fontSize: '22px', fontWeight: 600 }}>Select Payment Method</h1>
             <p style={{ color: 'var(--text-muted)', fontSize: '14px' }}>Total Amount: <strong>₹{Number(total || 0).toLocaleString('en-IN')}</strong></p>
 
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
-              <label style={{ display: 'flex', alignItems: 'center', gap: '14px', padding: '16px', border: paymentMethod === 'cod' ? '2px solid var(--text-dark)' : '1px solid var(--border-light)', borderRadius: '10px', cursor: 'pointer' }}>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+              <label style={{ display: 'flex', alignItems: 'center', gap: '12px', padding: '14px', border: paymentMethod === 'cod' ? '2px solid var(--text-dark)' : '1px solid var(--border)', borderRadius: '8px', cursor: 'pointer' }}>
                 <input type="radio" name="pm" checked={paymentMethod === 'cod'} onChange={() => setPaymentMethod('cod')} style={{ width: 'auto' }} />
                 <div>
-                  <strong style={{ display: 'block', fontSize: '15px' }}>💵 Cash on Delivery (COD)</strong>
+                  <strong style={{ display: 'block', fontSize: '14px' }}>Cash on Delivery (COD)</strong>
                   <span style={{ fontSize: '12px', color: 'var(--text-muted)' }}>Pay with cash upon delivery.</span>
                 </div>
               </label>
 
-              <label style={{ display: 'flex', alignItems: 'center', gap: '14px', padding: '16px', border: paymentMethod === 'upi' ? '2px solid var(--text-dark)' : '1px solid var(--border-light)', borderRadius: '10px', cursor: 'pointer' }}>
+              <label style={{ display: 'flex', alignItems: 'center', gap: '12px', padding: '14px', border: paymentMethod === 'upi' ? '2px solid var(--text-dark)' : '1px solid var(--border)', borderRadius: '8px', cursor: 'pointer' }}>
                 <input type="radio" name="pm" checked={paymentMethod === 'upi'} onChange={() => setPaymentMethod('upi')} style={{ width: 'auto' }} />
                 <div>
-                  <strong style={{ display: 'block', fontSize: '15px' }}>📱 UPI Payment (GPay, PhonePe, Paytm)</strong>
+                  <strong style={{ display: 'block', fontSize: '14px' }}>UPI Payment (GPay, PhonePe, Paytm)</strong>
                   <span style={{ fontSize: '12px', color: 'var(--text-muted)' }}>Instant digital payment via UPI ID.</span>
                 </div>
               </label>
             </div>
 
             {paymentMethod === 'upi' && (
-              <div style={{ background: 'var(--bg-primary)', padding: '18px', borderRadius: '10px' }}>
-                <label style={{ display: 'block', fontSize: '13px', fontWeight: 600, marginBottom: '6px' }}>UPI ID / Mobile Number</label>
+              <div style={{ background: 'var(--bg-secondary)', padding: '16px', borderRadius: '8px', border: '1px solid var(--border)' }}>
+                <label style={{ display: 'block', fontSize: '13px', fontWeight: 500, marginBottom: '6px' }}>UPI ID / Mobile Number</label>
                 <input required placeholder="name@okaxis or 9876543210@upi" value={upiId} onChange={e => setUpiId(e.target.value)} />
               </div>
             )}
 
-            {err && <div style={{ color: '#dc2626', background: '#fee2e2', padding: '12px', borderRadius: '6px', fontSize: '13px' }}>{err}</div>}
+            {err && <div style={{ color: '#dc2626', background: '#fee2e2', padding: '10px 14px', borderRadius: '6px', fontSize: '13px' }}>{err}</div>}
 
-            <div style={{ display: 'flex', gap: '14px', marginTop: '12px' }}>
-              <button type="button" onClick={() => setStep('shipping')} style={{ padding: '14px 20px', background: '#fff', border: '1px solid var(--border-light)', borderRadius: '30px', fontWeight: 600, cursor: 'pointer' }}>
-                ← Edit Address
+            <div style={{ display: 'flex', gap: '12px', marginTop: '8px' }}>
+              <button type="button" onClick={() => setStep('shipping')} style={{ padding: '10px 18px', background: '#fff', border: '1px solid var(--border)', borderRadius: '6px', fontWeight: 500, fontSize: '14px', cursor: 'pointer' }}>
+                Back to Address
               </button>
               <button className="primary" disabled={busy} style={{ flex: 1 }}>
-                {busy ? 'Processing Payment...' : `Complete Payment (₹${Number(total || 0).toLocaleString('en-IN')}) →`}
+                {busy ? 'Processing...' : `Pay ₹${Number(total || 0).toLocaleString('en-IN')}`}
               </button>
             </div>
           </form>
