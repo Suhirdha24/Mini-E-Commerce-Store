@@ -4,16 +4,7 @@ import { useCart } from '../context/CartContext';
 import { useAuth } from '../context/AuthContext';
 import { safeGetJSON, safeSetJSON } from '../utils/storage';
 
-const FALLBACK_IMAGE = 'https://images.unsplash.com/photo-1548036328-c9fa89d128fa?w=800&auto=format&fit=crop&q=80';
-
-const CATEGORY_SWATCHES = {
-  Bags: ['#282420', '#8D694E', '#D9C8B4'],
-  Footwear: ['#1C1B1A', '#8F7B6B', '#E5DDD3'],
-  Accessories: ['#C5A059', '#1C1B1A', '#7A8288'],
-  Apparel: ['#EAE3D9', '#3D4944', '#8C5B3E'],
-  Home: ['#E6DEC8', '#677565', '#D29471'],
-  Electronics: ['#1C1B1A', '#5C5C60', '#D5D5DA']
-};
+const FALLBACK_IMAGE = 'https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=800&auto=format&fit=crop&q=80';
 
 export default function ProductCard({ p }) {
   const { add } = useCart();
@@ -24,7 +15,6 @@ export default function ProductCard({ p }) {
   const [isFav, setIsFav] = useState(false);
   const [imgSrc, setImgSrc] = useState(p.image || FALLBACK_IMAGE);
   const [isAdded, setIsAdded] = useState(false);
-  const [activeSwatch, setActiveSwatch] = useState(0);
 
   const userKey = user?.email ? `fav_${String(user.email).toLowerCase()}` : 'fav_guest';
 
@@ -62,91 +52,63 @@ export default function ProductCard({ p }) {
   };
 
   const displayPrice = Number(p.salePrice || p.regularPrice || p.price || 0);
-  const originalPrice = Number(p.regularPrice || 0);
-  const hasDiscount = originalPrice > displayPrice;
-  const swatches = CATEGORY_SWATCHES[p.category] || ['#282420', '#C5A059', '#EAE3D9'];
+  const formattedPrice = Math.floor(displayPrice).toLocaleString('en-IN');
 
   return (
-    <article className="sable-product-card">
-      {/* SABLE BADGE */}
-      {p.stock === 0 ? (
-        <span className="sable-card-badge" style={{ color: '#dc2626' }}>
-          Sold Out
-        </span>
-      ) : hasDiscount ? (
-        <span className="sable-card-badge">
-          New
-        </span>
-      ) : null}
+    <article className="shopcart-product-card">
+      {/* CARD IMAGE WITH FLOATING HEART */}
+      <div className="shopcart-card-image-box">
+        <button
+          onClick={toggleFavorite}
+          className={`shopcart-card-heart-btn ${isFav ? 'active' : ''}`}
+          title={isFav ? "Remove from wishlist" : "Add to wishlist"}
+          aria-label="Wishlist"
+        >
+          {isFav ? '♥' : '♡'}
+        </button>
 
-      {/* WISHLIST HEART */}
-      <button
-        onClick={toggleFavorite}
-        className={`sable-card-fav-btn ${isFav ? 'active' : ''}`}
-        title={isFav ? "Remove from wishlist" : "Add to wishlist"}
-        aria-label="Wishlist"
-      >
-        {isFav ? '♥' : '♡'}
-      </button>
-
-      {/* PRODUCT IMAGE */}
-      <Link to={`/product/${productId}`} className="sable-card-thumb-wrap">
-        <img 
-          src={imgSrc} 
-          alt={p.name || 'Product'} 
-          onError={() => setImgSrc(FALLBACK_IMAGE)}
-          loading="lazy"
-        />
-      </Link>
-      
-      {/* CARD BODY */}
-      <div className="sable-card-body">
-        {/* COLOR SWATCHES */}
-        <div className="sable-card-swatches">
-          {swatches.map((col, idx) => (
-            <span
-              key={idx}
-              onClick={() => setActiveSwatch(idx)}
-              className="sable-swatch-dot"
-              style={{
-                backgroundColor: col,
-                outline: activeSwatch === idx ? '1.5px solid var(--sable-text-dark)' : 'none',
-                outlineOffset: '1px'
-              }}
-            />
-          ))}
-          <span className="sable-card-cat" style={{ marginLeft: 'auto' }}>
-            {p.category || 'Atelier'}
-          </span>
-        </div>
-
-        {/* TITLE */}
-        <Link to={`/product/${productId}`} style={{ textDecoration: 'none' }}>
-          <h3 className="sable-card-title">{p.name}</h3>
+        <Link to={`/product/${productId}`} style={{ width: '100%', height: '100%', display: 'grid', placeItems: 'center' }}>
+          <img 
+            src={imgSrc} 
+            alt={p.name || 'Product'} 
+            onError={() => setImgSrc(FALLBACK_IMAGE)}
+            loading="lazy"
+          />
         </Link>
-        
-        {/* FOOTER ROW */}
-        <div className="sable-card-footer">
-          <div className="sable-price-wrap">
-            <span className="sable-price-now">
-              ₹{displayPrice.toLocaleString('en-IN')}
-            </span>
-            {hasDiscount && (
-              <span className="sable-price-was">
-                ₹{originalPrice.toLocaleString('en-IN')}
-              </span>
-            )}
-          </div>
+      </div>
 
-          <button 
-            className={`sable-card-add-btn ${isAdded ? 'added' : ''}`}
-            disabled={p.stock === 0} 
-            onClick={handleAddToCart}
-            aria-label="Add to cart"
-          >
-            {isAdded ? 'Added ✓' : p.stock === 0 ? 'Out' : '+ Bag'}
-          </button>
+      {/* CARD DETAILS */}
+      <div className="shopcart-card-details">
+        {/* TITLE & PRICE ROW */}
+        <div className="shopcart-card-header-row">
+          <Link to={`/product/${productId}`} style={{ textDecoration: 'none' }}>
+            <h3 className="shopcart-card-title">{p.name}</h3>
+          </Link>
+          <div className="shopcart-card-price">
+            ₹{formattedPrice}<sup>.00</sup>
+          </div>
         </div>
+
+        {/* SHORT DESCRIPTION / SUBTITLE */}
+        <p className="shopcart-card-subtitle">
+          {p.description || `${p.category || 'Curated'} essential with high quality build`}
+        </p>
+
+        {/* GREEN RATING STARS */}
+        <div className="shopcart-card-rating">
+          <span className="shopcart-card-rating-stars">★★★★★</span>
+          <span className="shopcart-card-rating-count">(121)</span>
+        </div>
+
+        {/* ADD TO CART BUTTON */}
+        <button 
+          className={`shopcart-card-add-btn ${isAdded ? 'added' : ''}`}
+          disabled={p.stock === 0} 
+          onClick={handleAddToCart}
+          aria-label="Add to cart"
+        >
+          {isAdded ? 'Added ✓' : p.stock === 0 ? 'Out of Stock' : 'Add to Cart'}
+        </button>
       </div>
     </article>
   );

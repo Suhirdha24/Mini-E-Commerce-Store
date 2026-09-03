@@ -18,13 +18,6 @@ const findFallbackProduct = (targetId) => {
   ) || initialAdminProducts[0];
 };
 
-const SABLE_FINISHES = [
-  { name: 'Onyx Black', code: '#1C1B1A' },
-  { name: 'Natural Sand', code: '#D9C8B4' },
-  { name: 'Caramel Tan', code: '#8D694E' },
-  { name: 'Olive Drab', code: '#425747' }
-];
-
 export default function Product() {
   const { id } = useParams();
   const { add } = useCart();
@@ -35,8 +28,6 @@ export default function Product() {
   const [q, setQ] = useState(1);
   const [isFav, setIsFav] = useState(false);
   const [addedMsg, setAddedMsg] = useState(false);
-  const [selectedFinish, setSelectedFinish] = useState(0);
-  const [openAccordion, setOpenAccordion] = useState('materials');
 
   useEffect(() => {
     window.scrollTo(0, 0);
@@ -79,186 +70,120 @@ export default function Product() {
   if (!p) {
     return (
       <div style={{ textAlign: 'center', padding: '100px 20px', fontSize: '18px' }}>
-        <h2 style={{ fontFamily: 'var(--font-editorial)', fontSize: '32px', marginBottom: '16px' }}>Creation Not Found</h2>
-        <Link to="/shop" className="primary">Back to Catalog</Link>
+        <h2 style={{ fontSize: '32px', fontWeight: 800, marginBottom: '16px' }}>Product Not Found</h2>
+        <Link to="/shop" className="primary">Back to Shop</Link>
       </div>
     );
   }
 
   const price = Number(p.salePrice || p.regularPrice || p.price || 0);
-  const originalPrice = Number(p.regularPrice || 0);
-  const hasDiscount = originalPrice > price;
 
   const related = initialAdminProducts
     .filter(item => item && item.category === p.category && String(item.id || item._id) !== String(p.id || p._id))
     .slice(0, 4);
 
   return (
-    <section className="page" style={{ maxWidth: '1240px', margin: '0 auto' }}>
+    <section className="page" style={{ maxWidth: '1200px', margin: '0 auto' }}>
       {/* BREADCRUMB */}
-      <nav style={{ display: 'flex', gap: '8px', fontSize: '12.5px', color: 'var(--sable-text-muted)', marginBottom: '32px' }}>
+      <nav style={{ display: 'flex', gap: '8px', fontSize: '13px', color: 'var(--sc-text-muted)', marginBottom: '28px' }}>
         <Link to="/home">Home</Link>
         <span>/</span>
         <Link to={`/shop?cat=${encodeURIComponent(p.category || '')}`}>
-          {p.category || 'Shop'}
+          {p.category || 'Category'}
         </Link>
         <span>/</span>
-        <span style={{ color: 'var(--sable-text-dark)', fontWeight: 600 }}>{p.name}</span>
+        <span style={{ color: 'var(--sc-text-dark)', fontWeight: 600 }}>{p.name}</span>
       </nav>
 
-      <div style={{ display: 'grid', gridTemplateColumns: '1.15fr 0.85fr', gap: '54px', alignItems: 'start', marginBottom: '80px' }}>
-        {/* PRODUCT IMAGE */}
-        <div style={{ position: 'relative' }}>
-          <div style={{ 
-            borderRadius: 'var(--sable-radius-lg)', 
-            overflow: 'hidden', 
-            background: '#FFFFFF', 
-            boxShadow: 'var(--sable-shadow-card)',
-            border: '1px solid var(--sable-sand-border)',
-            height: '560px'
-          }}>
-            <img 
-              src={p.image} 
-              alt={p.name} 
-              style={{ width: '100%', height: '100%', objectFit: 'cover' }} 
-            />
-          </div>
+      <div style={{ display: 'grid', gridTemplateColumns: '1.1fr 0.9fr', gap: '50px', alignItems: 'start', marginBottom: '70px' }}>
+        {/* PRODUCT IMAGE BOX */}
+        <div style={{ 
+          background: 'var(--sc-bg-soft)', 
+          borderRadius: 'var(--sc-radius-md)', 
+          padding: '40px',
+          display: 'flex',
+          justifyContent: 'center',
+          alignItems: 'center',
+          height: '460px',
+          position: 'relative'
+        }}>
+          <button
+            onClick={toggleFavorite}
+            className={`shopcart-card-heart-btn ${isFav ? 'active' : ''}`}
+            style={{ position: 'absolute', top: '16px', right: '16px' }}
+            title={isFav ? "Remove from wishlist" : "Add to wishlist"}
+          >
+            {isFav ? '♥' : '♡'}
+          </button>
 
-          <div style={{ 
-            position: 'absolute', 
-            bottom: '20px', 
-            left: '20px', 
-            background: 'rgba(255,255,255,0.92)', 
-            backdropFilter: 'blur(8px)', 
-            padding: '8px 16px', 
-            borderRadius: 'var(--sable-radius-pill)', 
-            fontSize: '11.5px', 
-            fontWeight: 700, 
-            letterSpacing: '0.06em',
-            textTransform: 'uppercase',
-            color: 'var(--sable-text-dark)',
-            border: '1px solid rgba(22,21,20,0.06)'
-          }}>
-            ✦ NOVA Atelier Edition
-          </div>
+          <img 
+            src={p.image} 
+            alt={p.name} 
+            style={{ maxHeight: '100%', maxWidth: '100%', objectFit: 'contain' }} 
+          />
         </div>
-        
-        {/* PRODUCT DETAILS & BUYING */}
+
+        {/* DETAILS */}
         <div>
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '10px' }}>
-            <span style={{ 
-              fontSize: '11px', 
-              fontWeight: 700, 
-              letterSpacing: '0.18em', 
-              textTransform: 'uppercase', 
-              color: 'var(--sable-gold)' 
-            }}>
-              {p.category || 'COLLECTION'}
-            </span>
-
-            <button 
-              onClick={toggleFavorite}
-              style={{ 
-                background: 'none', 
-                border: 'none', 
-                fontSize: '13px', 
-                cursor: 'pointer', 
-                color: isFav ? '#dc2626' : 'var(--sable-text-muted)', 
-                fontWeight: 600,
-                display: 'inline-flex',
-                alignItems: 'center',
-                gap: '5px'
-              }}
-            >
-              <span>{isFav ? '♥' : '♡'}</span>
-              <span>{isFav ? 'Saved to Wishlist' : 'Add to Wishlist'}</span>
-            </button>
-          </div>
-
-          <h1 style={{ fontFamily: 'var(--font-editorial)', fontSize: '42px', fontWeight: 500, lineHeight: 1.15, marginBottom: '16px' }}>
+          <h1 style={{ fontSize: '32px', fontWeight: 800, color: 'var(--sc-text-dark)', lineHeight: 1.25, marginBottom: '12px' }}>
             {p.name}
           </h1>
 
-          {/* PRICE */}
-          <div style={{ display: 'flex', alignItems: 'baseline', gap: '14px', marginBottom: '18px' }}>
-            <span style={{ fontSize: '30px', fontWeight: 700, color: 'var(--sable-text-dark)' }}>
-              ₹{price.toLocaleString('en-IN')}
-            </span>
-            {hasDiscount && (
-              <span style={{ fontSize: '17px', color: 'var(--sable-text-light)', textDecoration: 'line-through' }}>
-                ₹{originalPrice.toLocaleString('en-IN')}
-              </span>
-            )}
-          </div>
-
-          {/* STOCK STATUS */}
-          <div style={{ marginBottom: '24px' }}>
-            {p.stock === 0 ? (
-              <span style={{ background: '#fee2e2', color: '#dc2626', padding: '5px 14px', borderRadius: '20px', fontSize: '12px', fontWeight: 700 }}>
-                Sold Out
-              </span>
-            ) : p.stock < 5 ? (
-              <span style={{ background: '#fef3c7', color: '#d97706', padding: '5px 14px', borderRadius: '20px', fontSize: '12px', fontWeight: 700 }}>
-                ⚠️ Only {p.stock} remaining in vault
-              </span>
-            ) : (
-              <span style={{ background: '#EAE3D9', color: 'var(--sable-text-dark)', padding: '5px 14px', borderRadius: '20px', fontSize: '12px', fontWeight: 700 }}>
-                ✓ In Stock — Ready for Dispatch
-              </span>
-            )}
-          </div>
-
-          <p style={{ color: 'var(--sable-text-muted)', fontSize: '15px', lineHeight: 1.7, marginBottom: '28px' }}>
-            {p.description || 'Crafted with premium materials, refined silhouettes, and meticulous attention to stitchwork and proportion.'}
+          <p style={{ color: 'var(--sc-text-muted)', fontSize: '15px', lineHeight: 1.6, marginBottom: '18px' }}>
+            {p.description || 'Engineered with high precision components and premium quality materials for long-lasting performance.'}
           </p>
 
-          {/* COLOR FINISH */}
-          <div style={{ marginBottom: '28px' }}>
-            <div style={{ fontSize: '12px', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: '10px' }}>
-              Color: <span style={{ color: 'var(--sable-text-muted)', fontWeight: 500 }}>{SABLE_FINISHES[selectedFinish]?.name}</span>
-            </div>
-            <div style={{ display: 'flex', gap: '10px' }}>
-              {SABLE_FINISHES.map((fin, idx) => (
-                <button
-                  key={fin.name}
-                  onClick={() => setSelectedFinish(idx)}
-                  style={{
-                    width: '30px',
-                    height: '30px',
-                    borderRadius: '50%',
-                    backgroundColor: fin.code,
-                    border: '2px solid #fff',
-                    outline: selectedFinish === idx ? '2px solid var(--sable-text-dark)' : '1px solid var(--sable-sand-border)',
-                    cursor: 'pointer',
-                    transition: 'transform 0.2s ease'
-                  }}
-                  title={fin.name}
-                />
-              ))}
-            </div>
+          {/* RATING */}
+          <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '20px' }}>
+            <span style={{ color: 'var(--sc-green-rating)', fontSize: '16px', letterSpacing: '2px' }}>★★★★★</span>
+            <span style={{ color: 'var(--sc-text-dark)', fontWeight: 700, fontSize: '13.5px' }}>(121 reviews)</span>
+          </div>
+
+          <hr style={{ border: 'none', borderTop: '1px solid var(--sc-border)', margin: '20px 0' }} />
+
+          {/* PRICE */}
+          <div style={{ fontSize: '32px', fontWeight: 800, color: 'var(--sc-text-dark)', marginBottom: '20px' }}>
+            ₹{price.toLocaleString('en-IN')}<sup style={{ fontSize: '18px' }}>.00</sup>
+          </div>
+
+          {/* STOCK BADGE */}
+          <div style={{ marginBottom: '24px' }}>
+            {p.stock === 0 ? (
+              <span style={{ background: '#fee2e2', color: '#dc2626', padding: '4px 12px', borderRadius: '12px', fontSize: '12px', fontWeight: 700 }}>
+                Out of Stock
+              </span>
+            ) : p.stock < 5 ? (
+              <span style={{ background: '#fef3c7', color: '#d97706', padding: '4px 12px', borderRadius: '12px', fontSize: '12px', fontWeight: 700 }}>
+                ⚠️ Only {p.stock} units left in stock!
+              </span>
+            ) : (
+              <span style={{ background: '#def7ec', color: '#03543f', padding: '4px 12px', borderRadius: '12px', fontSize: '12px', fontWeight: 700 }}>
+                ✓ In Stock ({p.stock} units available)
+              </span>
+            )}
           </div>
 
           {addedMsg && (
             <div style={{ 
-              background: '#EAE3D9', 
-              color: 'var(--sable-text-dark)', 
-              padding: '12px 20px', 
-              borderRadius: 'var(--sable-radius-pill)', 
+              background: '#def7ec', 
+              color: '#03543f', 
+              padding: '12px 18px', 
+              borderRadius: 'var(--sc-radius-pill)', 
               marginBottom: '20px', 
               fontWeight: 600,
               fontSize: '13.5px' 
             }}>
-              ✓ Added {q} item(s) to your Shopping Bag.
+              ✓ Added {q} item(s) to Cart!
             </div>
           )}
 
-          {/* QUANTITY & ADD TO BAG */}
-          <div style={{ display: 'flex', gap: '14px', alignItems: 'center', marginBottom: '36px' }}>
+          {/* QUANTITY & ADD TO CART */}
+          <div style={{ display: 'flex', gap: '14px', alignItems: 'center', marginBottom: '32px' }}>
             <div style={{ 
               display: 'inline-flex', 
               alignItems: 'center', 
-              border: '1px solid var(--sable-sand-border)', 
-              borderRadius: 'var(--sable-radius-pill)', 
+              border: '1px solid var(--sc-border)', 
+              borderRadius: 'var(--sc-radius-pill)', 
               background: '#fff',
               overflow: 'hidden' 
             }}>
@@ -266,75 +191,58 @@ export default function Product() {
                 type="button"
                 onClick={() => setQ(Math.max(1, q - 1))}
                 disabled={p.stock === 0 || q <= 1}
-                style={{ background: 'none', border: 'none', padding: '12px 16px', cursor: 'pointer', fontSize: '16px', fontWeight: 600 }}
+                style={{ background: 'none', border: 'none', padding: '10px 16px', cursor: 'pointer', fontSize: '16px', fontWeight: 700 }}
               >
                 −
               </button>
-              <span style={{ width: '32px', textAlign: 'center', fontSize: '14px', fontWeight: 700 }}>
+              <span style={{ width: '28px', textAlign: 'center', fontSize: '14px', fontWeight: 700 }}>
                 {q}
               </span>
               <button
                 type="button"
                 onClick={() => setQ(Math.min(p.stock || 20, q + 1))}
                 disabled={p.stock === 0 || q >= (p.stock || 20)}
-                style={{ background: 'none', border: 'none', padding: '12px 16px', cursor: 'pointer', fontSize: '16px', fontWeight: 600 }}
+                style={{ background: 'none', border: 'none', padding: '10px 16px', cursor: 'pointer', fontSize: '16px', fontWeight: 700 }}
               >
                 +
               </button>
             </div>
 
             <button 
-              className="sable-btn-primary" 
+              className="shopcart-btn-buy"
               disabled={p.stock === 0} 
               onClick={handleAddToCart} 
               style={{ flex: 1 }}
             >
-              {p.stock === 0 ? 'Sold Out' : 'ADD TO BAG →'}
+              {p.stock === 0 ? 'Out of Stock' : 'Add to Cart'}
             </button>
           </div>
 
-          {/* ACCORDIONS */}
-          <div style={{ borderTop: '1px solid var(--sable-sand-border)' }}>
-            <div 
-              onClick={() => setOpenAccordion(openAccordion === 'materials' ? '' : 'materials')}
-              style={{ padding: '16px 0', display: 'flex', justifyContent: 'space-between', cursor: 'pointer', fontWeight: 600, fontSize: '13.5px' }}
-            >
-              <span>✦ Craftsmanship & Materials</span>
-              <span>{openAccordion === 'materials' ? '−' : '+'}</span>
-            </div>
-            {openAccordion === 'materials' && (
-              <div style={{ paddingBottom: '16px', color: 'var(--sable-text-muted)', fontSize: '13.5px', lineHeight: 1.65 }}>
-                Engineered with vegetable-tanned leathers, organic combed cottons, and solid brass accents. Built to develop a rich, timeless patina.
+          {/* DELIVERY PERKS */}
+          <div style={{ borderTop: '1px solid var(--sc-border)', paddingTop: '20px', display: 'flex', flexDirection: 'column', gap: '12px' }}>
+            <div style={{ display: 'flex', gap: '12px', alignItems: 'center', fontSize: '13.5px' }}>
+              <span>🚚</span>
+              <div>
+                <b>Free Delivery</b>
+                <span style={{ color: 'var(--sc-text-muted)', display: 'block', fontSize: '12px' }}>Enter your postal code for delivery availability</span>
               </div>
-            )}
-
-            <div 
-              onClick={() => setOpenAccordion(openAccordion === 'shipping' ? '' : 'shipping')}
-              style={{ padding: '16px 0', display: 'flex', justifyContent: 'space-between', cursor: 'pointer', fontWeight: 600, fontSize: '13.5px', borderTop: '1px solid var(--sable-sand-border)' }}
-            >
-              <span>✦ Complimentary Delivery & Returns</span>
-              <span>{openAccordion === 'shipping' ? '−' : '+'}</span>
             </div>
-            {openAccordion === 'shipping' && (
-              <div style={{ paddingBottom: '16px', color: 'var(--sable-text-muted)', fontSize: '13.5px', lineHeight: 1.65 }}>
-                Free tracked express delivery on all orders over ₹1,999. Includes 30-day effortless concierge home pickup and returns.
+            <div style={{ display: 'flex', gap: '12px', alignItems: 'center', fontSize: '13.5px' }}>
+              <span>🔄</span>
+              <div>
+                <b>Return Delivery</b>
+                <span style={{ color: 'var(--sc-text-muted)', display: 'block', fontSize: '12px' }}>Free 30 days delivery returns. Details</span>
               </div>
-            )}
+            </div>
           </div>
         </div>
       </div>
 
-      {/* RELATED CREATIONS */}
+      {/* SIMILAR PRODUCTS */}
       {related.length > 0 && (
-        <div style={{ marginTop: '60px', paddingTop: '40px', borderTop: '1px solid var(--sable-sand-border)' }}>
-          <div style={{ marginBottom: '28px' }}>
-            <p className="eyebrow">CURATED COMPLEMENTS</p>
-            <h2 style={{ fontFamily: 'var(--font-editorial)', fontSize: '32px', fontWeight: 500 }}>
-              Complete the Look
-            </h2>
-          </div>
-
-          <div className="sable-product-grid">
+        <div style={{ marginTop: '50px', paddingTop: '40px', borderTop: '1px solid var(--sc-border)' }}>
+          <h2 className="shopcart-section-heading">Similar Items You Might Like</h2>
+          <div className="shopcart-product-grid">
             {related.map(item => (
               <ProductCard key={item.id || item._id} p={item} />
             ))}

@@ -10,6 +10,7 @@ export default function Layout() {
   const navigate = useNavigate();
   const [searchQuery, setSearchQuery] = useState('');
   const [favCount, setFavCount] = useState(0);
+  const [isCatDropdownOpen, setIsCatDropdownOpen] = useState(false);
 
   const updateFavCount = () => {
     const userKey = user?.email ? `fav_${String(user.email).toLowerCase()}` : 'fav_guest';
@@ -38,100 +39,86 @@ export default function Layout() {
     }
   };
 
-  const displayName = user?.name ? String(user.name).split(' ')[0] : 'Member';
-  const initial = displayName ? displayName.charAt(0).toUpperCase() : 'M';
+  const displayName = user?.name ? String(user.name).split(' ')[0] : 'Account';
 
   return (
     <>
-      {/* 1. TOP ANNOUNCEMENT BAR */}
-      <div className="sable-announcement-bar">
-        <div className="sable-announcement-text">
-          FREE SHIPPING OVER ₹1,999 — RETURNS WITHIN 30 DAYS
-        </div>
-        <div className="sable-announcement-meta">
-          <span>English ▾</span>
-          <span>INR ₹ ▾</span>
-        </div>
-      </div>
+      {/* SHOPCART HEADER */}
+      <header className="shopcart-header">
+        {/* LOGO: NOVA WITH CART ICON */}
+        <Link className="shopcart-logo-wrap" to="/home">
+          <span className="shopcart-logo-icon">🛒</span>
+          <span className="shopcart-logo-text">NOVA</span>
+        </Link>
 
-      {/* 2. CENTERED LUXURY HEADER WITH NOVA BRAND NAME */}
-      <header className="sable-header">
-        {/* LEFT NAVIGATION LINKS */}
-        <nav className="sable-nav-left">
-          <NavLink to="/home">Home</NavLink>
-          <NavLink to="/shop?cat=Apparel">Clothing</NavLink>
-          <NavLink to="/shop?cat=Bags">Bags</NavLink>
-          <NavLink to="/shop?cat=Footwear">Shoes</NavLink>
-          <NavLink to="/shop?cat=Accessories">Accessories</NavLink>
-          <NavLink to="/shop">Shop All</NavLink>
+        {/* NAVIGATION LINKS */}
+        <nav className="shopcart-nav">
+          <div 
+            className="shopcart-dropdown-wrap"
+            onMouseEnter={() => setIsCatDropdownOpen(true)}
+            onMouseLeave={() => setIsCatDropdownOpen(false)}
+          >
+            <button 
+              type="button" 
+              className="shopcart-dropdown-trigger"
+              onClick={() => setIsCatDropdownOpen(!isCatDropdownOpen)}
+            >
+              Categories ▾
+            </button>
+
+            {isCatDropdownOpen && (
+              <div className="shopcart-dropdown-menu">
+                <Link to="/shop?cat=Electronics" onClick={() => setIsCatDropdownOpen(false)}>Electronics & Audio</Link>
+                <Link to="/shop?cat=Bags" onClick={() => setIsCatDropdownOpen(false)}>Bags & Totes</Link>
+                <Link to="/shop?cat=Footwear" onClick={() => setIsCatDropdownOpen(false)}>Footwear & Sneakers</Link>
+                <Link to="/shop?cat=Accessories" onClick={() => setIsCatDropdownOpen(false)}>Accessories & Watches</Link>
+                <Link to="/shop?cat=Apparel" onClick={() => setIsCatDropdownOpen(false)}>Apparel & Clothing</Link>
+                <Link to="/shop?cat=Home" onClick={() => setIsCatDropdownOpen(false)}>Home & Living</Link>
+              </div>
+            )}
+          </div>
+
+          <NavLink to="/shop?offer=50">Deals</NavLink>
+          <NavLink to="/shop?sort=newest">What's New</NavLink>
+          <NavLink to="/about">Delivery</NavLink>
         </nav>
 
-        {/* CENTER LOGO: PRESERVED NOVA STORE NAME */}
-        <div className="sable-logo-center">
-          <Link to="/home" style={{ textDecoration: 'none' }}>
-            <span className="sable-logo-text">NOVA</span>
-          </Link>
-        </div>
+        {/* SEARCH BAR */}
+        <form onSubmit={handleSearchSubmit} className="shopcart-search-form">
+          <input 
+            type="text" 
+            placeholder="Search Product" 
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            className="shopcart-search-input"
+          />
+          <button type="submit" className="shopcart-search-icon-btn" aria-label="Search">
+            🔍
+          </button>
+        </form>
 
-        {/* RIGHT HEADER ACTIONS */}
-        <div className="sable-header-right">
-          {/* SEARCH PILL */}
-          <form onSubmit={handleSearchSubmit} className="sable-search-wrap">
-            <span className="sable-search-icon">🔍</span>
-            <input 
-              type="text" 
-              placeholder="Search..." 
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              className="sable-search-input"
-            />
-          </form>
-
-          {/* WISHLIST HEART WITH LIVE COUNT */}
-          <Link to="/favorites" className="sable-icon-btn" title="Saved Favorites" aria-label="Favorites">
+        {/* ACTIONS: ACCOUNT, FAVORITES & CART */}
+        <div className="shopcart-actions">
+          {/* FAVORITES */}
+          <Link to="/favorites" className="shopcart-action-link" title="Wishlist">
             <span>♡</span>
-            {favCount > 0 && <span className="sable-badge-count">{favCount}</span>}
+            {favCount > 0 && <span className="shopcart-cart-count-pill">{favCount}</span>}
           </Link>
 
-          {/* SHOPPING BAG */}
-          <Link to="/cart" className="sable-cart-link" title="Shopping Bag">
-            <span>Bag</span>
-            <span style={{ 
-              background: 'rgba(255,255,255,0.22)', 
-              padding: '1px 7px', 
-              borderRadius: '999px',
-              fontSize: '11px' 
-            }}>
-              {count || 0}
-            </span>
-          </Link>
-
-          {/* USER AUTH / PROFILE */}
+          {/* USER ACCOUNT */}
           {user ? (
-            <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-              <Link to="/profile" style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '13px', fontWeight: 600 }}>
-                <span style={{ 
-                  width: '24px', 
-                  height: '24px', 
-                  borderRadius: '50%', 
-                  background: 'var(--sable-text-dark)', 
-                  color: '#fff', 
-                  display: 'grid', 
-                  placeItems: 'center',
-                  fontSize: '10.5px' 
-                }}>
-                  {initial}
-                </span>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+              <Link to="/profile" className="shopcart-action-link">
+                <span>👤</span>
                 <span>{displayName}</span>
               </Link>
-
               {user?.role === 'admin' && (
                 <Link 
                   to="/admin" 
                   style={{ 
-                    background: 'var(--sable-text-dark)', 
-                    color: 'var(--sable-gold)', 
-                    padding: '4px 10px', 
+                    background: 'var(--sc-green-primary)', 
+                    color: '#fff', 
+                    padding: '3px 8px', 
                     borderRadius: '12px', 
                     fontSize: '11px', 
                     fontWeight: 700 
@@ -140,95 +127,85 @@ export default function Layout() {
                   Admin
                 </Link>
               )}
-
               <button 
                 onClick={handleLogout} 
-                style={{ 
-                  background: 'none', 
-                  border: 'none', 
-                  fontSize: '12px', 
-                  fontWeight: 600, 
-                  color: '#dc2626', 
-                  cursor: 'pointer' 
-                }}
+                style={{ background: 'none', border: 'none', color: '#dc2626', fontSize: '12px', cursor: 'pointer', fontWeight: 600 }}
               >
                 Logout
               </button>
             </div>
           ) : (
-            <Link to="/login" className="sable-auth-link">
-              Login
+            <Link to="/login" className="shopcart-action-link">
+              <span>👤</span>
+              <span>Account</span>
             </Link>
           )}
+
+          {/* CART BUTTON */}
+          <Link to="/cart" className="shopcart-action-link" style={{ gap: '6px' }}>
+            <span>🛒</span>
+            <span>Cart</span>
+            {count > 0 && <span className="shopcart-cart-count-pill">{count}</span>}
+          </Link>
         </div>
       </header>
 
-      {/* 3. MAIN OUTLET */}
+      {/* MAIN CONTENT */}
       <main>
         <Outlet />
       </main>
 
-      {/* 4. LUXURY MINIMALIST FOOTER */}
-      <footer className="sable-footer">
-        <div className="sable-footer-grid">
-          {/* BRAND MANIFESTO */}
-          <div className="sable-footer-brand">
-            <h2>NOVA</h2>
+      {/* SHOPCART FOOTER */}
+      <footer className="shopcart-footer">
+        <div className="shopcart-footer-inner">
+          <div className="shopcart-footer-brand">
+            <h3>🛒 NOVA</h3>
             <p>
-              Quiet luxury, loudly considered. Curated collections of enduring clothing, leather goods, and statement accessories for the mindful wardrobe.
+              Your everyday destination for premium audio, modern apparel, crafted footwear, and contemporary essentials.
             </p>
           </div>
 
-          {/* COLLECTIONS */}
-          <div className="sable-footer-col">
-            <h4>Collections</h4>
+          <div className="shopcart-footer-col">
+            <h4>Department</h4>
             <ul>
-              <li><Link to="/shop?cat=Apparel">Clothing & Knitwear</Link></li>
-              <li><Link to="/shop?cat=Bags">Leather Goods & Totes</Link></li>
-              <li><Link to="/shop?cat=Footwear">Handcrafted Footwear</Link></li>
-              <li><Link to="/shop?cat=Accessories">Watches & Accents</Link></li>
-              <li><Link to="/shop">New Arrivals</Link></li>
+              <li><Link to="/shop?cat=Electronics">Audio & Headphones</Link></li>
+              <li><Link to="/shop?cat=Bags">Bags & Luggage</Link></li>
+              <li><Link to="/shop?cat=Footwear">Shoes & Loafers</Link></li>
+              <li><Link to="/shop?cat=Apparel">Fashion & Clothing</Link></li>
             </ul>
           </div>
 
-          {/* CLIENT SERVICES */}
-          <div className="sable-footer-col">
-            <h4>Client Care</h4>
+          <div className="shopcart-footer-col">
+            <h4>About Us</h4>
+            <ul>
+              <li><Link to="/about">Our Story</Link></li>
+              <li><Link to="/about">Delivery Information</Link></li>
+              <li><Link to="/about">Terms & Conditions</Link></li>
+              <li><Link to="/about">Privacy Policy</Link></li>
+            </ul>
+          </div>
+
+          <div className="shopcart-footer-col">
+            <h4>Customer Care</h4>
             <ul>
               <li><Link to="/orders">Order Tracking</Link></li>
-              <li><Link to="/about">Shipping & Delivery</Link></li>
-              <li><Link to="/about">Returns & Exchanges</Link></li>
-              <li><Link to="/favorites">Wishlist</Link></li>
-              <li><Link to="/profile">Personal Account</Link></li>
-            </ul>
-          </div>
-
-          {/* THE ATELIER */}
-          <div className="sable-footer-col">
-            <h4>The Atelier</h4>
-            <ul>
-              <li><Link to="/about">Our Philosophy</Link></li>
-              <li><Link to="/about">Material Provenance</Link></li>
-              <li><Link to="/about">Artisan Standards</Link></li>
-              <li><Link to="/about">Sustainability</Link></li>
-              <li><Link to="/about">Privacy & Terms</Link></li>
+              <li><Link to="/favorites">My Wishlist</Link></li>
+              <li><Link to="/profile">Account Settings</Link></li>
+              <li><Link to="/cart">Shopping Bag</Link></li>
             </ul>
           </div>
         </div>
 
-        {/* BOTTOM COPYRIGHT */}
-        <div className="sable-footer-bottom">
-          <div className="sable-footer-bottom-inner">
-            <span>© {new Date().getFullYear()} NOVA STORE. All rights reserved.</span>
-            <div style={{ display: 'flex', gap: '16px', fontSize: '13px' }}>
-              <span>UPI</span>
-              <span>•</span>
-              <span>VISA</span>
-              <span>•</span>
-              <span>MASTERCARD</span>
-              <span>•</span>
-              <span>AMEX</span>
-            </div>
+        <div className="shopcart-footer-bottom">
+          <span>© {new Date().getFullYear()} NOVA Store. All rights reserved.</span>
+          <div style={{ display: 'flex', gap: '16px' }}>
+            <span>UPI</span>
+            <span>•</span>
+            <span>Cards</span>
+            <span>•</span>
+            <span>NetBanking</span>
+            <span>•</span>
+            <span>Cash on Delivery</span>
           </div>
         </div>
       </footer>

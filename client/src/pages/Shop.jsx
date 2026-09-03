@@ -81,44 +81,33 @@ export default function Shop() {
 
   return (
     <section className="page">
-      <div style={{ marginBottom: '32px' }}>
-        <p className="eyebrow">THE NOVA ARCHIVE ({items.length} PIECES)</p>
-        <h1 style={{ fontFamily: 'var(--font-editorial)', fontSize: '46px', fontWeight: 500, color: 'var(--sable-text-dark)', margin: '4px 0 12px' }}>
-          {cat ? `${cat} Collection` : 'All Curated Pieces'}
+      <div style={{ marginBottom: '28px' }}>
+        <h1 style={{ fontSize: '32px', fontWeight: 800, color: 'var(--sc-text-dark)', marginBottom: '8px' }}>
+          {cat ? `${cat} For You!` : 'All Products For You!'}
         </h1>
-        <p style={{ color: 'var(--sable-text-muted)', fontSize: '15px', maxWidth: '640px', lineHeight: 1.65 }}>
-          Handcrafted garments, fine leather accessories, and sculptural living objects curated for effortless elegance.
+        <p style={{ color: 'var(--sc-text-muted)', fontSize: '14.5px' }}>
+          Showing {filtered.length} products available for instant dispatch.
         </p>
       </div>
 
-      {/* FILTER BAR */}
+      {/* FILTER CONTROLS */}
       <div style={{ 
         display: 'flex', 
         justifyContent: 'space-between', 
         alignItems: 'center', 
-        gap: '20px', 
+        gap: '16px', 
         flexWrap: 'wrap', 
         marginBottom: '36px',
         paddingBottom: '20px',
-        borderBottom: '1px solid var(--sable-sand-border)'
+        borderBottom: '1px solid var(--sc-border)'
       }}>
-        {/* CATEGORY BUTTONS */}
+        {/* CATEGORY PILLS */}
         <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
           <button 
             onClick={() => handleCategoryClick('')}
-            style={{
-              background: cat === '' ? 'var(--sable-btn-dark)' : '#FFFFFF',
-              color: cat === '' ? '#FFFFFF' : 'var(--sable-text-dark)',
-              border: '1px solid var(--sable-sand-border)',
-              padding: '8px 18px',
-              borderRadius: 'var(--sable-radius-pill)',
-              fontSize: '12.5px',
-              fontWeight: 600,
-              cursor: 'pointer',
-              transition: 'all 0.2s ease'
-            }}
+            className={`shopcart-pill-btn ${cat === '' ? 'active' : ''}`}
           >
-            All ({items.length})
+            All Products ({items.length})
           </button>
           {categories.map(c => {
             const count = items.filter(i => i && i.category === c).length;
@@ -126,17 +115,7 @@ export default function Shop() {
               <button 
                 key={c} 
                 onClick={() => handleCategoryClick(c)}
-                style={{
-                  background: cat === c ? 'var(--sable-btn-dark)' : '#FFFFFF',
-                  color: cat === c ? '#FFFFFF' : 'var(--sable-text-dark)',
-                  border: '1px solid var(--sable-sand-border)',
-                  padding: '8px 18px',
-                  borderRadius: 'var(--sable-radius-pill)',
-                  fontSize: '12.5px',
-                  fontWeight: 600,
-                  cursor: 'pointer',
-                  transition: 'all 0.2s ease'
-                }}
+                className={`shopcart-pill-btn ${cat === c ? 'active' : ''}`}
               >
                 {c} ({count})
               </button>
@@ -149,10 +128,10 @@ export default function Shop() {
           <input
             value={q}
             onChange={e => handleSearchChange(e.target.value)}
-            placeholder="Search archive..."
+            placeholder="Search products..."
             style={{ 
               width: '200px', 
-              borderRadius: 'var(--sable-radius-pill)', 
+              borderRadius: 'var(--sc-radius-pill)', 
               padding: '9px 16px',
               fontSize: '13px' 
             }}
@@ -163,7 +142,7 @@ export default function Shop() {
             onChange={e => setSortBy(e.target.value)}
             style={{ 
               width: 'auto', 
-              borderRadius: 'var(--sable-radius-pill)', 
+              borderRadius: 'var(--sc-radius-pill)', 
               fontSize: '13px', 
               fontWeight: 600,
               padding: '9px 16px',
@@ -174,7 +153,7 @@ export default function Shop() {
             <option value="featured">Featured</option>
             <option value="price-low">Price: Low to High</option>
             <option value="price-high">Price: High to Low</option>
-            <option value="name">A to Z</option>
+            <option value="name">Name A-Z</option>
           </select>
         </div>
       </div>
@@ -184,14 +163,14 @@ export default function Shop() {
         <div style={{ 
           textAlign: 'center', 
           padding: '80px 20px', 
-          background: '#FFFFFF', 
-          borderRadius: 'var(--sable-radius-lg)', 
-          border: '1px solid var(--sable-sand-border)', 
+          background: 'var(--sc-bg-soft)', 
+          borderRadius: 'var(--sc-radius-md)', 
+          border: '1px solid var(--sc-border)', 
           margin: '20px 0' 
         }}>
-          <h3 style={{ fontFamily: 'var(--font-editorial)', fontSize: '28px', marginBottom: '8px' }}>No pieces found</h3>
-          <p style={{ color: 'var(--sable-text-muted)', marginBottom: '20px', fontSize: '14px' }}>
-            No creations match your current criteria.
+          <h3 style={{ fontSize: '24px', fontWeight: 800, marginBottom: '8px' }}>No products found</h3>
+          <p style={{ color: 'var(--sc-text-muted)', marginBottom: '20px', fontSize: '14px' }}>
+            No creations match your current filters.
           </p>
           <button 
             onClick={() => { setQ(''); handleCategoryClick(''); }} 
@@ -201,7 +180,7 @@ export default function Shop() {
           </button>
         </div>
       ) : (
-        <div className="sable-product-grid">
+        <div className="shopcart-product-grid">
           {filtered.map(p => (
             <ProductCard key={p._id || p.id || p.sku || p.name} p={p} />
           ))}
