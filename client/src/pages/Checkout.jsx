@@ -109,7 +109,7 @@ export default function Checkout() {
     const orderId = successOrder.id || successOrder._id || 'CONFIRMED';
 
     return (
-      <section className="page" style={{ maxWidth: '600px', margin: '40px auto', textAlign: 'center' }}>
+      <div className="container page" style={{ maxWidth: '600px', textAlign: 'center' }}>
         <div style={{ background: '#fff', padding: '36px', borderRadius: '12px', border: '1px solid var(--border)', boxShadow: 'var(--shadow-sm)' }}>
           <div style={{ width: '56px', height: '56px', borderRadius: '50%', background: '#ecfdf5', color: '#059669', display: 'grid', placeItems: 'center', margin: '0 auto 16px' }}>
             <CheckIcon size={28} />
@@ -148,12 +148,12 @@ export default function Checkout() {
             </Link>
           </div>
         </div>
-      </section>
+      </div>
     );
   }
 
   return (
-    <section className="page" style={{ maxWidth: '600px', margin: '20px auto' }}>
+    <div className="container page" style={{ maxWidth: '600px' }}>
       <div style={{ background: '#fff', padding: '32px', borderRadius: '12px', border: '1px solid var(--border)', boxShadow: 'var(--shadow-sm)' }}>
         
         <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '24px', borderBottom: '1px solid var(--border)', paddingBottom: '14px', fontSize: '14px' }}>
@@ -290,6 +290,6 @@ export default function Checkout() {
         )}
 
       </div>
-    </section>
+    </div>
   );
 }

@@ -16,7 +16,7 @@ export default function Profile() {
   }, [userAddressKey]);
 
   return (
-    <section className="page" style={{ maxWidth: '750px', margin: '0 auto' }}>
+    <div className="container page" style={{ maxWidth: '750px' }}>
       <p className="eyebrow">USER PROFILE</p>
       <h1 style={{ fontSize: '24px', fontWeight: 700, margin: '4px 0 24px' }}>My Account</h1>
 
@@ -85,6 +85,6 @@ export default function Profile() {
           </button>
         </div>
       </div>
-    </section>
+    </div>
   );
 }

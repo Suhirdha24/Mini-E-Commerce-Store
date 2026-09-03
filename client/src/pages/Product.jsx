@@ -5,7 +5,7 @@ import { useAuth } from '../context/AuthContext';
 import { initialAdminProducts } from '../data/initialProducts';
 import { safeGetJSON, safeSetJSON } from '../utils/storage.js';
 import ProductCard from '../components/ProductCard';
-import { HeartIcon, CheckIcon } from '../components/Icons';
+import { HeartIcon, CheckIcon, StarIcon, TruckIcon, ShieldIcon, RefreshIcon } from '../components/Icons';
 import api from '../api/api';
 
 const findFallbackProduct = (targetId) => {
@@ -26,6 +26,7 @@ export default function Product() {
   const userKey = user?.email ? `fav_${String(user.email).toLowerCase()}` : 'fav_guest';
 
   const [p, setP] = useState(() => findFallbackProduct(id));
+  const [allProducts, setAllProducts] = useState(initialAdminProducts || []);
   const [q, setQ] = useState(1);
   const [isFav, setIsFav] = useState(false);
   const [addedMsg, setAddedMsg] = useState(false);
@@ -40,6 +41,14 @@ export default function Product() {
         const fallback = findFallbackProduct(id);
         if (fallback) setP(fallback);
       });
+
+    api.get('/products?limit=100')
+      .then(res => {
+        if (res.data?.items && Array.isArray(res.data.items)) {
+          setAllProducts(res.data.items);
+        }
+      })
+      .catch(() => {});
 
     const favs = safeGetJSON(userKey, []);
     if (Array.isArray(favs)) {
@@ -63,6 +72,7 @@ export default function Product() {
   };
 
   const handleAddToCart = () => {
+    if (p.stock === 0) return;
     add(p, q);
     setAddedMsg(true);
     setTimeout(() => setAddedMsg(false), 2000);
@@ -70,50 +80,64 @@ export default function Product() {
 
   if (!p) {
     return (
-      <div style={{ textAlign: 'center', padding: '80px 24px' }}>
-        <h2 style={{ fontSize: '24px', fontWeight: 700, marginBottom: '12px' }}>Product Not Found</h2>
-        <Link to="/shop" className="primary">Back to Shop</Link>
+      <div className="container page" style={{ textAlign: 'center', padding: '80px 24px' }}>
+        <h2 style={{ fontSize: '22px', fontWeight: 700, marginBottom: '12px' }}>Product Not Found</h2>
+        <Link to="/shop" className="btn btn-primary">Back to Catalog</Link>
       </div>
     );
   }
 
-  const price = Number(p.salePrice || p.regularPrice || p.price || 0);
+  const displayPrice = Number(p.salePrice || p.price || 0);
+  const regularPrice = Number(p.regularPrice || 0);
+  const hasDiscount = regularPrice > displayPrice;
+  const discountPercent = hasDiscount ? Math.round(((regularPrice - displayPrice) / regularPrice) * 100) : 0;
 
-  const related = initialAdminProducts
+  const related = allProducts
     .filter(item => item && item.category === p.category && String(item.id || item._id) !== String(p.id || p._id))
     .slice(0, 4);
 
   return (
-    <section className="page" style={{ maxWidth: '1100px' }}>
-      {/* BREADCRUMB */}
+    <div className="container page">
+      {/* BREADCRUMBS */}
       <nav style={{ display: 'flex', gap: '8px', fontSize: '13px', color: 'var(--text-muted)', marginBottom: '24px' }}>
-        <Link to="/home">Home</Link>
+        <Link to="/home" style={{ color: 'var(--text-muted)' }}>Home</Link>
         <span>/</span>
-        <Link to={`/shop?cat=${encodeURIComponent(p.category || '')}`}>
+        <Link to="/shop" style={{ color: 'var(--text-muted)' }}>Catalog</Link>
+        <span>/</span>
+        <Link to={`/shop?cat=${encodeURIComponent(p.category || '')}`} style={{ color: 'var(--text-muted)' }}>
           {p.category || 'Category'}
         </Link>
         <span>/</span>
-        <span style={{ color: 'var(--text-main)', fontWeight: 600 }}>{p.name}</span>
+        <span style={{ color: 'var(--text-dark)', fontWeight: 600 }}>{p.name}</span>
       </nav>
 
       {/* DETAIL GRID */}
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '44px', alignItems: 'start', marginBottom: '60px' }}>
-        {/* PRODUCT IMAGE BOX (1:1 RATIO) */}
+      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '48px', alignItems: 'start', marginBottom: '64px' }}>
+        {/* PRODUCT IMAGE (1:1 RATIO) */}
         <div style={{ 
-          background: 'var(--bg-muted)', 
-          borderRadius: 'var(--radius-md)', 
-          border: '1px solid var(--border-color)',
+          background: 'var(--bg-secondary)', 
+          borderRadius: 'var(--radius-xl)', 
+          border: '1px solid var(--border)',
           aspectRatio: '1 / 1',
           display: 'flex',
           justifyContent: 'center',
           alignItems: 'center',
-          padding: '32px',
-          position: 'relative'
+          padding: '40px',
+          position: 'relative',
+          overflow: 'hidden'
         }}>
+          {hasDiscount && (
+            <span className="card-badge sale" style={{ top: '20px', left: '20px' }}>
+              {discountPercent}% OFF
+            </span>
+          )}
+
           <button
             onClick={toggleFavorite}
-            className={`card-wishlist-btn ${isFav ? 'active' : ''}`}
+            className={`card-fav-btn ${isFav ? 'active' : ''}`}
+            style={{ top: '20px', right: '20px' }}
             title={isFav ? "Remove from wishlist" : "Add to wishlist"}
+            aria-label="Wishlist"
           >
             <HeartIcon size={18} filled={isFav} />
           </button>
@@ -127,124 +151,137 @@ export default function Product() {
 
         {/* DETAILS */}
         <div>
-          <span style={{ fontSize: '11px', fontWeight: 700, textTransform: 'uppercase', color: 'var(--accent-blue)', letterSpacing: '0.04em' }}>
-            {p.category || 'Collection'}
+          <span className="eyebrow" style={{ color: 'var(--accent-blue)', marginBottom: '6px', display: 'block' }}>
+            {p.category || 'Lifestyle'}
           </span>
-          <h1 style={{ fontSize: '26px', fontWeight: 700, color: 'var(--text-main)', lineHeight: 1.3, margin: '4px 0 12px' }}>
+          <h1 style={{ fontSize: '28px', fontWeight: 800, color: 'var(--text-dark)', lineHeight: 1.25, margin: '0 0 12px' }}>
             {p.name}
           </h1>
 
-          <p style={{ color: 'var(--text-muted)', fontSize: '14px', lineHeight: 1.6, marginBottom: '20px' }}>
-            {p.description || 'Crafted with premium materials for maximum durability and everyday performance.'}
-          </p>
-
-          <hr style={{ border: 'none', borderTop: '1px solid var(--border-color)', margin: '18px 0' }} />
-
-          {/* PRICE */}
-          <div style={{ fontSize: '26px', fontWeight: 700, color: 'var(--text-main)', marginBottom: '16px' }}>
-            ₹{price.toLocaleString('en-IN')}
+          {/* RATING */}
+          <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '18px' }}>
+            <div style={{ display: 'flex', gap: '2px' }}>
+              {[1, 2, 3, 4, 5].map(star => (
+                <StarIcon key={star} size={14} filled={true} />
+              ))}
+            </div>
+            <span style={{ fontSize: '13px', fontWeight: 600, color: 'var(--text-dark)' }}>4.9</span>
+            <span style={{ fontSize: '13px', color: 'var(--text-muted)' }}>(128 customer reviews)</span>
           </div>
 
-          {/* STOCK BADGE */}
-          <div style={{ marginBottom: '20px' }}>
-            {p.stock === 0 ? (
-              <span style={{ background: '#FEE2E2', color: 'var(--danger)', padding: '4px 10px', borderRadius: 'var(--radius-sm)', fontSize: '12px', fontWeight: 600 }}>
-                Out of Stock
+          {/* PRICE ROW */}
+          <div style={{ display: 'flex', alignItems: 'baseline', gap: '12px', marginBottom: '20px' }}>
+            <span style={{ fontSize: '26px', fontWeight: 800, color: 'var(--text-dark)' }}>
+              ₹{displayPrice.toLocaleString('en-IN')}
+            </span>
+            {hasDiscount && (
+              <span style={{ fontSize: '16px', color: 'var(--text-light)', textDecoration: 'line-through' }}>
+                ₹{regularPrice.toLocaleString('en-IN')}
               </span>
-            ) : p.stock < 5 ? (
-              <span style={{ background: '#FEF3C7', color: '#D97706', padding: '4px 10px', borderRadius: 'var(--radius-sm)', fontSize: '12px', fontWeight: 600 }}>
-                Only {p.stock} remaining in stock
-              </span>
-            ) : (
-              <span style={{ background: '#DEF7EC', color: 'var(--success)', padding: '4px 10px', borderRadius: 'var(--radius-sm)', fontSize: '12px', fontWeight: 600 }}>
-                In Stock ({p.stock} units available)
+            )}
+            {hasDiscount && (
+              <span style={{ background: 'var(--accent-green-bg)', color: 'var(--accent-green)', fontSize: '12px', fontWeight: 700, padding: '2px 8px', borderRadius: 'var(--radius-xs)' }}>
+                Save ₹{(regularPrice - displayPrice).toLocaleString('en-IN')}
               </span>
             )}
           </div>
 
-          {addedMsg && (
-            <div style={{ 
-              background: '#DEF7EC', 
-              color: '#03543F', 
-              padding: '10px 14px', 
-              borderRadius: 'var(--radius-sm)', 
-              marginBottom: '16px', 
-              fontWeight: 600,
-              fontSize: '13px',
-              display: 'flex',
-              alignItems: 'center',
-              gap: '6px'
-            }}>
-              <CheckIcon size={14} /> Added {q} item(s) to Cart!
-            </div>
-          )}
+          <p style={{ color: 'var(--text-muted)', fontSize: '14px', lineHeight: 1.6, marginBottom: '24px' }}>
+            {p.description || 'Crafted with premium materials for maximum durability and everyday performance.'}
+          </p>
 
-          {/* QUANTITY & ADD TO CART */}
-          <div style={{ display: 'flex', gap: '12px', alignItems: 'center', marginBottom: '28px' }}>
-            <div style={{ 
-              display: 'inline-flex', 
-              alignItems: 'center', 
-              border: '1px solid var(--border-color)', 
-              borderRadius: 'var(--radius-pill)', 
-              background: '#FFFFFF' 
-            }}>
+          {/* STOCK STATUS BADGE */}
+          <div style={{ marginBottom: '24px' }}>
+            {p.stock === 0 ? (
+              <span style={{ display: 'inline-block', background: 'var(--accent-red-bg)', color: 'var(--accent-red)', padding: '4px 10px', borderRadius: 'var(--radius-xs)', fontSize: '12px', fontWeight: 600 }}>
+                Out of Stock
+              </span>
+            ) : p.stock <= 5 ? (
+              <span style={{ display: 'inline-block', background: 'var(--accent-amber-bg)', color: 'var(--accent-amber)', padding: '4px 10px', borderRadius: 'var(--radius-xs)', fontSize: '12px', fontWeight: 600 }}>
+                Only {p.stock} units left in warehouse
+              </span>
+            ) : (
+              <span style={{ display: 'inline-block', background: 'var(--accent-green-bg)', color: 'var(--accent-green)', padding: '4px 10px', borderRadius: 'var(--radius-xs)', fontSize: '12px', fontWeight: 600 }}>
+                In Stock & Ready to Ship
+              </span>
+            )}
+          </div>
+
+          {/* QUANTITY & ACTIONS */}
+          <div style={{ display: 'flex', gap: '14px', alignItems: 'center', marginBottom: '32px' }}>
+            {/* STEPPER */}
+            <div style={{ display: 'flex', alignItems: 'center', border: '1px solid var(--border)', borderRadius: 'var(--radius-pill)', background: 'var(--bg-surface)' }}>
               <button
                 type="button"
                 onClick={() => setQ(Math.max(1, q - 1))}
-                disabled={p.stock === 0 || q <= 1}
-                style={{ background: 'none', border: 'none', padding: '8px 14px', fontSize: '15px', fontWeight: 700 }}
+                disabled={q <= 1 || p.stock === 0}
+                style={{ width: '38px', height: '38px', display: 'grid', placeItems: 'center', fontSize: '16px', color: 'var(--text-dark)' }}
               >
                 −
               </button>
-              <span style={{ width: '24px', textAlign: 'center', fontSize: '13.5px', fontWeight: 600 }}>
+              <span style={{ minWidth: '32px', textAlign: 'center', fontWeight: 700, fontSize: '14px' }}>
                 {q}
               </span>
               <button
                 type="button"
-                onClick={() => setQ(Math.min(p.stock || 20, q + 1))}
-                disabled={p.stock === 0 || q >= (p.stock || 20)}
-                style={{ background: 'none', border: 'none', padding: '8px 14px', fontSize: '15px', fontWeight: 700 }}
+                onClick={() => setQ(Math.min(p.stock || 10, q + 1))}
+                disabled={q >= (p.stock || 10) || p.stock === 0}
+                style={{ width: '38px', height: '38px', display: 'grid', placeItems: 'center', fontSize: '16px', color: 'var(--text-dark)' }}
               >
                 +
               </button>
             </div>
 
-            <button 
-              className="primary"
-              disabled={p.stock === 0} 
-              onClick={handleAddToCart} 
-              style={{ flex: 1, padding: '11px 24px', fontSize: '13.5px' }}
+            {/* ADD TO CART */}
+            <button
+              onClick={handleAddToCart}
+              disabled={p.stock === 0}
+              className="btn btn-primary"
+              style={{ flex: 1, padding: '12px 24px', fontSize: '14px' }}
             >
-              {p.stock === 0 ? 'Out of Stock' : 'Add to Cart'}
+              {addedMsg ? (
+                <span style={{ display: 'inline-flex', alignItems: 'center', gap: '6px' }}>
+                  <CheckIcon size={16} /> Added to Cart
+                </span>
+              ) : p.stock === 0 ? (
+                'Out of Stock'
+              ) : (
+                `Add to Cart • ₹${(displayPrice * q).toLocaleString('en-IN')}`
+              )}
             </button>
           </div>
 
-          {/* PERKS */}
-          <div style={{ borderTop: '1px solid var(--border-color)', paddingTop: '18px', display: 'flex', flexDirection: 'column', gap: '8px', fontSize: '13px', color: 'var(--text-muted)' }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-              <CheckIcon size={14} /> Free delivery on all orders over ₹1,999
+          {/* TRUST BADGES IN PRODUCT DETAIL */}
+          <div style={{ borderTop: '1px solid var(--border)', paddingTop: '24px', display: 'flex', flexDirection: 'column', gap: '12px' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '12px', fontSize: '13px', color: 'var(--text-muted)' }}>
+              <TruckIcon size={18} />
+              <span>Free delivery on all orders over ₹1,999</span>
             </div>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-              <CheckIcon size={14} /> 30-day hassle-free returns & replacement
+            <div style={{ display: 'flex', alignItems: 'center', gap: '12px', fontSize: '13px', color: 'var(--text-muted)' }}>
+              <RefreshIcon size={18} />
+              <span>30-Day Hassle-Free Returns & Replacements</span>
             </div>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-              <CheckIcon size={14} /> 100% verified authentic product
+            <div style={{ display: 'flex', alignItems: 'center', gap: '12px', fontSize: '13px', color: 'var(--text-muted)' }}>
+              <ShieldIcon size={18} />
+              <span>100% Authentic Brand Guarantee with 1-Year Warranty</span>
             </div>
           </div>
         </div>
       </div>
 
-      {/* RELATED ITEMS */}
+      {/* RELATED PRODUCTS */}
       {related.length > 0 && (
-        <div style={{ borderTop: '1px solid var(--border-color)', paddingTop: '36px' }}>
-          <h2 style={{ fontSize: '20px', fontWeight: 700, marginBottom: '20px' }}>Similar Products</h2>
+        <section style={{ borderTop: '1px solid var(--border)', paddingTop: '48px' }}>
+          <h2 className="section-title" style={{ marginBottom: '20px' }}>
+            You May Also Like
+          </h2>
           <div className="product-grid">
             {related.map(item => (
-              <ProductCard key={item.id || item._id} p={item} />
+              <ProductCard key={item._id || item.id || item.sku} p={item} />
             ))}
           </div>
-        </div>
+        </section>
       )}
-    </section>
+    </div>
   );
 }

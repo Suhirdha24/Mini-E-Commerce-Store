@@ -3,7 +3,7 @@ import { ArrowRightIcon } from '../components/Icons';
 
 export default function About() {
   return (
-    <section className="page" style={{ maxWidth: '960px' }}>
+    <div className="container page" style={{ maxWidth: '960px' }}>
       <div style={{ textAlign: 'center', marginBottom: '44px' }}>
         <span style={{ fontSize: '11px', fontWeight: 700, textTransform: 'uppercase', color: 'var(--accent-blue)', letterSpacing: '0.08em' }}>
           About NOVA
@@ -50,6 +50,6 @@ export default function About() {
           </p>
         </div>
       </div>
-    </section>
+    </div>
   );
 }

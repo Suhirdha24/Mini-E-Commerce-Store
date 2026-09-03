@@ -43,7 +43,7 @@ export default function Orders() {
   };
 
   return (
-    <section className="page" style={{ maxWidth: '900px', margin: '0 auto' }}>
+    <div className="container page" style={{ maxWidth: '900px' }}>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '24px' }}>
         <div>
           <p className="eyebrow">CUSTOMER ACCOUNT</p>
@@ -217,6 +217,6 @@ export default function Orders() {
           </div>
         </div>
       )}
-    </section>
+    </div>
   );
 }

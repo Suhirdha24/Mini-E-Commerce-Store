@@ -34,7 +34,7 @@ export default function Favorites() {
   };
 
   return (
-    <section className="page">
+    <div className="container page">
       <h1 className="page-title">
         {user?.name ? `${user.name}'s Wishlist` : 'Saved Wishlist'}
       </h1>
@@ -74,6 +74,6 @@ export default function Favorites() {
           <Link className="primary" to="/shop">Explore Products</Link>
         </div>
       )}
-    </section>
+    </div>
   );
 }
