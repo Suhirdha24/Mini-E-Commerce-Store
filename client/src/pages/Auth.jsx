@@ -15,9 +15,18 @@ export default function Auth({ mode = 'login' }) {
     email: isAdminLogin ? 'admin@ministore.com' : '', 
     password: isAdminLogin ? 'Admin@123' : '' 
   });
+  const [showPassword, setShowPassword] = useState(false);
   const [err, setErr] = useState('');
   const [loading, setLoading] = useState(false);
   const [msg] = useState(loc.state?.msg || '');
+
+  const handleFillDemo = () => {
+    if (isAdminLogin) {
+      setF({ ...f, email: 'admin@ministore.com', password: 'Admin@123' });
+    } else {
+      setF({ ...f, email: 'member@novastudio.com', password: 'Password@123' });
+    }
+  };
 
   const submit = async (e) => {
     e.preventDefault();
@@ -34,7 +43,7 @@ export default function Auth({ mode = 'login' }) {
         }
       } else {
         await register(f);
-        nav('/login', { state: { msg: 'Account created in database! Please sign in below.' } });
+        nav('/login', { state: { msg: 'Account created successfully! Please sign in below.' } });
       }
     } catch (x) {
       const errorText = x.response?.data?.message || x.message || 'Unable to connect to server. Please check your network connection.';
@@ -44,77 +53,213 @@ export default function Auth({ mode = 'login' }) {
     }
   };
 
+  const photoBg = isAdminLogin
+    ? 'https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=1000&auto=format&fit=crop&q=80'
+    : 'https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=1000&auto=format&fit=crop&q=80';
+
   return (
-    <section className="auth">
-      <form onSubmit={submit}>
-        <p className="eyebrow">{isAdminLogin ? 'RETAILER & MERCHANT PORTAL' : 'NOVA STORE'}</p>
-        
-        <h1 style={{ fontFamily: 'var(--font-serif)', fontSize: '32px' }}>
-          {isAdminLogin ? 'Admin Sign In' : isLogin ? 'Welcome Back' : 'Create Account'}
-        </h1>
-        
-        {msg && <div style={{ background: '#def7ec', color: '#03543f', padding: '12px', borderRadius: '6px', fontSize: '13px' }}>{msg}</div>}
-        {err && <div className="alert" style={{ background: '#fee2e2', color: '#dc2626', padding: '12px', borderRadius: '6px', fontSize: '13px', margin: '12px 0' }}>{err}</div>}
+    <section className="bento-auth-container">
+      <div className="bento-auth-card">
+        {/* LEFT COLUMN: EDITORIAL PHOTO & MEMBER PERKS */}
+        <div className="bento-auth-image-col">
+          <img 
+            src={photoBg} 
+            alt="NOVA Gear Aesthetics" 
+            className="bento-auth-image-bg" 
+          />
+          <div className="bento-auth-overlay"></div>
 
-        {!isLogin && (
-          <input
-            placeholder="Full Name"
-            required
-            value={f.name}
-            onChange={(e) => setF({ ...f, name: e.target.value })}
-          />
-        )}
-        
-        <div>
-          <label style={{ display: 'block', fontSize: '12px', fontWeight: 600, marginBottom: '4px' }}>
-            {isAdminLogin ? 'Retailer Admin Email' : 'Email Address'}
-          </label>
-          <input
-            type="email"
-            placeholder={isAdminLogin ? "admin@ministore.com" : "you@example.com"}
-            required
-            value={f.email}
-            onChange={(e) => setF({ ...f, email: e.target.value })}
-          />
+          {/* TOP BADGE */}
+          <div className="bento-auth-top-badge">
+            <span>{isAdminLogin ? '✦ NOVA RETAILER PORTAL' : '✦ NOVA STUDIO ACCESS'}</span>
+          </div>
+
+          {/* BOTTOM GLASS CARD */}
+          <div className="bento-auth-bottom-info">
+            <p className="bento-auth-quote">
+              {isAdminLogin 
+                ? '“Unified merchant command console for catalog control, inventory management, and telemetry.”'
+                : '“Experience spatial acoustics, technical streetwear, and progressive hardware gear.”'}
+            </p>
+            <ul className="bento-auth-perks">
+              {isAdminLogin ? (
+                <>
+                  <li>✓ Real-time inventory & price updates</li>
+                  <li>✓ Instant order status fulfillment tracking</li>
+                  <li>✓ High-security encrypted session</li>
+                </>
+              ) : (
+                <>
+                  <li>✓ Express priority dispatch on limited drops</li>
+                  <li>✓ Wishlist & cart synced across all devices</li>
+                  <li>✓ 30-day effortless return privilege</li>
+                </>
+              )}
+            </ul>
+          </div>
         </div>
 
-        <div>
-          <label style={{ display: 'block', fontSize: '12px', fontWeight: 600, marginBottom: '4px' }}>
-            Password
-          </label>
-          <input
-            type="password"
-            placeholder="••••••••"
-            minLength="6"
-            required
-            value={f.password}
-            onChange={(e) => setF({ ...f, password: e.target.value })}
-          />
-        </div>
+        {/* RIGHT COLUMN: LOGIN / REGISTER FORM */}
+        <div className="bento-auth-form-col">
+          <div className="bento-auth-header">
+            <span className="eyebrow">{isAdminLogin ? 'ADMINISTRATION' : 'MEMBER PORTAL'}</span>
+            <h1 className="bento-auth-title">
+              {isAdminLogin ? 'Admin Sign In' : isLogin ? 'Welcome Back' : 'Create Account'}
+            </h1>
+            <p className="bento-auth-subtitle">
+              {isAdminLogin 
+                ? 'Enter authorized store administrator credentials below.'
+                : isLogin 
+                  ? 'Sign in to access your saved bag, wishlist, and orders.'
+                  : 'Join NOVA STUDIO to unlock exclusive gear releases.'}
+            </p>
+          </div>
 
-        <button className="primary wide" disabled={loading} style={{ marginTop: '8px' }}>
-          {loading ? 'Please wait...' : isAdminLogin ? 'Sign In to Admin Portal →' : isLogin ? 'Sign In' : 'Create Account'}
-        </button>
-        
-        {/* NAVIGATION LINKS BETWEEN CUSTOMER & ADMIN LOGIN */}
-        <div style={{ fontSize: '14px', textAlign: 'center', color: 'var(--text-muted)', display: 'flex', flexDirection: 'column', gap: '8px', marginTop: '8px' }}>
-          {isAdminLogin ? (
-            <Link to="/login" style={{ color: 'var(--text-dark)', fontWeight: 600 }}>
-              ← Return to Customer Sign In
-            </Link>
-          ) : isLogin ? (
-            <>
-              <div>New to NOVA? <Link to="/register" style={{ color: 'var(--text-dark)', fontWeight: 600 }}>Create an account</Link></div>
-              <hr style={{ borderColor: 'var(--border-light)', margin: '8px 0' }} />
-              <div style={{ fontSize: '13px' }}>
-                Are you a Store Admin / Retailer? <Link to="/admin-login" style={{ color: 'var(--accent-gold)', fontWeight: 700 }}>Sign in to Admin Portal →</Link>
-              </div>
-            </>
-          ) : (
-            <div>Already have an account? <Link to="/login" style={{ color: 'var(--text-dark)', fontWeight: 600 }}>Sign in</Link></div>
+          {/* DEMO FILL QUICK BUTTON */}
+          <div>
+            <button 
+              type="button" 
+              onClick={handleFillDemo} 
+              className="bento-demo-pill-btn"
+              title="Click to quickly fill demo login"
+            >
+              <span>⚡</span>
+              <span>{isAdminLogin ? 'Auto-Fill Demo Admin' : 'Auto-Fill Demo Credentials'}</span>
+            </button>
+          </div>
+
+          {/* SUCCESS MESSAGE */}
+          {msg && (
+            <div style={{ background: '#DEF7EC', color: '#03543F', padding: '12px 16px', borderRadius: '10px', fontSize: '13.5px', marginBottom: '16px', fontWeight: 600 }}>
+              ✓ {msg}
+            </div>
           )}
+
+          {/* ERROR ALERT */}
+          {err && (
+            <div style={{ background: '#FEE2E2', color: '#DC2626', padding: '12px 16px', borderRadius: '10px', fontSize: '13.5px', marginBottom: '16px', fontWeight: 600 }}>
+              ⚠️ {err}
+            </div>
+          )}
+
+          <form onSubmit={submit}>
+            {/* NAME FIELD (REGISTER ONLY) */}
+            {!isLogin && (
+              <div className="bento-auth-input-group">
+                <label className="bento-auth-label">
+                  <span>Full Name</span>
+                </label>
+                <div className="bento-auth-input-wrap">
+                  <input
+                    type="text"
+                    placeholder="Alex Rivera"
+                    required
+                    value={f.name}
+                    onChange={(e) => setF({ ...f, name: e.target.value })}
+                    className="bento-auth-input"
+                  />
+                </div>
+              </div>
+            )}
+
+            {/* EMAIL FIELD */}
+            <div className="bento-auth-input-group">
+              <label className="bento-auth-label">
+                <span>{isAdminLogin ? 'Merchant Admin Email' : 'Email Address'}</span>
+              </label>
+              <div className="bento-auth-input-wrap">
+                <input
+                  type="email"
+                  placeholder={isAdminLogin ? "admin@ministore.com" : "you@example.com"}
+                  required
+                  value={f.email}
+                  onChange={(e) => setF({ ...f, email: e.target.value })}
+                  className="bento-auth-input"
+                />
+              </div>
+            </div>
+
+            {/* PASSWORD FIELD */}
+            <div className="bento-auth-input-group">
+              <label className="bento-auth-label">
+                <span>Password</span>
+                {isLogin && !isAdminLogin && (
+                  <span style={{ fontSize: '12px', color: 'var(--bento-blue)', cursor: 'pointer', fontWeight: 600 }}>
+                    Forgot?
+                  </span>
+                )}
+              </label>
+              <div className="bento-auth-input-wrap">
+                <input
+                  type={showPassword ? "text" : "password"}
+                  placeholder="••••••••"
+                  minLength="6"
+                  required
+                  value={f.password}
+                  onChange={(e) => setF({ ...f, password: e.target.value })}
+                  className="bento-auth-input"
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowPassword(!showPassword)}
+                  className="bento-auth-eye-btn"
+                  title={showPassword ? "Hide password" : "Show password"}
+                  aria-label="Toggle password visibility"
+                >
+                  {showPassword ? '👁️' : '👁️‍🗨️'}
+                </button>
+              </div>
+            </div>
+
+            {/* SUBMIT BUTTON */}
+            <button 
+              type="submit" 
+              className="bento-auth-submit-btn" 
+              disabled={loading}
+            >
+              {loading 
+                ? 'Authenticating...' 
+                : isAdminLogin 
+                  ? 'Sign In to Admin Portal →' 
+                  : isLogin 
+                    ? 'Sign In to Account →' 
+                    : 'Create My Account →'}
+            </button>
+          </form>
+
+          {/* FOOTER SWITCHERS */}
+          <div className="bento-auth-footer-links">
+            {isAdminLogin ? (
+              <Link to="/login" className="bento-auth-switch-link">
+                ← Return to Customer Sign In
+              </Link>
+            ) : isLogin ? (
+              <>
+                <div>
+                  New to NOVA?{' '}
+                  <Link to="/register" className="bento-auth-switch-link">
+                    Create an account
+                  </Link>
+                </div>
+
+                <div className="bento-auth-admin-box">
+                  <span>Are you a Store Admin / Retailer?</span>
+                  <Link to="/admin-login" className="bento-auth-admin-link">
+                    Admin Portal →
+                  </Link>
+                </div>
+              </>
+            ) : (
+              <div>
+                Already have an account?{' '}
+                <Link to="/login" className="bento-auth-switch-link">
+                  Sign in
+                </Link>
+              </div>
+            )}
+          </div>
         </div>
-      </form>
+      </div>
     </section>
   );
 }
