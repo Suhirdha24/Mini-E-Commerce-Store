@@ -6,14 +6,13 @@ import { safeGetJSON, safeSetJSON } from '../utils/storage';
 
 const FALLBACK_IMAGE = 'https://images.unsplash.com/photo-1548036328-c9fa89d128fa?w=800&auto=format&fit=crop&q=80';
 
-// Curated palette swatch combinations based on product categories
 const CATEGORY_SWATCHES = {
-  Bags: ['#2e2722', '#8c684d', '#c2b29f'],
-  Footwear: ['#1f1e1d', '#968878', '#ded6cb'],
-  Accessories: ['#c5a059', '#1a1918', '#7f8c8d'],
-  Apparel: ['#3b4843', '#8b5a3e', '#e3dcce'],
-  Home: ['#ded1c1', '#6b7a69', '#d99873'],
-  Electronics: ['#1c1c1e', '#59595f', '#d2d2d7']
+  Bags: ['#282420', '#8D694E', '#D9C8B4'],
+  Footwear: ['#1C1B1A', '#8F7B6B', '#E5DDD3'],
+  Accessories: ['#C5A059', '#1C1B1A', '#7A8288'],
+  Apparel: ['#EAE3D9', '#3D4944', '#8C5B3E'],
+  Home: ['#E6DEC8', '#677565', '#D29471'],
+  Electronics: ['#1C1B1A', '#5C5C60', '#D5D5DA']
 };
 
 export default function ProductCard({ p }) {
@@ -65,41 +64,33 @@ export default function ProductCard({ p }) {
   const displayPrice = Number(p.salePrice || p.regularPrice || p.price || 0);
   const originalPrice = Number(p.regularPrice || 0);
   const hasDiscount = originalPrice > displayPrice;
-  const swatches = CATEGORY_SWATCHES[p.category] || ['#2e2722', '#c5a059', '#eae5dc'];
+  const swatches = CATEGORY_SWATCHES[p.category] || ['#282420', '#C5A059', '#EAE3D9'];
 
   return (
-    <article className="refined-product-card">
-      {/* CARD STATUS BADGE */}
+    <article className="sable-product-card">
+      {/* SABLE BADGE */}
       {p.stock === 0 ? (
-        <span className="card-status-badge" style={{ color: '#dc2626', borderColor: 'rgba(220,38,38,0.2)' }}>
+        <span className="sable-card-badge" style={{ color: '#dc2626' }}>
           Sold Out
         </span>
-      ) : p.stock < 5 ? (
-        <span className="card-status-badge promo">
-          Only {p.stock} Left
-        </span>
       ) : hasDiscount ? (
-        <span className="card-status-badge promo">
-          Special Edit
+        <span className="sable-card-badge">
+          New
         </span>
-      ) : (
-        <span className="card-status-badge bestseller">
-          Curated
-        </span>
-      )}
+      ) : null}
 
-      {/* FLOATING WISHLIST HEART */}
+      {/* WISHLIST HEART */}
       <button
         onClick={toggleFavorite}
-        className={`card-wishlist-btn ${isFav ? 'active' : ''}`}
+        className={`sable-card-fav-btn ${isFav ? 'active' : ''}`}
         title={isFav ? "Remove from wishlist" : "Add to wishlist"}
-        aria-label="Toggle Wishlist"
+        aria-label="Wishlist"
       >
         {isFav ? '♥' : '♡'}
       </button>
 
-      {/* PRODUCT IMAGE WRAP */}
-      <Link to={`/product/${productId}`} className="card-visual-wrap">
+      {/* PRODUCT IMAGE */}
+      <Link to={`/product/${productId}`} className="sable-card-thumb-wrap">
         <img 
           src={imgSrc} 
           alt={p.name || 'Product'} 
@@ -108,53 +99,52 @@ export default function ProductCard({ p }) {
         />
       </Link>
       
-      {/* PRODUCT CARD BODY */}
-      <div className="refined-card-body">
-        {/* INTERACTIVE COLOR SWATCHES (Homedine & Nitec) */}
-        <div className="card-swatches-row">
-          {swatches.map((color, index) => (
+      {/* CARD BODY */}
+      <div className="sable-card-body">
+        {/* COLOR SWATCHES */}
+        <div className="sable-card-swatches">
+          {swatches.map((col, idx) => (
             <span
-              key={index}
-              onClick={() => setActiveSwatch(index)}
-              className="card-color-dot"
+              key={idx}
+              onClick={() => setActiveSwatch(idx)}
+              className="sable-swatch-dot"
               style={{
-                backgroundColor: color,
-                outline: activeSwatch === index ? '2px solid var(--text-main)' : 'none',
+                backgroundColor: col,
+                outline: activeSwatch === idx ? '1.5px solid var(--sable-text-dark)' : 'none',
                 outlineOffset: '1px'
               }}
-              title={`Finish ${index + 1}`}
             />
           ))}
-          <span className="card-category-text" style={{ marginLeft: 'auto' }}>
+          <span className="sable-card-cat" style={{ marginLeft: 'auto' }}>
             {p.category || 'Atelier'}
           </span>
         </div>
 
         {/* TITLE */}
-        <Link to={`/product/${productId}`} className="card-title-link">
-          <h3 className="card-product-title">{p.name}</h3>
+        <Link to={`/product/${productId}`} style={{ textDecoration: 'none' }}>
+          <h3 className="sable-card-title">{p.name}</h3>
         </Link>
         
-        {/* FOOTER ROW WITH PRICE & +BAG BUTTON */}
-        <div className="card-footer-row">
-          <div className="card-pricing-block">
-            <span className="card-price-current">
+        {/* FOOTER ROW */}
+        <div className="sable-card-footer">
+          <div className="sable-price-wrap">
+            <span className="sable-price-now">
               ₹{displayPrice.toLocaleString('en-IN')}
             </span>
             {hasDiscount && (
-              <span className="card-price-original">
+              <span className="sable-price-was">
                 ₹{originalPrice.toLocaleString('en-IN')}
               </span>
             )}
           </div>
 
           <button 
-            className={`card-add-btn ${isAdded ? 'added' : ''}`}
+            className={`sable-card-add-btn ${isAdded ? 'added' : ''}`}
             disabled={p.stock === 0} 
             onClick={handleAddToCart}
             aria-label="Add to cart"
           >
-            {isAdded ? 'Added ✓' : p.stock === 0 ? 'Out of Stock' : '+ Bag'}
+            {isAdded ? 'Added ✓' : p.stock === 0 ? 'Out' : '+ Bag'}
           </button>
         </div>
       </div>

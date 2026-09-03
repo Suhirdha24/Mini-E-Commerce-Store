@@ -9,7 +9,6 @@ export default function Shop() {
   const [items, setItems] = useState(initialAdminProducts || []);
   const [loading, setLoading] = useState(false);
   
-  // Read query params if present
   const queryParam = searchParams.get('q') || '';
   const categoryParam = searchParams.get('cat') || '';
 
@@ -17,7 +16,6 @@ export default function Shop() {
   const [cat, setCat] = useState(categoryParam);
   const [sortBy, setSortBy] = useState('featured');
 
-  // Keep state synchronized if URL search params change
   useEffect(() => {
     setQ(searchParams.get('q') || '');
     setCat(searchParams.get('cat') || '');
@@ -33,9 +31,7 @@ export default function Shop() {
           setItems(res.data);
         }
       })
-      .catch(() => {
-        // Fallback to initial seed products
-      })
+      .catch(() => {})
       .finally(() => setLoading(false));
   };
 
@@ -65,10 +61,8 @@ export default function Shop() {
     setSearchParams(params);
   };
 
-  // Dynamically extract distinct categories
   const categories = Array.from(new Set((items || []).map(i => i?.category).filter(Boolean)));
 
-  // Filter products
   let filtered = (items || []).filter(i => 
     i &&
     (!cat || i.category === cat) &&
@@ -77,7 +71,6 @@ export default function Shop() {
      (i.description && i.description.toLowerCase().includes(q.toLowerCase())))
   );
 
-  // Apply sorting
   if (sortBy === 'price-low') {
     filtered.sort((a, b) => (a.salePrice || a.price || 0) - (b.salePrice || b.price || 0));
   } else if (sortBy === 'price-high') {
@@ -89,31 +82,41 @@ export default function Shop() {
   return (
     <section className="page">
       <div style={{ marginBottom: '32px' }}>
-        <p className="eyebrow">THE COMPLETE CATALOG ({items.length} PIECES)</p>
-        <h1 style={{ fontFamily: 'var(--font-serif)', fontSize: '44px', fontWeight: 500, color: 'var(--text-main)', margin: '4px 0 12px' }}>
+        <p className="eyebrow">THE SABLE ARCHIVE ({items.length} PIECES)</p>
+        <h1 style={{ fontFamily: 'var(--font-editorial)', fontSize: '46px', fontWeight: 500, color: 'var(--sable-text-dark)', margin: '4px 0 12px' }}>
           {cat ? `${cat} Collection` : 'All Curated Pieces'}
         </h1>
-        <p style={{ color: 'var(--text-muted)', fontSize: '15.5px', maxWidth: '640px' }}>
-          Discover handcrafted essentials manufactured with natural fibers, certified full-grain leathers, and low-waste production processes.
+        <p style={{ color: 'var(--sable-text-muted)', fontSize: '15px', maxWidth: '640px', lineHeight: 1.65 }}>
+          Handcrafted garments, fine leather accessories, and sculptural living objects curated for effortless elegance.
         </p>
       </div>
 
-      {/* FILTER CONTROLS BAR */}
+      {/* FILTER BAR */}
       <div style={{ 
         display: 'flex', 
         justifyContent: 'space-between', 
         alignItems: 'center', 
         gap: '20px', 
         flexWrap: 'wrap', 
-        marginBottom: '32px',
+        marginBottom: '36px',
         paddingBottom: '20px',
-        borderBottom: '1px solid var(--border-light)'
+        borderBottom: '1px solid var(--sable-sand-border)'
       }}>
-        {/* CATEGORY PILLS */}
-        <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap', alignItems: 'center' }}>
+        {/* CATEGORY BUTTONS */}
+        <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
           <button 
             onClick={() => handleCategoryClick('')}
-            className={`category-tab-btn ${cat === '' ? 'active' : ''}`}
+            style={{
+              background: cat === '' ? 'var(--sable-btn-dark)' : '#FFFFFF',
+              color: cat === '' ? '#FFFFFF' : 'var(--sable-text-dark)',
+              border: '1px solid var(--sable-sand-border)',
+              padding: '8px 18px',
+              borderRadius: 'var(--sable-radius-pill)',
+              fontSize: '12.5px',
+              fontWeight: 600,
+              cursor: 'pointer',
+              transition: 'all 0.2s ease'
+            }}
           >
             All ({items.length})
           </button>
@@ -123,7 +126,17 @@ export default function Shop() {
               <button 
                 key={c} 
                 onClick={() => handleCategoryClick(c)}
-                className={`category-tab-btn ${cat === c ? 'active' : ''}`}
+                style={{
+                  background: cat === c ? 'var(--sable-btn-dark)' : '#FFFFFF',
+                  color: cat === c ? '#FFFFFF' : 'var(--sable-text-dark)',
+                  border: '1px solid var(--sable-sand-border)',
+                  padding: '8px 18px',
+                  borderRadius: 'var(--sable-radius-pill)',
+                  fontSize: '12.5px',
+                  fontWeight: 600,
+                  cursor: 'pointer',
+                  transition: 'all 0.2s ease'
+                }}
               >
                 {c} ({count})
               </button>
@@ -131,34 +144,37 @@ export default function Shop() {
           })}
         </div>
 
-        {/* SEARCH & SORT CONTROLS */}
-        <div style={{ display: 'flex', gap: '12px', alignItems: 'center', flexWrap: 'wrap' }}>
-          <div style={{ position: 'relative', width: '220px' }}>
-            <span style={{ position: 'absolute', left: '12px', top: '50%', transform: 'translateY(-50%)', opacity: 0.5, fontSize: '13px' }}>🔍</span>
-            <input
-              value={q}
-              onChange={e => handleSearchChange(e.target.value)}
-              placeholder="Filter catalog..."
-              style={{ paddingLeft: '34px', paddingRight: '12px', borderRadius: '30px', fontSize: '13px' }}
-            />
-          </div>
+        {/* SEARCH & SORT */}
+        <div style={{ display: 'flex', gap: '12px', alignItems: 'center' }}>
+          <input
+            value={q}
+            onChange={e => handleSearchChange(e.target.value)}
+            placeholder="Search archive..."
+            style={{ 
+              width: '200px', 
+              borderRadius: 'var(--sable-radius-pill)', 
+              padding: '9px 16px',
+              fontSize: '13px' 
+            }}
+          />
 
           <select 
             value={sortBy} 
             onChange={e => setSortBy(e.target.value)}
             style={{ 
               width: 'auto', 
-              borderRadius: '30px', 
+              borderRadius: 'var(--sable-radius-pill)', 
               fontSize: '13px', 
               fontWeight: 600,
-              padding: '11px 18px',
-              cursor: 'pointer' 
+              padding: '9px 16px',
+              cursor: 'pointer',
+              background: '#FFFFFF' 
             }}
           >
-            <option value="featured">Featured Curation</option>
+            <option value="featured">Featured</option>
             <option value="price-low">Price: Low to High</option>
             <option value="price-high">Price: High to Low</option>
-            <option value="name">Alphabetical (A-Z)</option>
+            <option value="name">A to Z</option>
           </select>
         </div>
       </div>
@@ -168,25 +184,24 @@ export default function Shop() {
         <div style={{ 
           textAlign: 'center', 
           padding: '80px 20px', 
-          background: 'var(--bg-surface)', 
-          borderRadius: 'var(--radius-lg)', 
-          border: '1px solid var(--border-light)', 
+          background: '#FFFFFF', 
+          borderRadius: 'var(--sable-radius-lg)', 
+          border: '1px solid var(--sable-sand-border)', 
           margin: '20px 0' 
         }}>
-          <span style={{ fontSize: '36px', display: 'block', marginBottom: '12px' }}>🔍</span>
-          <h3 style={{ fontFamily: 'var(--font-serif)', fontSize: '26px', marginBottom: '8px' }}>No Matching Creations Found</h3>
-          <p style={{ color: 'var(--text-muted)', maxWidth: '420px', margin: '0 auto 20px' }}>
-            We could not find any items matching your active filters. Try clearing your search keyword or switching categories.
+          <h3 style={{ fontFamily: 'var(--font-editorial)', fontSize: '28px', marginBottom: '8px' }}>No pieces found</h3>
+          <p style={{ color: 'var(--sable-text-muted)', marginBottom: '20px', fontSize: '14px' }}>
+            No creations match your current criteria.
           </p>
           <button 
             onClick={() => { setQ(''); handleCategoryClick(''); }} 
             className="primary"
           >
-            Reset All Filters
+            Reset Filters
           </button>
         </div>
       ) : (
-        <div className="product-grid">
+        <div className="sable-product-grid">
           {filtered.map(p => (
             <ProductCard key={p._id || p.id || p.sku || p.name} p={p} />
           ))}

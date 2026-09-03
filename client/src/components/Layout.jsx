@@ -6,12 +6,11 @@ import { safeGetJSON } from '../utils/storage';
 
 export default function Layout() {
   const { user, logout } = useAuth();
-  const { count, total } = useCart();
+  const { count } = useCart();
   const navigate = useNavigate();
   const [searchQuery, setSearchQuery] = useState('');
   const [favCount, setFavCount] = useState(0);
 
-  // Update favorites count dynamically
   const updateFavCount = () => {
     const userKey = user?.email ? `fav_${String(user.email).toLowerCase()}` : 'fav_guest';
     const favs = safeGetJSON(userKey, []);
@@ -40,69 +39,66 @@ export default function Layout() {
   };
 
   const displayName = user?.name ? String(user.name).split(' ')[0] : 'Member';
-  const initial = displayName ? displayName.charAt(0).toUpperCase() : 'U';
+  const initial = displayName ? displayName.charAt(0).toUpperCase() : 'M';
 
   return (
     <>
-      {/* 1. TOP TICKER ANNOUNCEMENT BAR (Sable & Homedine Inspiration) */}
-      <div className="top-ticker-bar">
-        <div className="ticker-content">
-          <span>Complimentary Express Shipping on Orders Over ₹1,999</span>
-          <span className="ticker-dot">✦</span>
-          <span>30-Day Effortless Concierge Returns</span>
-          <span className="ticker-dot">✦</span>
-          <span>100% Certified Artisan Crafted</span>
+      {/* 1. SABLE TOP ANNOUNCEMENT BAR */}
+      <div className="sable-announcement-bar">
+        <div className="sable-announcement-text">
+          FREE SHIPPING OVER ₹1,999 — RETURNS WITHIN 30 DAYS
         </div>
-        <div className="ticker-meta">
-          <span>INDIA (INR ₹)</span>
-          <span>ENGLISH</span>
+        <div className="sable-announcement-meta">
+          <span>English ▾</span>
+          <span>INR ₹ ▾</span>
         </div>
       </div>
 
-      {/* 2. MAIN SITE NAVIGATION BAR */}
-      <header className="site-header">
-        {/* BRAND MARK */}
-        <Link className="header-brand-wrap" to="/home">
-          <span className="brand-title">NOVA</span>
-          <span className="brand-tag">ATELIER</span>
-        </Link>
-        
-        {/* NAV LINKS */}
-        <nav className="main-nav">
+      {/* 2. SABLE CENTERED LUXURY HEADER */}
+      <header className="sable-header">
+        {/* LEFT NAVIGATION LINKS */}
+        <nav className="sable-nav-left">
           <NavLink to="/home">Home</NavLink>
-          <NavLink to="/shop">Shop All</NavLink>
+          <NavLink to="/shop?cat=Apparel">Clothing</NavLink>
           <NavLink to="/shop?cat=Bags">Bags</NavLink>
-          <NavLink to="/shop?cat=Footwear">Footwear</NavLink>
-          <NavLink to="/about">About & Craft</NavLink>
-          {user && <NavLink to="/orders">My Orders</NavLink>}
+          <NavLink to="/shop?cat=Footwear">Shoes</NavLink>
+          <NavLink to="/shop?cat=Accessories">Accessories</NavLink>
+          <NavLink to="/shop">Shop All</NavLink>
         </nav>
 
-        {/* PILL SEARCH BAR (Homedine & Nitec Inspiration) */}
-        <form onSubmit={handleSearchSubmit} className="header-search-form">
-          <span className="header-search-icon">🔍</span>
-          <input 
-            type="text" 
-            placeholder="Search our catalog..." 
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            className="header-search-input"
-          />
-        </form>
+        {/* CENTER LOGO */}
+        <div className="sable-logo-center">
+          <Link to="/home" style={{ textDecoration: 'none' }}>
+            <span className="sable-logo-text">SABLE</span>
+          </Link>
+        </div>
 
-        {/* HEADER ACTIONS */}
-        <div className="header-actions">
-          {/* WISHLIST BUTTON WITH LIVE BADGE */}
-          <Link to="/favorites" className="icon-action-btn" title="Saved Favorites" aria-label="Favorites">
+        {/* RIGHT HEADER ACTIONS */}
+        <div className="sable-header-right">
+          {/* SEARCH PILL */}
+          <form onSubmit={handleSearchSubmit} className="sable-search-wrap">
+            <span className="sable-search-icon">🔍</span>
+            <input 
+              type="text" 
+              placeholder="Search..." 
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="sable-search-input"
+            />
+          </form>
+
+          {/* WISHLIST HEART WITH LIVE COUNT */}
+          <Link to="/favorites" className="sable-icon-btn" title="Saved Favorites" aria-label="Favorites">
             <span>♡</span>
-            {favCount > 0 && <span className="icon-badge">{favCount}</span>}
+            {favCount > 0 && <span className="sable-badge-count">{favCount}</span>}
           </Link>
 
-          {/* SHOPPING BAG PILL BUTTON */}
-          <Link className="cart-pill-btn" to="/cart" title="View Shopping Bag">
+          {/* SHOPPING BAG */}
+          <Link to="/cart" className="sable-cart-link" title="Shopping Bag">
             <span>Bag</span>
             <span style={{ 
-              background: 'rgba(255,255,255,0.2)', 
-              padding: '2px 8px', 
+              background: 'rgba(255,255,255,0.22)', 
+              padding: '1px 7px', 
               borderRadius: '999px',
               fontSize: '11px' 
             }}>
@@ -110,11 +106,22 @@ export default function Layout() {
             </span>
           </Link>
 
-          {/* AUTHENTICATION / USER PROFILE */}
+          {/* USER AUTH / PROFILE */}
           {user ? (
             <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-              <Link to="/profile" className="user-account-badge" title="My Profile">
-                <span className="user-avatar-circle">{initial}</span>
+              <Link to="/profile" style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '13px', fontWeight: 600 }}>
+                <span style={{ 
+                  width: '24px', 
+                  height: '24px', 
+                  borderRadius: '50%', 
+                  background: 'var(--sable-text-dark)', 
+                  color: '#fff', 
+                  display: 'grid', 
+                  placeItems: 'center',
+                  fontSize: '10.5px' 
+                }}>
+                  {initial}
+                </span>
                 <span>{displayName}</span>
               </Link>
 
@@ -122,19 +129,15 @@ export default function Layout() {
                 <Link 
                   to="/admin" 
                   style={{ 
-                    background: '#223f2f', 
-                    color: '#c9e4d1', 
-                    padding: '6px 12px', 
-                    borderRadius: '20px', 
-                    fontSize: '11.5px', 
-                    fontWeight: 700, 
-                    textDecoration: 'none',
-                    display: 'inline-flex',
-                    alignItems: 'center',
-                    gap: '4px'
+                    background: 'var(--sable-text-dark)', 
+                    color: 'var(--sable-gold)', 
+                    padding: '4px 10px', 
+                    borderRadius: '12px', 
+                    fontSize: '11px', 
+                    fontWeight: 700 
                   }}
                 >
-                  🛡️ Admin
+                  Admin
                 </Link>
               )}
 
@@ -143,108 +146,88 @@ export default function Layout() {
                 style={{ 
                   background: 'none', 
                   border: 'none', 
-                  fontSize: '12.5px', 
+                  fontSize: '12px', 
                   fontWeight: 600, 
                   color: '#dc2626', 
-                  cursor: 'pointer',
-                  padding: '4px 6px'
+                  cursor: 'pointer' 
                 }}
-                title="Log out of account"
               >
                 Logout
               </button>
             </div>
           ) : (
-            <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-              <Link to="/login" style={{ fontSize: '13.5px', fontWeight: 600, color: 'var(--text-main)' }}>
-                Sign In
-              </Link>
-              <Link to="/register" style={{ 
-                fontSize: '13px', 
-                fontWeight: 600, 
-                color: 'var(--text-main)', 
-                border: '1px solid var(--border-light)', 
-                padding: '6px 14px', 
-                borderRadius: '20px',
-                background: '#fff' 
-              }}>
-                Join
-              </Link>
-            </div>
+            <Link to="/login" className="sable-auth-link">
+              Login
+            </Link>
           )}
         </div>
       </header>
 
-      {/* 3. PAGE MAIN CONTENT */}
+      {/* 3. MAIN OUTLET */}
       <main>
         <Outlet />
       </main>
 
-      {/* 4. LUXURY FOOTER (Sable & Homedine Inspiration) */}
-      <footer className="site-footer">
-        <div className="footer-top-row">
-          {/* BRAND STATEMENT & SOCIAL */}
-          <div className="footer-brand-summary">
-            <h2>NOVA ATELIER</h2>
+      {/* 4. SABLE LUXURY MINIMALIST FOOTER */}
+      <footer className="sable-footer">
+        <div className="sable-footer-grid">
+          {/* BRAND MANIFESTO */}
+          <div className="sable-footer-brand">
+            <h2>SABLE</h2>
             <p>
-              Quiet luxury and intentional living. Thoughtfully curated essentials across leather craft, knit footwear, timeless apparel, and contemporary living spaces.
+              Quiet luxury, loudly considered. Curated collections of enduring clothing, leather goods, and statement accessories for the mindful wardrobe.
             </p>
-            <div className="footer-social-icons">
-              <a href="#instagram" className="footer-social-icon" aria-label="Instagram">IG</a>
-              <a href="#pinterest" className="footer-social-icon" aria-label="Pinterest">PI</a>
-              <a href="#twitter" className="footer-social-icon" aria-label="Twitter">TW</a>
-              <a href="#facebook" className="footer-social-icon" aria-label="Facebook">FB</a>
-            </div>
           </div>
 
-          {/* COLUMN 1: COLLECTIONS */}
-          <div className="footer-col">
+          {/* COLLECTIONS */}
+          <div className="sable-footer-col">
             <h4>Collections</h4>
             <ul>
-              <li><Link to="/shop?cat=Bags">Fine Leather Bags</Link></li>
-              <li><Link to="/shop?cat=Footwear">Modern Footwear</Link></li>
-              <li><Link to="/shop?cat=Accessories">Luxury Timepieces</Link></li>
-              <li><Link to="/shop?cat=Apparel">Organic Cotton & Wool</Link></li>
-              <li><Link to="/shop?cat=Home">Home & Ceramics</Link></li>
-              <li><Link to="/shop?cat=Electronics">Acoustic Audio</Link></li>
+              <li><Link to="/shop?cat=Apparel">Clothing & Knitwear</Link></li>
+              <li><Link to="/shop?cat=Bags">Leather Goods & Totes</Link></li>
+              <li><Link to="/shop?cat=Footwear">Handcrafted Footwear</Link></li>
+              <li><Link to="/shop?cat=Accessories">Watches & Accents</Link></li>
+              <li><Link to="/shop">New Arrivals</Link></li>
             </ul>
           </div>
 
-          {/* COLUMN 2: CONCIERGE */}
-          <div className="footer-col">
-            <h4>Concierge</h4>
+          {/* CLIENT SERVICES */}
+          <div className="sable-footer-col">
+            <h4>Client Care</h4>
             <ul>
-              <li><Link to="/orders">Track My Order</Link></li>
+              <li><Link to="/orders">Order Tracking</Link></li>
               <li><Link to="/about">Shipping & Delivery</Link></li>
-              <li><Link to="/about">30-Day Return Policy</Link></li>
-              <li><Link to="/favorites">My Wishlist</Link></li>
-              <li><Link to="/profile">Account Settings</Link></li>
+              <li><Link to="/about">Returns & Exchanges</Link></li>
+              <li><Link to="/favorites">Wishlist</Link></li>
+              <li><Link to="/profile">Personal Account</Link></li>
             </ul>
           </div>
 
-          {/* COLUMN 3: SUSTAINABILITY */}
-          <div className="footer-col">
-            <h4>Ethics & Craft</h4>
+          {/* THE ATELIER */}
+          <div className="sable-footer-col">
+            <h4>The Atelier</h4>
             <ul>
+              <li><Link to="/about">Our Philosophy</Link></li>
               <li><Link to="/about">Material Provenance</Link></li>
-              <li><Link to="/about">Artisan Partnerships</Link></li>
-              <li><Link to="/about">Zero-Waste Commitment</Link></li>
-              <li><Link to="/about">Sustainability Report</Link></li>
-              <li><Link to="/about">Terms & Privacy</Link></li>
+              <li><Link to="/about">Artisan Standards</Link></li>
+              <li><Link to="/about">Sustainability</Link></li>
+              <li><Link to="/about">Privacy & Terms</Link></li>
             </ul>
           </div>
         </div>
 
-        {/* BOTTOM COPYRIGHT & PAYMENT BADGES */}
-        <div className="footer-bottom-bar">
-          <div className="footer-bottom-inner">
-            <span>© {new Date().getFullYear()} NOVA ATELIER STORE. All rights reserved. Crafted with precision.</span>
-            <div className="footer-payment-badges">
-              <span title="UPI Accepted">⚡ UPI</span>
-              <span title="Visa Cards">💳 Visa</span>
-              <span title="Mastercard">Mastercard</span>
-              <span title="RuPay">RuPay</span>
-              <span title="Safe Checkout">🔒 256-Bit SSL</span>
+        {/* BOTTOM COPYRIGHT */}
+        <div className="sable-footer-bottom">
+          <div className="sable-footer-bottom-inner">
+            <span>© {new Date().getFullYear()} SABLE. All rights reserved.</span>
+            <div style={{ display: 'flex', gap: '16px', fontSize: '13px' }}>
+              <span>UPI</span>
+              <span>•</span>
+              <span>VISA</span>
+              <span>•</span>
+              <span>MASTERCARD</span>
+              <span>•</span>
+              <span>AMEX</span>
             </div>
           </div>
         </div>

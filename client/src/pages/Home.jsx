@@ -1,28 +1,26 @@
 import { useEffect, useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import ProductCard from '../components/ProductCard';
 import { initialAdminProducts } from '../data/initialProducts';
 import { useCart } from '../context/CartContext';
 import api from '../api/api';
 
-// Circular category stories data (Sable template inspiration)
-const STORY_CATEGORIES = [
-  { name: 'Bags', count: '10+ Items', query: 'Bags', image: 'https://images.unsplash.com/photo-1548036328-c9fa89d128fa?w=400&auto=format&fit=crop&q=80' },
-  { name: 'Footwear', count: '10+ Items', query: 'Footwear', image: 'https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=400&auto=format&fit=crop&q=80' },
-  { name: 'Accessories', count: '10+ Items', query: 'Accessories', image: 'https://images.unsplash.com/photo-1524805444758-089113d48a6d?w=400&auto=format&fit=crop&q=80' },
-  { name: 'Apparel', count: '10+ Items', query: 'Apparel', image: 'https://images.unsplash.com/photo-1556821840-3a63f95609a7?w=400&auto=format&fit=crop&q=80' },
-  { name: 'Home', count: '10+ Items', query: 'Home', image: 'https://images.unsplash.com/photo-1507473885765-e6ed057f782c?w=400&auto=format&fit=crop&q=80' },
-  { name: 'Electronics', count: '10+ Items', query: 'Electronics', image: 'https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=400&auto=format&fit=crop&q=80' }
+// 6 Circular Story Highlights from the Sable Template
+const SABLE_STORIES = [
+  { name: 'Men', count: '120+ Items', cat: 'Apparel', img: 'https://images.unsplash.com/photo-1507679799987-c73779587ccf?w=360&auto=format&fit=crop&q=80' },
+  { name: 'Women', count: '180+ Items', cat: 'Apparel', img: 'https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?w=360&auto=format&fit=crop&q=80' },
+  { name: 'Bags', count: '220+ Items', cat: 'Bags', img: 'https://images.unsplash.com/photo-1584917865442-de89df76afd3?w=360&auto=format&fit=crop&q=80' },
+  { name: 'Shoes', count: '140+ Items', cat: 'Footwear', img: 'https://images.unsplash.com/photo-1549298916-b41d501d3772?w=360&auto=format&fit=crop&q=80' },
+  { name: 'Watches', count: '210+ Items', cat: 'Accessories', img: 'https://images.unsplash.com/photo-1522335789203-aabd1fc54bc9?w=360&auto=format&fit=crop&q=80' },
+  { name: 'Accessories', count: '320+ Items', cat: 'Accessories', img: 'https://images.unsplash.com/photo-1511499767150-a48a237f0083?w=360&auto=format&fit=crop&q=80' }
 ];
 
 export default function Home() {
-  const navigate = useNavigate();
   const { add } = useCart();
   const [allProducts, setAllProducts] = useState(initialAdminProducts || []);
-  const [activeTab, setActiveTab] = useState('All');
   const [newsletterEmail, setNewsletterEmail] = useState('');
   const [newsletterSubmitted, setNewsletterSubmitted] = useState(false);
-  const [bentoAddedId, setBentoAddedId] = useState(null);
+  const [quickAddedId, setQuickAddedId] = useState(null);
 
   useEffect(() => {
     api.get('/products?limit=100')
@@ -33,25 +31,21 @@ export default function Home() {
           setAllProducts(res.data);
         }
       })
-      .catch(() => {
-        // Safe fallback to initial products
-      });
+      .catch(() => {});
   }, []);
 
-  // Filter products for the Bestsellers section based on active tab
-  const displayedBestsellers = (allProducts || [])
-    .filter(p => activeTab === 'All' || p.category === activeTab)
-    .slice(0, 8);
+  // 8 Bestsellers for the Sable grid
+  const bestsellers = (allProducts || []).slice(0, 8);
 
-  // Curated 4 items for the "This Week's Edit" bento grid
-  const bentoItems = (allProducts || []).slice(0, 4);
+  // 4 Curated pieces for "This week's edit"
+  const quadItems = (allProducts || []).slice(0, 4);
 
-  const handleQuickBentoAdd = (item, e) => {
+  const handleQuickAdd = (item, e) => {
     e.preventDefault();
     e.stopPropagation();
     add(item, 1);
-    setBentoAddedId(item.id || item._id || item.sku);
-    setTimeout(() => setBentoAddedId(null), 1500);
+    setQuickAddedId(item.id || item._id || item.sku);
+    setTimeout(() => setQuickAddedId(null), 1500);
   };
 
   const handleNewsletterSubmit = (e) => {
@@ -65,185 +59,123 @@ export default function Home() {
 
   return (
     <>
-      {/* 1. CIRCULAR STORY CATEGORIES STRIP (From Sable Luxury Template) */}
-      <section className="story-categories-strip" aria-label="Category Stories">
-        {STORY_CATEGORIES.map(cat => (
-          <Link 
-            key={cat.name} 
-            to={`/shop?cat=${encodeURIComponent(cat.query)}`}
-            className="story-category-item"
-          >
-            <div className="story-ring">
-              <div className="story-image-inner">
-                <img src={cat.image} alt={cat.name} loading="lazy" />
-              </div>
-            </div>
-            <span className="story-label">{cat.name}</span>
-            <span className="story-count">{cat.count}</span>
-          </Link>
-        ))}
-      </section>
-
-      {/* 2. EDITORIAL HERO SECTION (Homedine & Sable Fusion) */}
-      <section className="editorial-hero-canvas">
-        <div className="hero-rounded-container">
-          {/* LEFT: TEXT & EDITORIAL STATEMENT */}
-          <div>
-            <div className="hero-eyebrow-pill">
-              <span>✦ The 2026 Archive</span>
-              <span style={{ opacity: 0.4 }}>|</span>
-              <span>Ethical Luxury</span>
-            </div>
-
-            <h1 className="hero-main-heading">
-              Quiet luxury,<br />loudly considered.
+      {/* 1. SABLE EDITORIAL HERO BANNER */}
+      <section className="sable-hero-section">
+        <div className="sable-hero-frame">
+          <div className="sable-hero-content">
+            <p className="sable-hero-kicker">Best Collection</p>
+            <h1 className="sable-hero-headline">
+              Quiet luxury,<br />
+              <em>loudly considered.</em>
             </h1>
-
-            <p className="hero-lead-text">
-              Explore sixty thoughtfully curated creations spanning handcrafted leather goods, breathable knitwear, acoustic listening devices, and tactile living ceramics.
+            <p className="sable-hero-paragraph">
+              Explore premium clothing and statement accessories curated for every season, every style, and every occasion.
             </p>
-
-            <div className="hero-actions-row">
-              <Link to="/shop" className="btn-luxury-primary">
-                Shop The Edit →
+            <div className="sable-hero-actions">
+              <Link to="/shop" className="sable-btn-primary">
+                SHOP THE EDIT
               </Link>
-              <Link to="/about" className="btn-luxury-secondary">
-                View Lookbook
+              <Link to="/about" className="sable-btn-secondary">
+                View Lookbook →
               </Link>
             </div>
           </div>
 
-          {/* RIGHT: HERO VISUAL STAGING WITH FLOATING GLASS BADGES (Homedine & Nitec) */}
-          <div className="hero-visual-stage">
-            {/* Top Right Floating Badge */}
-            <div className="floating-glass-badge top-right">
-              <div className="badge-stat-number">96%</div>
-              <div className="badge-stat-text">
-                Natural &<br />Sustainable
-              </div>
-            </div>
-
-            {/* Main Stage Image */}
-            <div className="hero-stage-card">
-              <img 
-                src="https://images.unsplash.com/photo-1548036328-c9fa89d128fa?w=900&auto=format&fit=crop&q=80" 
-                alt="Nova Signature Leather Tote" 
-              />
-            </div>
-
-            {/* Bottom Left Floating Badge */}
-            <div className="floating-glass-badge bottom-left">
-              <div style={{ fontSize: '22px' }}>★</div>
-              <div>
-                <div style={{ fontWeight: 700, fontSize: '14px', color: 'var(--text-main)' }}>4.9 / 5 Rating</div>
-                <div className="badge-stat-text">From 25,000+ Verified Buyers</div>
-              </div>
-            </div>
+          <div className="sable-hero-visual">
+            <img 
+              src="https://images.unsplash.com/photo-1490481651871-ab68de25d43d?w=1200&auto=format&fit=crop&q=80" 
+              alt="Sable Quiet Luxury Collection" 
+            />
           </div>
         </div>
       </section>
 
-      {/* 3. FOUR-PILLAR TRUST RIBBON (From Homedine Template) */}
-      <section className="trust-pillars-section">
-        <div className="trust-pillars-grid">
-          <div className="trust-pillar-card">
-            <div className="pillar-icon-box">🚚</div>
-            <div>
-              <h4 className="pillar-title">Complimentary Express</h4>
-              <p className="pillar-desc">Free pan-India delivery on orders over ₹1,999.</p>
-            </div>
-          </div>
-
-          <div className="trust-pillar-card">
-            <div className="pillar-icon-box">🌿</div>
-            <div>
-              <h4 className="pillar-title">Conscious Materials</h4>
-              <p className="pillar-desc">Sourced ethically with zero synthetic compromises.</p>
-            </div>
-          </div>
-
-          <div className="trust-pillar-card">
-            <div className="pillar-icon-box">🔄</div>
-            <div>
-              <h4 className="pillar-title">30-Day Concierge Returns</h4>
-              <p className="pillar-desc">Hassle-free exchanges and instant refunds.</p>
-            </div>
-          </div>
-
-          <div className="trust-pillar-card">
-            <div className="pillar-icon-box">🔒</div>
-            <div>
-              <h4 className="pillar-title">Encrypted Checkout</h4>
-              <p className="pillar-desc">UPI, Cards, NetBanking & Cash on Delivery.</p>
-            </div>
-          </div>
+      {/* 2. SABLE CIRCULAR STORY CATEGORIES */}
+      <section className="sable-stories-section">
+        <div className="sable-stories-row">
+          {SABLE_STORIES.map(story => (
+            <Link 
+              key={story.name} 
+              to={`/shop?cat=${encodeURIComponent(story.cat)}`}
+              className="sable-story-circle-item"
+            >
+              <div className="sable-story-avatar">
+                <div className="sable-story-inner">
+                  <img src={story.img} alt={story.name} loading="lazy" />
+                </div>
+              </div>
+              <span className="sable-story-name">{story.name}</span>
+              <span className="sable-story-count">{story.count}</span>
+            </Link>
+          ))}
         </div>
       </section>
 
-      {/* 4. "THIS WEEK'S EDIT" BENTO GRID (Sable & Nitec Inspiration) */}
-      <section className="editorial-bento-section">
-        <div className="section-header-row">
+      {/* 3. "THIS WEEK'S EDIT" ASYMMETRIC FASHION BENTO */}
+      <section className="sable-edit-section">
+        <div className="sable-section-header">
           <div>
-            <p className="section-sublabel">CURATED SPOTLIGHT</p>
-            <h2 className="section-headline">This Week's Edit</h2>
+            <p className="sable-kicker-small">NEW ARRIVALS</p>
+            <h2 className="sable-title-editorial">This week's edit</h2>
           </div>
-          <Link to="/shop" className="section-link-more">
-            View All Pieces →
+          <Link to="/shop" className="sable-view-all-link">
+            View all →
           </Link>
         </div>
 
-        <div className="bento-edit-layout">
-          {/* TALL EDITORIAL PORTRAIT CARD (Left) */}
-          <div className="bento-hero-portrait">
+        <div className="sable-bento-grid">
+          {/* TALL EDITORIAL PORTRAIT (Left) */}
+          <div className="sable-bento-tall">
             <img 
-              src="https://images.unsplash.com/photo-1544441893-675973e31985?w=900&auto=format&fit=crop&q=80" 
-              alt="Tailored Wool Outerwear Collection" 
+              src="https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?w=900&auto=format&fit=crop&q=80" 
+              alt="The Column Dress — Sandstone Capsule" 
             />
-            <div className="bento-hero-overlay">
-              <span className="bento-tag-pill">Limited Capsule</span>
-              <h3 className="bento-hero-title">Carry Confidence With Every Single Outfit</h3>
-              <p className="bento-hero-desc">
-                Clean silhouettes crafted from natural wool and breathable organic linen for effortless everyday luxury.
+            <div className="sable-bento-tall-overlay">
+              <span className="sable-bento-capsule-badge">Capsule Edit</span>
+              <h3 className="sable-bento-tall-title">The Column Dress</h3>
+              <p className="sable-bento-tall-desc">
+                Organic Cotton • Handwoven Sandstone Hue. Engineered for timeless poise and understated comfort.
               </p>
               <Link 
                 to="/shop?cat=Apparel" 
                 style={{ 
-                  color: '#fff', 
-                  fontWeight: 600, 
-                  fontSize: '13.5px',
+                  color: '#FFFFFF', 
+                  fontSize: '13.5px', 
+                  fontWeight: 700, 
+                  letterSpacing: '0.04em',
                   display: 'inline-flex',
                   alignItems: 'center',
                   gap: '6px'
                 }}
               >
-                Explore Apparel Capsule →
+                Shop The Dress (₹4,999) →
               </Link>
             </div>
           </div>
 
-          {/* 2x2 MINI PRODUCT BENTO GRID (Right) */}
-          <div className="bento-quad-grid">
-            {bentoItems.map(item => {
+          {/* 2x2 CLEAN FASHION GRID (Right) */}
+          <div className="sable-bento-quad">
+            {quadItems.map(item => {
               const itemId = item.id || item._id || item.sku;
-              const isAdded = bentoAddedId === itemId;
+              const isAdded = quickAddedId === itemId;
               const price = Number(item.salePrice || item.regularPrice || item.price || 0);
 
               return (
-                <div key={itemId} className="bento-mini-card">
-                  <Link to={`/product/${itemId}`} className="bento-mini-thumb">
+                <div key={itemId} className="sable-quad-card">
+                  <Link to={`/product/${itemId}`} className="sable-quad-thumb">
                     <img src={item.image} alt={item.name} loading="lazy" />
                   </Link>
-                  <div className="bento-mini-body">
-                    <span className="bento-mini-cat">{item.category}</span>
+                  <div className="sable-quad-body">
+                    <span className="sable-quad-cat">{item.category}</span>
                     <Link to={`/product/${itemId}`} style={{ textDecoration: 'none' }}>
-                      <h4 className="bento-mini-name">{item.name}</h4>
+                      <h4 className="sable-quad-name">{item.name}</h4>
                     </Link>
-                    <div className="bento-mini-row">
-                      <span className="bento-mini-price">₹{price.toLocaleString('en-IN')}</span>
+                    <div className="sable-quad-row">
+                      <span className="sable-quad-price">₹{price.toLocaleString('en-IN')}</span>
                       <button 
-                        className="bento-mini-add"
-                        onClick={(e) => handleQuickBentoAdd(item, e)}
-                        title="Add to Shopping Bag"
+                        className="sable-quad-add-btn"
+                        onClick={(e) => handleQuickAdd(item, e)}
+                        title="Add to Bag"
                         aria-label="Add to bag"
                       >
                         {isAdded ? '✓' : '+'}
@@ -257,168 +189,81 @@ export default function Home() {
         </div>
       </section>
 
-      {/* 5. BESTSELLER PRODUCTS WITH CATEGORY TABS (Homedine Inspiration) */}
-      <section className="bestsellers-section">
-        <div className="section-header-row">
-          <div>
-            <p className="section-sublabel">PLANET-PRIORITIZING ESSENTIALS</p>
-            <h2 className="section-headline">Bestselling Products ◇</h2>
+      {/* 4. SABLE FULL-WIDTH PEDESTAL BANNER */}
+      <section className="sable-pedestal-section">
+        <div className="sable-pedestal-frame">
+          <img 
+            src="https://images.unsplash.com/photo-1548036328-c9fa89d128fa?w=1400&auto=format&fit=crop&q=80" 
+            alt="Handbag on stone pedestal" 
+          />
+          <div className="sable-pedestal-overlay">
+            <span className="sable-pedestal-tag">THE LEATHER CAPSULE</span>
+            <h2 className="sable-pedestal-title">
+              Carry Confidence With Every Single Outfit Today
+            </h2>
+            <p className="sable-pedestal-desc">
+              A highly refined silhouette crafted from full-grain calfskin leather, built to age with grace and elevate modern wardrobes.
+            </p>
+            <div>
+              <Link to="/shop?cat=Bags" className="sable-btn-primary">
+                VIEW THE CAPSULE →
+              </Link>
+            </div>
           </div>
-          <Link to="/shop" className="section-link-more">
-            More Products →
+        </div>
+      </section>
+
+      {/* 5. SABLE BESTSELLERS 8-CARD GRID */}
+      <section className="sable-bestsellers-section">
+        <div className="sable-section-header">
+          <div>
+            <p className="sable-kicker-small">SEASONAL FAVORITES</p>
+            <h2 className="sable-title-editorial">Best sellers</h2>
+          </div>
+          <Link to="/shop" className="sable-view-all-link">
+            Explore All Catalog →
           </Link>
         </div>
 
-        {/* CATEGORY TABS BAR */}
-        <div className="category-filter-tabs">
-          {['All', 'Bags', 'Footwear', 'Accessories', 'Apparel', 'Home', 'Electronics'].map(tab => (
-            <button
-              key={tab}
-              onClick={() => setActiveTab(tab)}
-              className={`category-tab-btn ${activeTab === tab ? 'active' : ''}`}
-            >
-              {tab === 'All' ? `All (${allProducts.length})` : tab}
-            </button>
-          ))}
-        </div>
-
-        {/* PRODUCTS GRID */}
-        <div className="product-grid">
-          {displayedBestsellers.map(p => (
+        <div className="sable-product-grid">
+          {bestsellers.map(p => (
             <ProductCard key={p._id || p.id || p.sku || p.name} p={p} />
           ))}
         </div>
       </section>
 
-      {/* 6. EDITORIAL LIFESTYLE & BRAND COMMITMENT (Homedine & Sable Inspiration) */}
-      <section className="editorial-statement-banner">
-        <div className="statement-banner-box">
-          <div>
-            <span className="statement-badge">Our Artisan Promise</span>
-            <h2 className="statement-title">
-              Crafted for a healthier planet and a simpler lifestyle.
-            </h2>
-            <p className="statement-desc">
-              We collaborate with family-run workshops and mindful ateliers who honor ethical sourcing, low-impact vegetal tanning, and durable heirloom construction.
-            </p>
-
-            <div className="statement-metrics">
-              <div className="metric-col">
-                <h4>100%</h4>
-                <p>Plastic-Free Packaging</p>
-              </div>
-              <div className="metric-col">
-                <h4>60+</h4>
-                <p>Curated Designs</p>
-              </div>
-              <div className="metric-col">
-                <h4>0%</h4>
-                <p>Compromise</p>
-              </div>
-            </div>
-          </div>
-
-          <div className="statement-visual-box">
-            <img 
-              src="https://images.unsplash.com/photo-1507473885765-e6ed057f782c?w=800&auto=format&fit=crop&q=80" 
-              alt="Artisan ceramic crafted lamp" 
-            />
-          </div>
-        </div>
-      </section>
-
-      {/* 7. CUSTOMER REVIEWS & SOCIAL PROOF (From Homedine Template) */}
-      <section className="reviews-section">
-        <div className="reviews-header">
-          <div className="reviews-score-pill">
-            <span>★ 4.9 / 5</span>
-            <span style={{ opacity: 0.4 }}>|</span>
-            <span>Over 25,000 Verified Customer Reviews</span>
-          </div>
-          <h2 className="section-headline">Loved by Design Enthusiasts</h2>
-        </div>
-
-        <div className="reviews-grid">
-          <div className="review-card">
-            <div className="review-stars">★★★★★</div>
-            <p className="review-quote">
-              "The Contour Ceramic Lamp and linen cushions have completely transformed our studio space. The textures are authentic, understated, and feel deeply organic."
-            </p>
-            <div className="review-author-row">
-              <img 
-                src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=120&auto=format&fit=crop&q=80" 
-                alt="Elena Rostova" 
-                className="review-author-avatar" 
-              />
-              <div>
-                <h4 className="author-name">Elena Rostova</h4>
-                <p className="author-role">Interior Architect, Mumbai</p>
-              </div>
-            </div>
-          </div>
-
-          <div className="review-card">
-            <div className="review-stars">★★★★★</div>
-            <p className="review-quote">
-              "The Acoustic Wireless Headphones are magnificent. Crisp highs, warm midtones, and the battery lasts through my entire travel week without requiring a recharge."
-            </p>
-            <div className="review-author-row">
-              <img 
-                src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=120&auto=format&fit=crop&q=80" 
-                alt="Marcus Vance" 
-                className="review-author-avatar" 
-              />
-              <div>
-                <h4 className="author-name">Marcus Vance</h4>
-                <p className="author-role">Audio Engineer, Bengaluru</p>
-              </div>
-            </div>
-          </div>
-
-          <div className="review-card">
-            <div className="review-stars">★★★★★</div>
-            <p className="review-quote">
-              "The Essential Leather Tote has that rare balance of supple grain and sturdy structure. It carries my 15-inch laptop effortlessly while looking timelessly elegant."
-            </p>
-            <div className="review-author-row">
-              <img 
-                src="https://images.unsplash.com/photo-1517841905240-472988babdf9?w=120&auto=format&fit=crop&q=80" 
-                alt="Priya Sharma" 
-                className="review-author-avatar" 
-              />
-              <div>
-                <h4 className="author-name">Priya Sharma</h4>
-                <p className="author-role">Creative Director, New Delhi</p>
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* 8. VIP CLUB NEWSLETTER (From Sable Luxury Template) */}
-      <section className="newsletter-section">
-        <div className="newsletter-box">
-          <p className="section-sublabel">JOIN THE ATELIER</p>
-          <h3>Join & Get 10% Off Your First Order</h3>
-          <p>
-            Sign up now and enjoy exclusive private sales, early access to limited capsule editions, and thoughtful living inspiration.
+      {/* 6. SABLE VIP NEWSLETTER */}
+      <section className="sable-newsletter-section">
+        <div className="sable-newsletter-box">
+          <p className="sable-kicker-small">PRIVILEGE ACCESS</p>
+          <h3 className="sable-newsletter-title">Join & Get 10% Off</h3>
+          <p className="sable-newsletter-desc">
+            Sign up now and enjoy exclusive deals, private seasonal lookbooks, and early access just for members.
           </p>
 
           {newsletterSubmitted ? (
-            <div style={{ background: '#def7ec', color: '#03543f', padding: '14px 24px', borderRadius: '30px', display: 'inline-block', fontWeight: 600 }}>
-              ✓ Welcome to the Nova Circle! Check your inbox for your 10% privilege code.
+            <div style={{ 
+              background: '#E0DDD4', 
+              color: 'var(--sable-text-dark)', 
+              padding: '12px 24px', 
+              borderRadius: 'var(--sable-radius-pill)', 
+              display: 'inline-block',
+              fontWeight: 600,
+              fontSize: '13.5px' 
+            }}>
+              ✓ Welcome to Sable. Your 10% invitation code has been sent.
             </div>
           ) : (
-            <form onSubmit={handleNewsletterSubmit} className="newsletter-form">
+            <form onSubmit={handleNewsletterSubmit} className="sable-newsletter-form">
               <input 
                 type="email" 
                 required 
                 placeholder="Enter your email address..." 
                 value={newsletterEmail}
                 onChange={(e) => setNewsletterEmail(e.target.value)}
-                className="newsletter-input"
+                className="sable-newsletter-input"
               />
-              <button type="submit" className="newsletter-btn">
+              <button type="submit" className="sable-newsletter-btn">
                 Become a Member →
               </button>
             </form>
