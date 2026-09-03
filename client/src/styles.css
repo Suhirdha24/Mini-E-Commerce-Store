@@ -1,46 +1,52 @@
 /* =========================================================
-   SHOPCART E-COMMERCE DESIGN SYSTEM — NOVA STORE
-   Faithfully crafted to mirror the Shopcart Template:
-   - Palette: Clean white (#FFFFFF), warm peach hero (#FAEDE5), deep forest green (#0D3B2E), vibrant green stars (#0E8345)
-   - Typography: Plus Jakarta Sans / Inter modern geometric sans
-   - Components: Top nav with search & account/cart, peach promo banner with "Buy Now",
-     horizontal filter dropdown pills, "Products For You!" grid, and Shopcart product cards
+   NOVA STUDIO — SPATIAL BENTO & APPLE PRO LUXURY DESIGN SYSTEM
+   Faithfully crafted to mirror Concept B (Spatial Bento):
+   - Palette: Pure white (#FFFFFF) & platinum (#F6F7F9)
+   - Accents: Electric Blue (#0055FF), Acid Lime (#C6F82A), Obsidian (#111215)
+   - Geometry: 24px - 32px organic bento radii, pill buttons, frosted floating glass
+   - Typography: Plus Jakarta Sans / Inter ultra-clean modern grotesque sans
 ========================================================= */
 
-@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,400;0,500;0,600;0,700;0,800;1,400;1,600&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,400;0,500;0,600;0,700;0,800;1,400;1,700&display=swap');
 
 :root {
   --font-main: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
 
-  /* Shopcart Colors */
-  --sc-bg: #FFFFFF;
-  --sc-bg-soft: #F5F6F6;
-  --sc-bg-peach: #FBF0E8;
-  --sc-border: #E8ECEB;
-  --sc-border-light: #F0F2F2;
+  /* Spatial Bento Palette */
+  --bento-bg: #FFFFFF;
+  --bento-canvas: #F7F8FA;
+  --bento-surface: #FFFFFF;
+  --bento-surface-soft: #F0F2F5;
+  --bento-border: #E8ECEF;
+  --bento-border-subtle: rgba(0, 0, 0, 0.05);
 
-  --sc-text-dark: #121516;
-  --sc-text-muted: #697373;
-  --sc-text-light: #8E9898;
+  --bento-dark: #111215;
+  --bento-dark-surface: #18191E;
+  --bento-text-dark: #111215;
+  --bento-text-muted: #6B7280;
+  --bento-text-light: #9CA3AF;
 
-  --sc-green-primary: #0D3B2E;
-  --sc-green-hover: #07261D;
-  --sc-green-rating: #0E8345;
-  --sc-orange-accent: #E86A38;
+  /* Punchy Electric Accents */
+  --bento-blue: #0055FF;
+  --bento-blue-hover: #0044CC;
+  --bento-lime: #C6F82A;
+  --bento-lime-text: #0E1A02;
+  --bento-violet: #8B5CF6;
+  --bento-orange: #FF5A1F;
 
-  /* Geometry */
-  --sc-radius-xs: 6px;
-  --sc-radius-sm: 10px;
-  --sc-radius-md: 14px;
-  --sc-radius-lg: 20px;
-  --sc-radius-pill: 9999px;
+  /* Radii */
+  --bento-radius-sm: 12px;
+  --bento-radius-md: 20px;
+  --bento-radius-lg: 28px;
+  --bento-radius-xl: 36px;
+  --bento-radius-pill: 9999px;
 
   /* Shadows */
-  --sc-shadow-subtle: 0 2px 8px rgba(0, 0, 0, 0.04);
-  --sc-shadow-card: 0 4px 16px rgba(0, 0, 0, 0.05);
-  --sc-shadow-hover: 0 10px 28px rgba(0, 0, 0, 0.08);
+  --bento-shadow-subtle: 0 2px 10px rgba(0, 0, 0, 0.03);
+  --bento-shadow-card: 0 8px 24px rgba(0, 0, 0, 0.04);
+  --bento-shadow-hover: 0 16px 40px rgba(0, 0, 0, 0.08);
 
-  --transition: 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  --transition: 0.25s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 /* RESET */
@@ -52,8 +58,8 @@
 
 body {
   font-family: var(--font-main);
-  background-color: var(--sc-bg);
-  color: var(--sc-text-dark);
+  background-color: var(--bento-bg);
+  color: var(--bento-text-dark);
   line-height: 1.5;
   -webkit-font-smoothing: antialiased;
   min-height: 100vh;
@@ -84,526 +90,739 @@ button {
 }
 
 /* =========================================================
-   1. SHOPCART TOP HEADER & NAVIGATION
+   1. NOVA STUDIO HEADER & NAVIGATION
 ========================================================= */
-header.shopcart-header {
+header.bento-header {
   position: sticky;
   top: 0;
   z-index: 100;
-  background: #FFFFFF;
-  border-bottom: 1px solid var(--sc-border);
-  padding: 16px 5vw;
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border-bottom: 1px solid var(--bento-border);
+  padding: 18px 5vw;
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 24px;
-  box-shadow: var(--sc-shadow-subtle);
+  gap: 28px;
 }
 
 /* BRAND LOGO */
-.shopcart-logo-wrap {
-  display: flex;
-  align-items: center;
-  gap: 8px;
+.bento-brand {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 6px;
   text-decoration: none;
 }
 
-.shopcart-logo-icon {
-  font-size: 24px;
-  color: var(--sc-green-primary);
-}
-
-.shopcart-logo-text {
+.bento-brand-name {
   font-size: 24px;
   font-weight: 800;
-  color: var(--sc-green-primary);
-  letter-spacing: -0.02em;
+  color: var(--bento-text-dark);
+  letter-spacing: -0.03em;
+}
+
+.bento-brand-studio {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.16em;
+  color: var(--bento-blue);
+  text-transform: uppercase;
 }
 
 /* NAV LINKS */
-nav.shopcart-nav {
+nav.bento-nav {
   display: flex;
   align-items: center;
   gap: 24px;
 }
 
-nav.shopcart-nav a, .shopcart-dropdown-trigger {
-  font-size: 14.5px;
+nav.bento-nav a {
+  font-size: 14px;
   font-weight: 600;
-  color: var(--sc-text-dark);
-  display: inline-flex;
-  align-items: center;
-  gap: 4px;
-  cursor: pointer;
+  color: var(--bento-text-muted);
   transition: var(--transition);
-  background: none;
-  border: none;
-}
-
-nav.shopcart-nav a:hover, .shopcart-dropdown-trigger:hover {
-  color: var(--sc-green-rating);
-}
-
-/* DROPDOWN MENU */
-.shopcart-dropdown-wrap {
   position: relative;
+  padding: 4px 0;
 }
 
-.shopcart-dropdown-menu {
+nav.bento-nav a:hover,
+nav.bento-nav a.active {
+  color: var(--bento-text-dark);
+}
+
+nav.bento-nav a.active::after {
+  content: '';
   position: absolute;
-  top: calc(100% + 12px);
+  bottom: -2px;
   left: 0;
-  background: #FFFFFF;
-  border: 1px solid var(--sc-border);
-  border-radius: var(--sc-radius-sm);
-  box-shadow: var(--sc-shadow-card);
-  padding: 8px 0;
-  min-width: 180px;
-  z-index: 50;
-  display: flex;
-  flex-direction: column;
+  right: 0;
+  height: 2px;
+  background: var(--bento-blue);
+  border-radius: 2px;
 }
 
-.shopcart-dropdown-menu a {
-  padding: 9px 18px;
-  font-size: 13.5px;
-  font-weight: 500;
-  color: var(--sc-text-dark);
-  transition: var(--transition);
-}
-
-.shopcart-dropdown-menu a:hover {
-  background: var(--sc-bg-soft);
-  color: var(--sc-green-primary);
-}
-
-/* SEARCH INPUT IN HEADER */
-.shopcart-search-form {
+/* SEARCH PILL WITH LIVE BADGE */
+.bento-search-form {
   position: relative;
-  max-width: 380px;
+  max-width: 440px;
   flex: 1;
   display: flex;
   align-items: center;
 }
 
-.shopcart-search-input {
+.bento-search-input {
   width: 100%;
-  background: var(--sc-bg-soft);
+  background: var(--bento-surface-soft);
   border: 1px solid transparent;
-  border-radius: var(--sc-radius-pill);
-  padding: 10px 42px 10px 20px;
+  border-radius: var(--bento-radius-pill);
+  padding: 11px 90px 11px 20px;
   font-size: 13.5px;
-  color: var(--sc-text-dark);
+  color: var(--bento-text-dark);
   transition: var(--transition);
 }
 
-.shopcart-search-input:focus {
+.bento-search-input:focus {
   outline: none;
-  border-color: var(--sc-green-primary);
+  border-color: var(--bento-blue);
   background: #FFFFFF;
-  box-shadow: 0 0 0 3px rgba(13, 59, 46, 0.08);
+  box-shadow: 0 0 0 3px rgba(0, 85, 255, 0.1);
 }
 
-.shopcart-search-icon-btn {
+.bento-search-right-badges {
   position: absolute;
-  right: 12px;
-  background: none;
-  border: none;
-  font-size: 15px;
-  color: var(--sc-text-light);
-  cursor: pointer;
-  display: grid;
-  place-items: center;
-}
-
-/* RIGHT ACTIONS (Account, Cart) */
-.shopcart-actions {
+  right: 8px;
   display: flex;
-  align-items: center;
-  gap: 20px;
-}
-
-.shopcart-action-link {
-  display: inline-flex;
   align-items: center;
   gap: 8px;
-  font-size: 14.5px;
-  font-weight: 600;
-  color: var(--sc-text-dark);
-  cursor: pointer;
-  transition: var(--transition);
 }
 
-.shopcart-action-link:hover {
-  color: var(--sc-green-primary);
-}
-
-.shopcart-cart-count-pill {
-  background: var(--sc-green-primary);
-  color: #fff;
+.bento-live-badge {
+  background: #EBF2FF;
+  color: var(--bento-blue);
   font-size: 11px;
   font-weight: 700;
-  padding: 2px 7px;
-  border-radius: var(--sc-radius-pill);
-}
-
-@media (max-width: 900px) {
-  nav.shopcart-nav {
-    display: none;
-  }
-}
-
-/* =========================================================
-   2. SHOPCART HERO PROMO BANNER (Peach Background)
-========================================================= */
-.shopcart-hero-section {
-  max-width: 1360px;
-  margin: 24px auto 36px;
-  padding: 0 5vw;
-}
-
-.shopcart-hero-card {
-  background: var(--sc-bg-peach);
-  border-radius: var(--sc-radius-lg);
-  padding: 56px 64px;
-  display: grid;
-  grid-template-columns: 1.2fr 0.8fr;
+  padding: 3px 8px;
+  border-radius: var(--bento-radius-pill);
+  display: flex;
   align-items: center;
-  gap: 40px;
-  overflow: hidden;
-  position: relative;
-  min-height: 380px;
+  gap: 4px;
 }
 
-.shopcart-hero-title {
-  font-size: clamp(2.4rem, 4.2vw, 3.6rem);
-  font-weight: 800;
-  line-height: 1.15;
-  color: var(--sc-green-primary);
-  margin-bottom: 28px;
-  letter-spacing: -0.02em;
-}
-
-.shopcart-btn-buy {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  background: var(--sc-green-primary);
-  color: #FFFFFF !important;
-  font-size: 15px;
-  font-weight: 700;
-  padding: 14px 38px;
-  border-radius: var(--sc-radius-pill);
+.bento-search-icon {
+  font-size: 14px;
+  color: var(--bento-text-light);
+  background: none;
   border: none;
   cursor: pointer;
-  transition: var(--transition);
 }
 
-.shopcart-btn-buy:hover {
-  background: var(--sc-green-hover);
-  transform: translateY(-2px);
-  box-shadow: 0 8px 20px rgba(13, 59, 46, 0.25);
-}
-
-.shopcart-hero-image-wrap {
-  height: 320px;
+/* RIGHT ACTIONS (Account, Wishlist, Cart) */
+.bento-header-actions {
   display: flex;
-  justify-content: center;
-  align-items: center;
-}
-
-.shopcart-hero-image-wrap img {
-  max-height: 100%;
-  object-fit: contain;
-  border-radius: var(--sc-radius-md);
-}
-
-@media (max-width: 860px) {
-  .shopcart-hero-card {
-    grid-template-columns: 1fr;
-    padding: 36px 28px;
-    text-align: center;
-  }
-  .shopcart-hero-image-wrap {
-    height: 240px;
-  }
-}
-
-/* =========================================================
-   3. HORIZONTAL FILTER PILLS BAR
-========================================================= */
-.shopcart-filters-bar {
-  max-width: 1360px;
-  margin: 0 auto 36px;
-  padding: 0 5vw;
-  display: flex;
-  justify-content: space-between;
   align-items: center;
   gap: 16px;
-  flex-wrap: wrap;
 }
 
-.shopcart-filter-pills-row {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  flex-wrap: wrap;
-}
-
-.shopcart-pill-btn {
-  background: #EAEAEA;
-  border: none;
-  border-radius: var(--sc-radius-pill);
-  padding: 9px 18px;
-  font-size: 13px;
+.bento-action-link {
+  font-size: 13.5px;
   font-weight: 600;
-  color: var(--sc-text-dark);
-  cursor: pointer;
+  color: var(--bento-text-dark);
   display: inline-flex;
   align-items: center;
   gap: 6px;
   transition: var(--transition);
 }
 
-.shopcart-pill-btn:hover {
-  background: #DFDFDF;
+.bento-action-link:hover {
+  color: var(--bento-blue);
 }
 
-.shopcart-pill-btn.active {
-  background: var(--sc-green-primary);
+.bento-cart-badge {
+  background: var(--bento-blue);
   color: #FFFFFF;
+  font-size: 11px;
+  font-weight: 700;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
 }
 
-.shopcart-sort-wrap {
-  display: inline-flex;
-  align-items: center;
-  background: #FFFFFF;
-  border: 1px solid var(--sc-border);
-  border-radius: var(--sc-radius-pill);
-  padding: 6px 14px;
-}
-
-.shopcart-sort-select {
-  border: none;
-  background: transparent;
-  font-size: 13px;
-  font-weight: 600;
-  color: var(--sc-text-dark);
-  cursor: pointer;
-  outline: none;
+@media (max-width: 960px) {
+  nav.bento-nav, .bento-search-form {
+    display: none;
+  }
 }
 
 /* =========================================================
-   4. PRODUCT GRID & SHOPCART PRODUCT CARD
+   2. CATEGORY STORY CIRCLES STRIP
 ========================================================= */
-.shopcart-section-container {
+.bento-stories-container {
   max-width: 1360px;
-  margin: 0 auto 60px;
+  margin: 24px auto 16px;
   padding: 0 5vw;
 }
 
-.shopcart-section-heading {
-  font-size: 26px;
-  font-weight: 800;
-  color: var(--sc-text-dark);
-  margin-bottom: 24px;
-  letter-spacing: -0.01em;
+.bento-stories-row {
+  display: flex;
+  align-items: center;
+  gap: 28px;
+  overflow-x: auto;
+  padding: 6px 0;
+  scrollbar-width: none;
 }
 
-.shopcart-product-grid {
+.bento-stories-row::-webkit-scrollbar {
+  display: none;
+}
+
+.bento-story-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+  flex-shrink: 0;
+  transition: var(--transition);
+}
+
+.bento-story-ring {
+  width: 76px;
+  height: 76px;
+  border-radius: 50%;
+  padding: 2.5px;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.bento-story-item:hover .bento-story-ring {
+  transform: scale(1.08);
+}
+
+.bento-story-ring.ring-blue {
+  background: linear-gradient(135deg, #0055FF, #00C6FF);
+}
+.bento-story-ring.ring-violet {
+  background: linear-gradient(135deg, #8B5CF6, #EC4899);
+}
+.bento-story-ring.ring-lime {
+  background: linear-gradient(135deg, #10B981, #C6F82A);
+}
+.bento-story-ring.ring-orange {
+  background: linear-gradient(135deg, #F97316, #FBBF24);
+}
+
+.bento-story-inner {
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  background: #18191E;
+  overflow: hidden;
+  border: 2px solid #FFFFFF;
+  display: grid;
+  place-items: center;
+  color: #FFFFFF;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+}
+
+.bento-story-inner img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.4s ease;
+}
+
+.bento-story-item:hover .bento-story-inner img {
+  transform: scale(1.15);
+}
+
+.bento-story-label {
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--bento-text-dark);
+}
+
+/* =========================================================
+   3. SPATIAL BENTO HERO SECTION (Concept B)
+========================================================= */
+.bento-hero-section {
+  max-width: 1360px;
+  margin: 16px auto 50px;
+  padding: 0 5vw;
+}
+
+.bento-hero-grid {
+  display: grid;
+  grid-template-columns: 1.15fr 0.9fr 0.95fr;
+  gap: 20px;
+}
+
+/* 1. Large Obsidian Hero Tile (Left) */
+.bento-tile-obsidian {
+  background: var(--bento-dark);
+  border-radius: var(--bento-radius-lg);
+  padding: 38px 34px;
+  color: #FFFFFF;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  position: relative;
+  overflow: hidden;
+  min-height: 480px;
+  box-shadow: var(--bento-shadow-card);
+}
+
+.bento-obsidian-visual {
+  position: relative;
+  height: 240px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.bento-obsidian-visual img {
+  max-height: 100%;
+  object-fit: contain;
+  transition: transform 0.6s ease;
+  z-index: 2;
+}
+
+.bento-tile-obsidian:hover .bento-obsidian-visual img {
+  transform: scale(1.08) rotate(-3deg);
+}
+
+.bento-neon-glow-line {
+  position: absolute;
+  width: 120%;
+  height: 2px;
+  background: linear-gradient(90deg, transparent, #00C6FF, #C6F82A, transparent);
+  filter: blur(2px);
+  transform: rotate(-15deg);
+  opacity: 0.8;
+}
+
+.bento-obsidian-headline {
+  font-size: clamp(2rem, 3vw, 2.6rem);
+  font-weight: 800;
+  line-height: 1.1;
+  letter-spacing: -0.03em;
+  margin-bottom: 8px;
+}
+
+.bento-obsidian-sub {
+  font-size: 14px;
+  color: #9CA3AF;
+  margin-bottom: 24px;
+}
+
+.bento-btn-white-pill {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: #FFFFFF;
+  color: #111215 !important;
+  font-size: 13px;
+  font-weight: 800;
+  letter-spacing: 0.04em;
+  padding: 13px 28px;
+  border-radius: var(--bento-radius-pill);
+  align-self: flex-start;
+  transition: var(--transition);
+}
+
+.bento-btn-white-pill:hover {
+  background: #E5E7EB;
+  transform: translateY(-2px);
+}
+
+/* 2. Center Cube Showcase Tile */
+.bento-tile-platinum {
+  background: var(--bento-surface-soft);
+  border: 1px solid var(--bento-border);
+  border-radius: var(--bento-radius-lg);
+  padding: 32px 28px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  min-height: 480px;
+  position: relative;
+  overflow: hidden;
+  box-shadow: var(--bento-shadow-subtle);
+  transition: var(--transition);
+}
+
+.bento-tile-platinum:hover {
+  transform: translateY(-4px);
+  box-shadow: var(--bento-shadow-card);
+}
+
+.bento-platinum-visual {
+  height: 240px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.bento-platinum-visual img {
+  max-height: 100%;
+  object-fit: contain;
+  transition: transform 0.5s ease;
+}
+
+.bento-tile-platinum:hover .bento-platinum-visual img {
+  transform: scale(1.08);
+}
+
+.bento-platinum-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding-top: 16px;
+}
+
+.bento-platinum-title {
+  font-size: 20px;
+  font-weight: 800;
+  color: var(--bento-text-dark);
+  letter-spacing: -0.02em;
+}
+
+.bento-btn-lime {
+  background: var(--bento-lime);
+  color: var(--bento-lime-text) !important;
+  font-size: 13px;
+  font-weight: 800;
+  letter-spacing: 0.04em;
+  padding: 10px 22px;
+  border-radius: var(--bento-radius-pill);
+  border: none;
+  cursor: pointer;
+  transition: var(--transition);
+}
+
+.bento-btn-lime:hover {
+  background: #B6E820;
+  transform: translateY(-2px);
+  box-shadow: 0 6px 18px rgba(198, 248, 42, 0.4);
+}
+
+/* 3. Right Stack Tiles (Jacket & Shoes) */
+.bento-right-stack {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.bento-mini-stack-card {
+  background: var(--bento-surface);
+  border: 1px solid var(--bento-border);
+  border-radius: var(--bento-radius-md);
+  padding: 20px;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  box-shadow: var(--bento-shadow-subtle);
+  transition: var(--transition);
+  flex: 1;
+}
+
+.bento-mini-stack-card:hover {
+  transform: translateY(-3px);
+  box-shadow: var(--bento-shadow-card);
+  border-color: rgba(0, 85, 255, 0.2);
+}
+
+.bento-mini-thumb {
+  width: 100px;
+  height: 100px;
+  background: var(--bento-surface-soft);
+  border-radius: var(--bento-radius-sm);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  overflow: hidden;
+}
+
+.bento-mini-thumb img {
+  max-width: 80%;
+  max-height: 80%;
+  object-fit: contain;
+  transition: transform 0.4s ease;
+}
+
+.bento-mini-stack-card:hover .bento-mini-thumb img {
+  transform: scale(1.12);
+}
+
+.bento-mini-info {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+}
+
+.bento-mini-tag {
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  color: var(--bento-blue);
+  letter-spacing: 0.04em;
+}
+
+.bento-mini-title {
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--bento-text-dark);
+  margin: 3px 0 6px;
+}
+
+.bento-mini-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.bento-mini-price {
+  font-size: 16px;
+  font-weight: 800;
+  color: var(--bento-text-dark);
+}
+
+.bento-btn-blue-add {
+  background: var(--bento-blue);
+  color: #FFFFFF;
+  border: none;
+  padding: 7px 16px;
+  border-radius: var(--bento-radius-pill);
+  font-size: 12px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: var(--transition);
+}
+
+.bento-btn-blue-add:hover {
+  background: var(--bento-blue-hover);
+  transform: translateY(-1px);
+}
+
+@media (max-width: 1024px) {
+  .bento-hero-grid {
+    grid-template-columns: 1fr;
+  }
+  .bento-tile-obsidian, .bento-tile-platinum {
+    min-height: 380px;
+  }
+}
+
+/* =========================================================
+   4. SPATIAL PRODUCT GRID & MODERN CARDS
+========================================================= */
+.bento-catalog-section {
+  max-width: 1360px;
+  margin: 30px auto 60px;
+  padding: 0 5vw;
+}
+
+.bento-section-header-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  margin-bottom: 24px;
+}
+
+.bento-section-title {
+  font-size: 26px;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  color: var(--bento-text-dark);
+}
+
+.bento-view-all-link {
+  font-size: 13.5px;
+  font-weight: 700;
+  color: var(--bento-blue);
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.bento-view-all-link:hover {
+  text-decoration: underline;
+}
+
+.bento-product-grid {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
   gap: 24px;
 }
 
 @media (max-width: 1100px) {
-  .shopcart-product-grid {
+  .bento-product-grid {
     grid-template-columns: repeat(3, 1fr);
   }
 }
 
-@media (max-width: 780px) {
-  .shopcart-product-grid {
+@media (max-width: 768px) {
+  .bento-product-grid {
     grid-template-columns: repeat(2, 1fr);
     gap: 16px;
   }
 }
 
 @media (max-width: 480px) {
-  .shopcart-product-grid {
+  .bento-product-grid {
     grid-template-columns: 1fr;
   }
 }
 
-/* THE EXACT SHOPCART CARD */
-.shopcart-product-card {
-  background: #FFFFFF;
+/* SPATIAL BENTO PRODUCT CARD */
+.bento-card {
+  background: var(--bento-surface);
+  border: 1px solid var(--bento-border);
+  border-radius: var(--bento-radius-md);
+  padding: 18px;
   display: flex;
   flex-direction: column;
   transition: var(--transition);
   position: relative;
+  box-shadow: var(--bento-shadow-subtle);
 }
 
-.shopcart-card-image-box {
-  background: var(--sc-bg-soft);
-  border-radius: var(--sc-radius-sm);
-  height: 270px;
+.bento-card:hover {
+  transform: translateY(-5px);
+  box-shadow: var(--bento-shadow-hover);
+  border-color: rgba(0, 85, 255, 0.25);
+}
+
+.bento-card-thumb-wrap {
+  background: var(--bento-surface-soft);
+  border-radius: var(--bento-radius-sm);
+  height: 210px;
   display: flex;
-  align-items: center;
   justify-content: center;
-  overflow: hidden;
+  align-items: center;
   position: relative;
-  padding: 24px;
-  transition: var(--transition);
+  overflow: hidden;
+  margin-bottom: 14px;
 }
 
-.shopcart-card-image-box img {
-  max-width: 85%;
-  max-height: 85%;
+.bento-card-thumb-wrap img {
+  max-width: 82%;
+  max-height: 82%;
   object-fit: contain;
   transition: transform 0.4s ease;
 }
 
-.shopcart-product-card:hover .shopcart-card-image-box img {
-  transform: scale(1.08);
+.bento-card:hover .bento-card-thumb-wrap img {
+  transform: scale(1.1);
 }
 
-/* FLOATING WHITE HEART PILL */
-.shopcart-card-heart-btn {
+/* Floating Heart */
+.bento-card-fav {
   position: absolute;
-  top: 14px;
-  right: 14px;
-  width: 34px;
-  height: 34px;
-  background: #FFFFFF;
+  top: 10px;
+  right: 10px;
+  width: 32px;
+  height: 32px;
   border-radius: 50%;
-  border: none;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  background: #FFFFFF;
+  border: 1px solid var(--bento-border);
   display: grid;
   place-items: center;
-  font-size: 16px;
-  color: var(--sc-text-light);
+  font-size: 15px;
+  color: var(--bento-text-light);
   cursor: pointer;
   z-index: 5;
   transition: var(--transition);
 }
 
-.shopcart-card-heart-btn:hover {
+.bento-card-fav:hover {
+  color: #DC2626;
   transform: scale(1.15);
+}
+
+.bento-card-fav.active {
   color: #DC2626;
+  border-color: #FCA5A5;
 }
 
-.shopcart-card-heart-btn.active {
-  color: #DC2626;
+/* Card Content */
+.bento-card-cat {
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  color: var(--bento-blue);
+  letter-spacing: 0.05em;
+  margin-bottom: 2px;
 }
 
-/* CARD DETAILS */
-.shopcart-card-details {
-  padding: 16px 4px 0;
-  display: flex;
-  flex-direction: column;
-  flex: 1;
+.bento-card-name {
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--bento-text-dark);
+  margin-bottom: 4px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
-/* TITLE & PRICE ROW */
-.shopcart-card-header-row {
+.bento-card-desc {
+  font-size: 12px;
+  color: var(--bento-text-muted);
+  line-height: 1.4;
+  margin-bottom: 12px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.bento-card-bottom {
   display: flex;
   justify-content: space-between;
-  align-items: flex-start;
-  gap: 12px;
-  margin-bottom: 4px;
-}
-
-.shopcart-card-title {
-  font-size: 16px;
-  font-weight: 700;
-  color: var(--sc-text-dark);
-  line-height: 1.35;
-  display: -webkit-box;
-  -webkit-line-clamp: 1;
-  -webkit-box-orient: vertical;
-  overflow: hidden;
-}
-
-.shopcart-card-price {
-  font-size: 16px;
-  font-weight: 800;
-  color: var(--sc-text-dark);
-  white-space: nowrap;
-}
-
-.shopcart-card-price sup {
-  font-size: 10px;
-  font-weight: 700;
-}
-
-/* SUBTITLE / DESCRIPTION */
-.shopcart-card-subtitle {
-  font-size: 12px;
-  color: var(--sc-text-muted);
-  line-height: 1.4;
-  margin-bottom: 8px;
-  display: -webkit-box;
-  -webkit-line-clamp: 1;
-  -webkit-box-orient: vertical;
-  overflow: hidden;
-}
-
-/* GREEN RATING STARS */
-.shopcart-card-rating {
-  display: flex;
   align-items: center;
-  gap: 4px;
-  font-size: 13px;
-  color: var(--sc-green-rating);
-  margin-bottom: 14px;
+  margin-top: auto;
+  padding-top: 10px;
+  border-top: 1px solid var(--bento-border);
 }
 
-.shopcart-card-rating-stars {
-  letter-spacing: 1px;
+.bento-card-price {
+  font-size: 17px;
+  font-weight: 800;
+  color: var(--bento-text-dark);
 }
 
-.shopcart-card-rating-count {
-  font-size: 11.5px;
-  color: var(--sc-text-muted);
-  margin-left: 2px;
-}
-
-/* ADD TO CART PILL BUTTON */
-.shopcart-card-add-btn {
-  background: #FFFFFF;
-  border: 1px solid var(--sc-text-dark);
-  color: var(--sc-text-dark);
-  padding: 9px 22px;
-  border-radius: var(--sc-radius-pill);
-  font-size: 13px;
+.bento-card-add-btn {
+  background: var(--bento-blue);
+  color: #FFFFFF;
+  border: none;
+  padding: 8px 18px;
+  border-radius: var(--bento-radius-pill);
+  font-size: 12.5px;
   font-weight: 700;
   cursor: pointer;
-  align-self: flex-start;
   transition: var(--transition);
 }
 
-.shopcart-card-add-btn:hover {
-  background: var(--sc-green-primary);
-  border-color: var(--sc-green-primary);
-  color: #FFFFFF;
+.bento-card-add-btn:hover {
+  background: var(--bento-blue-hover);
+  transform: translateY(-1px);
 }
 
-.shopcart-card-add-btn.added {
-  background: var(--sc-green-primary);
-  border-color: var(--sc-green-primary);
-  color: #FFFFFF;
+.bento-card-add-btn.added {
+  background: #10B981;
 }
 
-.shopcart-card-add-btn:disabled {
-  background: #F0F2F2;
-  border-color: #E0E2E2;
-  color: #A0A5A5;
+.bento-card-add-btn:disabled {
+  background: #E5E7EB;
+  color: #9CA3AF;
   cursor: not-allowed;
 }
 
 /* =========================================================
-   5. GENERAL PAGES (Product details, Cart, Auth)
+   5. GENERAL PAGES (Shop, Product, About, Footer)
 ========================================================= */
 .page {
   max-width: 1360px;
@@ -616,36 +835,34 @@ nav.shopcart-nav a:hover, .shopcart-dropdown-trigger:hover {
   font-weight: 700;
   letter-spacing: 0.12em;
   text-transform: uppercase;
-  color: var(--sc-green-rating);
+  color: var(--bento-blue);
   margin-bottom: 6px;
 }
 
-/* Form Inputs */
 input, select, textarea {
   width: 100%;
   padding: 12px 16px;
-  border: 1px solid var(--sc-border);
-  border-radius: var(--sc-radius-sm);
+  border: 1px solid var(--bento-border);
+  border-radius: var(--bento-radius-sm);
   background: #FFFFFF;
   font-family: inherit;
   font-size: 14px;
-  color: var(--sc-text-dark);
+  color: var(--bento-text-dark);
   outline: none;
   transition: var(--transition);
 }
 
 input:focus, select:focus, textarea:focus {
-  border-color: var(--sc-green-primary);
-  box-shadow: 0 0 0 3px rgba(13, 59, 46, 0.08);
+  border-color: var(--bento-blue);
+  box-shadow: 0 0 0 3px rgba(0, 85, 255, 0.1);
 }
 
-/* Primary Button */
 button.primary, a.primary {
   display: inline-block;
-  background: var(--sc-green-primary);
+  background: var(--bento-blue);
   color: #FFFFFF;
   padding: 12px 28px;
-  border-radius: var(--sc-radius-pill);
+  border-radius: var(--bento-radius-pill);
   font-size: 14px;
   font-weight: 700;
   text-decoration: none;
@@ -656,19 +873,18 @@ button.primary, a.primary {
 }
 
 button.primary:hover, a.primary:hover {
-  background: var(--sc-green-hover);
+  background: var(--bento-blue-hover);
   transform: translateY(-1px);
 }
 
-/* FOOTER */
-footer.shopcart-footer {
-  background: var(--sc-bg-soft);
-  border-top: 1px solid var(--sc-border);
-  padding: 50px 5vw 30px;
+footer.bento-footer {
+  background: var(--bento-surface-soft);
+  border-top: 1px solid var(--bento-border);
+  padding: 60px 5vw 36px;
   margin-top: auto;
 }
 
-.shopcart-footer-inner {
+.bento-footer-inner {
   max-width: 1360px;
   margin: 0 auto;
   display: grid;
@@ -677,46 +893,48 @@ footer.shopcart-footer {
   margin-bottom: 40px;
 }
 
-.shopcart-footer-brand h3 {
+.bento-footer-brand h3 {
   font-size: 22px;
   font-weight: 800;
-  color: var(--sc-green-primary);
+  color: var(--bento-text-dark);
   margin-bottom: 12px;
 }
 
-.shopcart-footer-brand p {
-  font-size: 13.5px;
-  color: var(--sc-text-muted);
+.bento-footer-brand p {
+  font-size: 14px;
+  color: var(--bento-text-muted);
   line-height: 1.6;
   max-width: 320px;
 }
 
-.shopcart-footer-col h4 {
-  font-size: 14px;
+.bento-footer-col h4 {
+  font-size: 13px;
   font-weight: 700;
-  color: var(--sc-text-dark);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--bento-text-dark);
   margin-bottom: 16px;
 }
 
-.shopcart-footer-col ul {
+.bento-footer-col ul {
   list-style: none;
   display: flex;
   flex-direction: column;
   gap: 10px;
 }
 
-.shopcart-footer-col a {
+.bento-footer-col a {
   font-size: 13.5px;
-  color: var(--sc-text-muted);
+  color: var(--bento-text-muted);
   transition: var(--transition);
 }
 
-.shopcart-footer-col a:hover {
-  color: var(--sc-green-primary);
+.bento-footer-col a:hover {
+  color: var(--bento-blue);
 }
 
-.shopcart-footer-bottom {
-  border-top: 1px solid var(--sc-border);
+.bento-footer-bottom {
+  border-top: 1px solid var(--bento-border);
   padding-top: 24px;
   max-width: 1360px;
   margin: 0 auto;
@@ -724,7 +942,7 @@ footer.shopcart-footer {
   justify-content: space-between;
   align-items: center;
   font-size: 12.5px;
-  color: var(--sc-text-light);
+  color: var(--bento-text-light);
   flex-wrap: wrap;
   gap: 12px;
 }

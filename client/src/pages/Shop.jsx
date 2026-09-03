@@ -82,15 +82,16 @@ export default function Shop() {
   return (
     <section className="page">
       <div style={{ marginBottom: '28px' }}>
-        <h1 style={{ fontSize: '32px', fontWeight: 800, color: 'var(--sc-text-dark)', marginBottom: '8px' }}>
-          {cat ? `${cat} For You!` : 'All Products For You!'}
+        <span className="eyebrow">NOVA STUDIO CATALOG</span>
+        <h1 style={{ fontSize: '32px', fontWeight: 800, color: 'var(--bento-text-dark)', margin: '4px 0 8px' }}>
+          {cat ? `${cat} Gear` : 'All Studio Products'}
         </h1>
-        <p style={{ color: 'var(--sc-text-muted)', fontSize: '14.5px' }}>
-          Showing {filtered.length} products available for instant dispatch.
+        <p style={{ color: 'var(--bento-text-muted)', fontSize: '14.5px' }}>
+          Showing {filtered.length} verified products available for instant dispatch.
         </p>
       </div>
 
-      {/* FILTER CONTROLS */}
+      {/* FILTER & SORT TOOLBAR */}
       <div style={{ 
         display: 'flex', 
         justifyContent: 'space-between', 
@@ -99,23 +100,42 @@ export default function Shop() {
         flexWrap: 'wrap', 
         marginBottom: '36px',
         paddingBottom: '20px',
-        borderBottom: '1px solid var(--sc-border)'
+        borderBottom: '1px solid var(--bento-border)'
       }}>
         {/* CATEGORY PILLS */}
         <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
           <button 
             onClick={() => handleCategoryClick('')}
-            className={`shopcart-pill-btn ${cat === '' ? 'active' : ''}`}
+            style={{ 
+              background: cat === '' ? 'var(--bento-blue)' : 'var(--bento-surface-soft)', 
+              color: cat === '' ? '#fff' : 'var(--bento-text-dark)',
+              border: 'none',
+              borderRadius: 'var(--bento-radius-pill)',
+              padding: '8px 18px',
+              fontSize: '13px',
+              fontWeight: 700,
+              cursor: 'pointer' 
+            }}
           >
-            All Products ({items.length})
+            All ({items.length})
           </button>
           {categories.map(c => {
             const count = items.filter(i => i && i.category === c).length;
+            const isSel = cat === c;
             return (
               <button 
                 key={c} 
                 onClick={() => handleCategoryClick(c)}
-                className={`shopcart-pill-btn ${cat === c ? 'active' : ''}`}
+                style={{ 
+                  background: isSel ? 'var(--bento-blue)' : 'var(--bento-surface-soft)', 
+                  color: isSel ? '#fff' : 'var(--bento-text-dark)',
+                  border: 'none',
+                  borderRadius: 'var(--bento-radius-pill)',
+                  padding: '8px 18px',
+                  fontSize: '13px',
+                  fontWeight: 700,
+                  cursor: 'pointer' 
+                }}
               >
                 {c} ({count})
               </button>
@@ -128,10 +148,10 @@ export default function Shop() {
           <input
             value={q}
             onChange={e => handleSearchChange(e.target.value)}
-            placeholder="Search products..."
+            placeholder="Search gear..."
             style={{ 
               width: '200px', 
-              borderRadius: 'var(--sc-radius-pill)', 
+              borderRadius: 'var(--bento-radius-pill)', 
               padding: '9px 16px',
               fontSize: '13px' 
             }}
@@ -142,9 +162,9 @@ export default function Shop() {
             onChange={e => setSortBy(e.target.value)}
             style={{ 
               width: 'auto', 
-              borderRadius: 'var(--sc-radius-pill)', 
+              borderRadius: 'var(--bento-radius-pill)', 
               fontSize: '13px', 
-              fontWeight: 600,
+              fontWeight: 700,
               padding: '9px 16px',
               cursor: 'pointer',
               background: '#FFFFFF' 
@@ -163,14 +183,14 @@ export default function Shop() {
         <div style={{ 
           textAlign: 'center', 
           padding: '80px 20px', 
-          background: 'var(--sc-bg-soft)', 
-          borderRadius: 'var(--sc-radius-md)', 
-          border: '1px solid var(--sc-border)', 
+          background: 'var(--bento-surface-soft)', 
+          borderRadius: 'var(--bento-radius-lg)', 
+          border: '1px solid var(--bento-border)', 
           margin: '20px 0' 
         }}>
-          <h3 style={{ fontSize: '24px', fontWeight: 800, marginBottom: '8px' }}>No products found</h3>
-          <p style={{ color: 'var(--sc-text-muted)', marginBottom: '20px', fontSize: '14px' }}>
-            No creations match your current filters.
+          <h3 style={{ fontSize: '24px', fontWeight: 800, marginBottom: '8px' }}>No items found</h3>
+          <p style={{ color: 'var(--bento-text-muted)', marginBottom: '20px', fontSize: '14px' }}>
+            No creations match your current query.
           </p>
           <button 
             onClick={() => { setQ(''); handleCategoryClick(''); }} 
@@ -180,7 +200,7 @@ export default function Shop() {
           </button>
         </div>
       ) : (
-        <div className="shopcart-product-grid">
+        <div className="bento-product-grid">
           {filtered.map(p => (
             <ProductCard key={p._id || p.id || p.sku || p.name} p={p} />
           ))}

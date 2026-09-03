@@ -85,31 +85,32 @@ export default function Product() {
   return (
     <section className="page" style={{ maxWidth: '1200px', margin: '0 auto' }}>
       {/* BREADCRUMB */}
-      <nav style={{ display: 'flex', gap: '8px', fontSize: '13px', color: 'var(--sc-text-muted)', marginBottom: '28px' }}>
+      <nav style={{ display: 'flex', gap: '8px', fontSize: '13px', color: 'var(--bento-text-muted)', marginBottom: '28px' }}>
         <Link to="/home">Home</Link>
         <span>/</span>
         <Link to={`/shop?cat=${encodeURIComponent(p.category || '')}`}>
           {p.category || 'Category'}
         </Link>
         <span>/</span>
-        <span style={{ color: 'var(--sc-text-dark)', fontWeight: 600 }}>{p.name}</span>
+        <span style={{ color: 'var(--bento-text-dark)', fontWeight: 600 }}>{p.name}</span>
       </nav>
 
       <div style={{ display: 'grid', gridTemplateColumns: '1.1fr 0.9fr', gap: '50px', alignItems: 'start', marginBottom: '70px' }}>
         {/* PRODUCT IMAGE BOX */}
         <div style={{ 
-          background: 'var(--sc-bg-soft)', 
-          borderRadius: 'var(--sc-radius-md)', 
+          background: 'var(--bento-surface-soft)', 
+          borderRadius: 'var(--bento-radius-lg)', 
           padding: '40px',
           display: 'flex',
           justifyContent: 'center',
           alignItems: 'center',
           height: '460px',
-          position: 'relative'
+          position: 'relative',
+          border: '1px solid var(--bento-border)'
         }}>
           <button
             onClick={toggleFavorite}
-            className={`shopcart-card-heart-btn ${isFav ? 'active' : ''}`}
+            className={`bento-card-fav ${isFav ? 'active' : ''}`}
             style={{ position: 'absolute', top: '16px', right: '16px' }}
             title={isFav ? "Remove from wishlist" : "Add to wishlist"}
           >
@@ -125,52 +126,47 @@ export default function Product() {
 
         {/* DETAILS */}
         <div>
-          <h1 style={{ fontSize: '32px', fontWeight: 800, color: 'var(--sc-text-dark)', lineHeight: 1.25, marginBottom: '12px' }}>
+          <span className="eyebrow">{p.category || 'STUDIO EDITION'}</span>
+          <h1 style={{ fontSize: '32px', fontWeight: 800, color: 'var(--bento-text-dark)', lineHeight: 1.25, margin: '6px 0 12px' }}>
             {p.name}
           </h1>
 
-          <p style={{ color: 'var(--sc-text-muted)', fontSize: '15px', lineHeight: 1.6, marginBottom: '18px' }}>
-            {p.description || 'Engineered with high precision components and premium quality materials for long-lasting performance.'}
+          <p style={{ color: 'var(--bento-text-muted)', fontSize: '15px', lineHeight: 1.6, marginBottom: '20px' }}>
+            {p.description || 'Engineered with spatial audio architecture and aerospace materials for pristine fidelity.'}
           </p>
 
-          {/* RATING */}
-          <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '20px' }}>
-            <span style={{ color: 'var(--sc-green-rating)', fontSize: '16px', letterSpacing: '2px' }}>★★★★★</span>
-            <span style={{ color: 'var(--sc-text-dark)', fontWeight: 700, fontSize: '13.5px' }}>(121 reviews)</span>
-          </div>
-
-          <hr style={{ border: 'none', borderTop: '1px solid var(--sc-border)', margin: '20px 0' }} />
+          <hr style={{ border: 'none', borderTop: '1px solid var(--bento-border)', margin: '20px 0' }} />
 
           {/* PRICE */}
-          <div style={{ fontSize: '32px', fontWeight: 800, color: 'var(--sc-text-dark)', marginBottom: '20px' }}>
-            ₹{price.toLocaleString('en-IN')}<sup style={{ fontSize: '18px' }}>.00</sup>
+          <div style={{ fontSize: '34px', fontWeight: 800, color: 'var(--bento-text-dark)', marginBottom: '20px' }}>
+            ₹{price.toLocaleString('en-IN')}
           </div>
 
           {/* STOCK BADGE */}
           <div style={{ marginBottom: '24px' }}>
             {p.stock === 0 ? (
-              <span style={{ background: '#fee2e2', color: '#dc2626', padding: '4px 12px', borderRadius: '12px', fontSize: '12px', fontWeight: 700 }}>
+              <span style={{ background: '#fee2e2', color: '#dc2626', padding: '5px 14px', borderRadius: '12px', fontSize: '12px', fontWeight: 700 }}>
                 Out of Stock
               </span>
             ) : p.stock < 5 ? (
-              <span style={{ background: '#fef3c7', color: '#d97706', padding: '4px 12px', borderRadius: '12px', fontSize: '12px', fontWeight: 700 }}>
-                ⚠️ Only {p.stock} units left in stock!
+              <span style={{ background: '#fef3c7', color: '#d97706', padding: '5px 14px', borderRadius: '12px', fontSize: '12px', fontWeight: 700 }}>
+                ⚠️ Only {p.stock} units remaining in studio!
               </span>
             ) : (
-              <span style={{ background: '#def7ec', color: '#03543f', padding: '4px 12px', borderRadius: '12px', fontSize: '12px', fontWeight: 700 }}>
-                ✓ In Stock ({p.stock} units available)
+              <span style={{ background: '#EBF2FF', color: 'var(--bento-blue)', padding: '5px 14px', borderRadius: '12px', fontSize: '12px', fontWeight: 700 }}>
+                ✓ In Stock ({p.stock} units ready to ship)
               </span>
             )}
           </div>
 
           {addedMsg && (
             <div style={{ 
-              background: '#def7ec', 
-              color: '#03543f', 
+              background: '#DEF7EC', 
+              color: '#03543F', 
               padding: '12px 18px', 
-              borderRadius: 'var(--sc-radius-pill)', 
+              borderRadius: 'var(--bento-radius-pill)', 
               marginBottom: '20px', 
-              fontWeight: 600,
+              fontWeight: 700,
               fontSize: '13.5px' 
             }}>
               ✓ Added {q} item(s) to Cart!
@@ -182,8 +178,8 @@ export default function Product() {
             <div style={{ 
               display: 'inline-flex', 
               alignItems: 'center', 
-              border: '1px solid var(--sc-border)', 
-              borderRadius: 'var(--sc-radius-pill)', 
+              border: '1px solid var(--bento-border)', 
+              borderRadius: 'var(--bento-radius-pill)', 
               background: '#fff',
               overflow: 'hidden' 
             }}>
@@ -209,29 +205,29 @@ export default function Product() {
             </div>
 
             <button 
-              className="shopcart-btn-buy"
+              className="primary"
               disabled={p.stock === 0} 
               onClick={handleAddToCart} 
-              style={{ flex: 1 }}
+              style={{ flex: 1, padding: '14px 28px', fontSize: '14.5px' }}
             >
               {p.stock === 0 ? 'Out of Stock' : 'Add to Cart'}
             </button>
           </div>
 
-          {/* DELIVERY PERKS */}
-          <div style={{ borderTop: '1px solid var(--sc-border)', paddingTop: '20px', display: 'flex', flexDirection: 'column', gap: '12px' }}>
+          {/* VALUE PERKS */}
+          <div style={{ borderTop: '1px solid var(--bento-border)', paddingTop: '20px', display: 'flex', flexDirection: 'column', gap: '12px' }}>
             <div style={{ display: 'flex', gap: '12px', alignItems: 'center', fontSize: '13.5px' }}>
-              <span>🚚</span>
+              <span>🚀</span>
               <div>
-                <b>Free Delivery</b>
-                <span style={{ color: 'var(--sc-text-muted)', display: 'block', fontSize: '12px' }}>Enter your postal code for delivery availability</span>
+                <b>Priority Dispatch</b>
+                <span style={{ color: 'var(--bento-text-muted)', display: 'block', fontSize: '12px' }}>Express transit across major metros with live GPS tracking</span>
               </div>
             </div>
             <div style={{ display: 'flex', gap: '12px', alignItems: 'center', fontSize: '13.5px' }}>
-              <span>🔄</span>
+              <span>🛡️</span>
               <div>
-                <b>Return Delivery</b>
-                <span style={{ color: 'var(--sc-text-muted)', display: 'block', fontSize: '12px' }}>Free 30 days delivery returns. Details</span>
+                <b>2-Year Official Warranty</b>
+                <span style={{ color: 'var(--bento-text-muted)', display: 'block', fontSize: '12px' }}>Full manufacturer coverage and instant replacement policy</span>
               </div>
             </div>
           </div>
@@ -240,9 +236,9 @@ export default function Product() {
 
       {/* SIMILAR PRODUCTS */}
       {related.length > 0 && (
-        <div style={{ marginTop: '50px', paddingTop: '40px', borderTop: '1px solid var(--sc-border)' }}>
-          <h2 className="shopcart-section-heading">Similar Items You Might Like</h2>
-          <div className="shopcart-product-grid">
+        <div style={{ marginTop: '50px', paddingTop: '40px', borderTop: '1px solid var(--bento-border)' }}>
+          <h2 className="bento-section-title" style={{ marginBottom: '24px' }}>Complete The Look</h2>
+          <div className="bento-product-grid">
             {related.map(item => (
               <ProductCard key={item.id || item._id} p={item} />
             ))}

@@ -10,7 +10,6 @@ export default function Layout() {
   const navigate = useNavigate();
   const [searchQuery, setSearchQuery] = useState('');
   const [favCount, setFavCount] = useState(0);
-  const [isCatDropdownOpen, setIsCatDropdownOpen] = useState(false);
 
   const updateFavCount = () => {
     const userKey = user?.email ? `fav_${String(user.email).toLowerCase()}` : 'fav_guest';
@@ -43,72 +42,51 @@ export default function Layout() {
 
   return (
     <>
-      {/* SHOPCART HEADER */}
-      <header className="shopcart-header">
-        {/* LOGO: NOVA WITH CART ICON */}
-        <Link className="shopcart-logo-wrap" to="/home">
-          <span className="shopcart-logo-icon">🛒</span>
-          <span className="shopcart-logo-text">NOVA</span>
+      {/* NOVA STUDIO HEADER */}
+      <header className="bento-header">
+        {/* BRAND LOGO */}
+        <Link className="bento-brand" to="/home">
+          <span className="bento-brand-name">NOVA</span>
+          <span className="bento-brand-studio">STUDIO</span>
         </Link>
 
         {/* NAVIGATION LINKS */}
-        <nav className="shopcart-nav">
-          <div 
-            className="shopcart-dropdown-wrap"
-            onMouseEnter={() => setIsCatDropdownOpen(true)}
-            onMouseLeave={() => setIsCatDropdownOpen(false)}
-          >
-            <button 
-              type="button" 
-              className="shopcart-dropdown-trigger"
-              onClick={() => setIsCatDropdownOpen(!isCatDropdownOpen)}
-            >
-              Categories ▾
-            </button>
-
-            {isCatDropdownOpen && (
-              <div className="shopcart-dropdown-menu">
-                <Link to="/shop?cat=Electronics" onClick={() => setIsCatDropdownOpen(false)}>Electronics & Audio</Link>
-                <Link to="/shop?cat=Bags" onClick={() => setIsCatDropdownOpen(false)}>Bags & Totes</Link>
-                <Link to="/shop?cat=Footwear" onClick={() => setIsCatDropdownOpen(false)}>Footwear & Sneakers</Link>
-                <Link to="/shop?cat=Accessories" onClick={() => setIsCatDropdownOpen(false)}>Accessories & Watches</Link>
-                <Link to="/shop?cat=Apparel" onClick={() => setIsCatDropdownOpen(false)}>Apparel & Clothing</Link>
-                <Link to="/shop?cat=Home" onClick={() => setIsCatDropdownOpen(false)}>Home & Living</Link>
-              </div>
-            )}
-          </div>
-
-          <NavLink to="/shop?offer=50">Deals</NavLink>
-          <NavLink to="/shop?sort=newest">What's New</NavLink>
-          <NavLink to="/about">Delivery</NavLink>
+        <nav className="bento-nav">
+          <NavLink to="/home">New In</NavLink>
+          <NavLink to="/shop?cat=Electronics">Tech</NavLink>
+          <NavLink to="/shop?cat=Apparel">Streetwear</NavLink>
+          <NavLink to="/shop?cat=Footwear">Footwear</NavLink>
+          <NavLink to="/shop?cat=Accessories">Accessories</NavLink>
+          <NavLink to="/shop">All</NavLink>
         </nav>
 
-        {/* SEARCH BAR */}
-        <form onSubmit={handleSearchSubmit} className="shopcart-search-form">
+        {/* SEARCH PILL WITH LIVE BADGE */}
+        <form onSubmit={handleSearchSubmit} className="bento-search-form">
           <input 
             type="text" 
-            placeholder="Search Product" 
+            placeholder='Search "AirPods Max", "Tech Jacket"...' 
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            className="shopcart-search-input"
+            className="bento-search-input"
           />
-          <button type="submit" className="shopcart-search-icon-btn" aria-label="Search">
-            🔍
-          </button>
+          <div className="bento-search-right-badges">
+            <span className="bento-live-badge">Live 3</span>
+            <button type="submit" className="bento-search-icon" aria-label="Search">🔍</button>
+          </div>
         </form>
 
-        {/* ACTIONS: ACCOUNT, FAVORITES & CART */}
-        <div className="shopcart-actions">
-          {/* FAVORITES */}
-          <Link to="/favorites" className="shopcart-action-link" title="Wishlist">
+        {/* RIGHT ACTIONS */}
+        <div className="bento-header-actions">
+          {/* WISHLIST */}
+          <Link to="/favorites" className="bento-action-link" title="Wishlist">
             <span>♡</span>
-            {favCount > 0 && <span className="shopcart-cart-count-pill">{favCount}</span>}
+            {favCount > 0 && <span style={{ fontSize: '12px', fontWeight: 700, color: 'var(--bento-blue)' }}>({favCount})</span>}
           </Link>
 
           {/* USER ACCOUNT */}
           {user ? (
-            <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-              <Link to="/profile" className="shopcart-action-link">
+            <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+              <Link to="/profile" className="bento-action-link">
                 <span>👤</span>
                 <span>{displayName}</span>
               </Link>
@@ -116,9 +94,9 @@ export default function Layout() {
                 <Link 
                   to="/admin" 
                   style={{ 
-                    background: 'var(--sc-green-primary)', 
+                    background: 'var(--bento-dark)', 
                     color: '#fff', 
-                    padding: '3px 8px', 
+                    padding: '3px 9px', 
                     borderRadius: '12px', 
                     fontSize: '11px', 
                     fontWeight: 700 
@@ -135,17 +113,15 @@ export default function Layout() {
               </button>
             </div>
           ) : (
-            <Link to="/login" className="shopcart-action-link">
-              <span>👤</span>
-              <span>Account</span>
+            <Link to="/login" className="bento-action-link">
+              Account
             </Link>
           )}
 
-          {/* CART BUTTON */}
-          <Link to="/cart" className="shopcart-action-link" style={{ gap: '6px' }}>
-            <span>🛒</span>
+          {/* CART */}
+          <Link to="/cart" className="bento-action-link" style={{ gap: '6px' }}>
             <span>Cart</span>
-            {count > 0 && <span className="shopcart-cart-count-pill">{count}</span>}
+            <span className="bento-cart-badge">{count || 0}</span>
           </Link>
         </div>
       </header>
@@ -155,57 +131,57 @@ export default function Layout() {
         <Outlet />
       </main>
 
-      {/* SHOPCART FOOTER */}
-      <footer className="shopcart-footer">
-        <div className="shopcart-footer-inner">
-          <div className="shopcart-footer-brand">
-            <h3>🛒 NOVA</h3>
+      {/* FOOTER */}
+      <footer className="bento-footer">
+        <div className="bento-footer-inner">
+          <div className="bento-footer-brand">
+            <h3>NOVA STUDIO</h3>
             <p>
-              Your everyday destination for premium audio, modern apparel, crafted footwear, and contemporary essentials.
+              Designing the future of modern gear. Spatial acoustics, high-performance streetwear, and next-generation lifestyle essentials.
             </p>
           </div>
 
-          <div className="shopcart-footer-col">
-            <h4>Department</h4>
+          <div className="bento-footer-col">
+            <h4>Catalog</h4>
             <ul>
-              <li><Link to="/shop?cat=Electronics">Audio & Headphones</Link></li>
-              <li><Link to="/shop?cat=Bags">Bags & Luggage</Link></li>
-              <li><Link to="/shop?cat=Footwear">Shoes & Loafers</Link></li>
-              <li><Link to="/shop?cat=Apparel">Fashion & Clothing</Link></li>
+              <li><Link to="/shop?cat=Electronics">Tech & Audio</Link></li>
+              <li><Link to="/shop?cat=Apparel">Streetwear Apparel</Link></li>
+              <li><Link to="/shop?cat=Footwear">Sneakers & Kicks</Link></li>
+              <li><Link to="/shop?cat=Accessories">Hardware Accessories</Link></li>
             </ul>
           </div>
 
-          <div className="shopcart-footer-col">
-            <h4>About Us</h4>
-            <ul>
-              <li><Link to="/about">Our Story</Link></li>
-              <li><Link to="/about">Delivery Information</Link></li>
-              <li><Link to="/about">Terms & Conditions</Link></li>
-              <li><Link to="/about">Privacy Policy</Link></li>
-            </ul>
-          </div>
-
-          <div className="shopcart-footer-col">
-            <h4>Customer Care</h4>
+          <div className="bento-footer-col">
+            <h4>Support</h4>
             <ul>
               <li><Link to="/orders">Order Tracking</Link></li>
-              <li><Link to="/favorites">My Wishlist</Link></li>
-              <li><Link to="/profile">Account Settings</Link></li>
-              <li><Link to="/cart">Shopping Bag</Link></li>
+              <li><Link to="/about">Delivery & Returns</Link></li>
+              <li><Link to="/favorites">Wishlist Archive</Link></li>
+              <li><Link to="/profile">Member Account</Link></li>
+            </ul>
+          </div>
+
+          <div className="bento-footer-col">
+            <h4>Studio</h4>
+            <ul>
+              <li><Link to="/about">Our Vision</Link></li>
+              <li><Link to="/about">Sustainability</Link></li>
+              <li><Link to="/about">Privacy & Security</Link></li>
+              <li><Link to="/about">Terms of Service</Link></li>
             </ul>
           </div>
         </div>
 
-        <div className="shopcart-footer-bottom">
-          <span>© {new Date().getFullYear()} NOVA Store. All rights reserved.</span>
+        <div className="bento-footer-bottom">
+          <span>© {new Date().getFullYear()} NOVA STUDIO. Built for the modern world.</span>
           <div style={{ display: 'flex', gap: '16px' }}>
             <span>UPI</span>
             <span>•</span>
-            <span>Cards</span>
+            <span>VISA</span>
             <span>•</span>
-            <span>NetBanking</span>
+            <span>MASTERCARD</span>
             <span>•</span>
-            <span>Cash on Delivery</span>
+            <span>APPLE PAY</span>
           </div>
         </div>
       </footer>

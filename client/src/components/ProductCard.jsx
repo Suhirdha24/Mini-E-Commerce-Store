@@ -52,15 +52,14 @@ export default function ProductCard({ p }) {
   };
 
   const displayPrice = Number(p.salePrice || p.regularPrice || p.price || 0);
-  const formattedPrice = Math.floor(displayPrice).toLocaleString('en-IN');
 
   return (
-    <article className="shopcart-product-card">
-      {/* CARD IMAGE WITH FLOATING HEART */}
-      <div className="shopcart-card-image-box">
+    <article className="bento-card">
+      {/* THUMBNAIL BOX */}
+      <div className="bento-card-thumb-wrap">
         <button
           onClick={toggleFavorite}
-          className={`shopcart-card-heart-btn ${isFav ? 'active' : ''}`}
+          className={`bento-card-fav ${isFav ? 'active' : ''}`}
           title={isFav ? "Remove from wishlist" : "Add to wishlist"}
           aria-label="Wishlist"
         >
@@ -77,37 +76,25 @@ export default function ProductCard({ p }) {
         </Link>
       </div>
 
-      {/* CARD DETAILS */}
-      <div className="shopcart-card-details">
-        {/* TITLE & PRICE ROW */}
-        <div className="shopcart-card-header-row">
-          <Link to={`/product/${productId}`} style={{ textDecoration: 'none' }}>
-            <h3 className="shopcart-card-title">{p.name}</h3>
-          </Link>
-          <div className="shopcart-card-price">
-            ₹{formattedPrice}<sup>.00</sup>
-          </div>
-        </div>
+      {/* CONTENT */}
+      <span className="bento-card-cat">{p.category || 'Gear'}</span>
+      <Link to={`/product/${productId}`} style={{ textDecoration: 'none' }}>
+        <h3 className="bento-card-name">{p.name}</h3>
+      </Link>
+      <p className="bento-card-desc">
+        {p.description || 'Next-gen performance and durable high-grade materials.'}
+      </p>
 
-        {/* SHORT DESCRIPTION / SUBTITLE */}
-        <p className="shopcart-card-subtitle">
-          {p.description || `${p.category || 'Curated'} essential with high quality build`}
-        </p>
-
-        {/* GREEN RATING STARS */}
-        <div className="shopcart-card-rating">
-          <span className="shopcart-card-rating-stars">★★★★★</span>
-          <span className="shopcart-card-rating-count">(121)</span>
-        </div>
-
-        {/* ADD TO CART BUTTON */}
+      {/* BOTTOM ROW */}
+      <div className="bento-card-bottom">
+        <span className="bento-card-price">₹{displayPrice.toLocaleString('en-IN')}</span>
         <button 
-          className={`shopcart-card-add-btn ${isAdded ? 'added' : ''}`}
+          className={`bento-card-add-btn ${isAdded ? 'added' : ''}`}
           disabled={p.stock === 0} 
           onClick={handleAddToCart}
           aria-label="Add to cart"
         >
-          {isAdded ? 'Added ✓' : p.stock === 0 ? 'Out of Stock' : 'Add to Cart'}
+          {isAdded ? 'Added ✓' : p.stock === 0 ? 'Out' : 'Add to Cart'}
         </button>
       </div>
     </article>
