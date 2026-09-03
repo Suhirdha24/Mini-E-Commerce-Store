@@ -8,7 +8,6 @@ export default function Favorites() {
   const { user } = useAuth();
   const [favoriteItems, setFavoriteItems] = useState([]);
 
-  // User storage key
   const userKey = user?.email ? `fav_${String(user.email).toLowerCase()}` : 'fav_guest';
 
   const loadFavorites = () => {
@@ -18,8 +17,6 @@ export default function Favorites() {
 
   useEffect(() => {
     loadFavorites();
-
-    // Listen to favorite updates
     window.addEventListener('favoritesUpdated', loadFavorites);
     window.addEventListener('storage', loadFavorites);
 
@@ -38,42 +35,43 @@ export default function Favorites() {
 
   return (
     <section className="page">
-      <p className="eyebrow">SAVED ITEMS</p>
-      <h1 style={{ fontFamily: 'var(--font-serif)', fontSize: '40px', marginBottom: '12px' }}>
-        {user?.name ? `${user.name}'s Favorites` : 'Saved Favorites'}
+      <h1 className="page-title">
+        {user?.name ? `${user.name}'s Wishlist` : 'Saved Wishlist'}
       </h1>
-      <p style={{ color: 'var(--text-muted)', marginBottom: '36px' }}>Your favorite items saved permanently for your account.</p>
+      <p className="page-sub">
+        Your saved items synced to your account.
+      </p>
 
       {favoriteItems.length ? (
-        <div className="grid">
+        <div className="product-grid">
           {favoriteItems.map((p) => (
-            <div key={p._id || p.id} style={{ position: 'relative' }}>
+            <div key={p._id || p.id} style={{ display: 'flex', flexDirection: 'column' }}>
               <ProductCard p={p} />
               <button
                 onClick={() => removeFav(p._id || p.id)}
                 style={{
                   marginTop: '8px',
                   width: '100%',
-                  background: '#fee2e2',
-                  color: '#dc2626',
+                  background: '#FEE2E2',
+                  color: '#DC2626',
                   border: 'none',
-                  padding: '8px',
-                  borderRadius: '6px',
-                  fontSize: '13px',
+                  padding: '7px',
+                  borderRadius: 'var(--radius-sm)',
+                  fontSize: '12px',
                   fontWeight: 600,
                   cursor: 'pointer'
                 }}
               >
-                Remove from Favorites
+                Remove from Wishlist
               </button>
             </div>
           ))}
         </div>
       ) : (
-        <div style={{ textAlign: 'center', padding: '80px 20px', background: '#fff', borderRadius: '14px', border: '1px solid var(--border-light)' }}>
-          <h2 style={{ fontFamily: 'var(--font-serif)', fontSize: '28px', marginBottom: '12px' }}>Your favorites list is empty</h2>
-          <p style={{ color: 'var(--text-muted)', marginBottom: '24px' }}>Click the heart (♡) icon on any product to save it to your account.</p>
-          <Link className="primary" to="/shop">Explore Shop →</Link>
+        <div style={{ textAlign: 'center', padding: '60px 20px', background: 'var(--bg-muted)', borderRadius: 'var(--radius-md)', border: '1px solid var(--border-color)' }}>
+          <h2 style={{ fontSize: '20px', fontWeight: 600, marginBottom: '8px' }}>Your wishlist is empty</h2>
+          <p style={{ color: 'var(--text-muted)', marginBottom: '20px', fontSize: '13.5px' }}>Click the heart icon on any product to save it here.</p>
+          <Link className="primary" to="/shop">Explore Products</Link>
         </div>
       )}
     </section>

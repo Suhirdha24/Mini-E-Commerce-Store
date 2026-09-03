@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import { useCart } from '../context/CartContext';
 import { useAuth } from '../context/AuthContext';
 import { safeGetJSON, safeSetJSON } from '../utils/storage';
+import { HeartIcon, CheckIcon } from './Icons';
 
 const FALLBACK_IMAGE = 'https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=800&auto=format&fit=crop&q=80';
 
@@ -48,25 +49,25 @@ export default function ProductCard({ p }) {
     if (p.stock === 0) return;
     add(p, 1);
     setIsAdded(true);
-    setTimeout(() => setIsAdded(false), 1600);
+    setTimeout(() => setIsAdded(false), 1400);
   };
 
   const displayPrice = Number(p.salePrice || p.regularPrice || p.price || 0);
 
   return (
-    <article className="bento-card">
-      {/* THUMBNAIL BOX */}
-      <div className="bento-card-thumb-wrap">
+    <article className="product-card">
+      {/* 1:1 ASPECT RATIO IMAGE BOX */}
+      <div className="product-card-thumb">
         <button
           onClick={toggleFavorite}
-          className={`bento-card-fav ${isFav ? 'active' : ''}`}
+          className={`card-wishlist-btn ${isFav ? 'active' : ''}`}
           title={isFav ? "Remove from wishlist" : "Add to wishlist"}
           aria-label="Wishlist"
         >
-          {isFav ? '♥' : '♡'}
+          <HeartIcon size={16} filled={isFav} />
         </button>
 
-        <Link to={`/product/${productId}`} style={{ width: '100%', height: '100%', display: 'grid', placeItems: 'center' }}>
+        <Link to={`/product/${productId}`} style={{ width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
           <img 
             src={imgSrc} 
             alt={p.name || 'Product'} 
@@ -76,25 +77,29 @@ export default function ProductCard({ p }) {
         </Link>
       </div>
 
-      {/* CONTENT */}
-      <span className="bento-card-cat">{p.category || 'Gear'}</span>
+      {/* DETAILS */}
+      <span className="card-category">{p.category || 'Product'}</span>
       <Link to={`/product/${productId}`} style={{ textDecoration: 'none' }}>
-        <h3 className="bento-card-name">{p.name}</h3>
+        <h3 className="card-title" title={p.name}>{p.name}</h3>
       </Link>
-      <p className="bento-card-desc">
-        {p.description || 'Next-gen performance and durable high-grade materials.'}
+      <p className="card-desc" title={p.description}>
+        {p.description || 'Quality crafted essential for daily use.'}
       </p>
 
       {/* BOTTOM ROW */}
-      <div className="bento-card-bottom">
-        <span className="bento-card-price">₹{displayPrice.toLocaleString('en-IN')}</span>
+      <div className="card-bottom-row">
+        <span className="card-price">₹{displayPrice.toLocaleString('en-IN')}</span>
         <button 
-          className={`bento-card-add-btn ${isAdded ? 'added' : ''}`}
+          className={`card-add-btn ${isAdded ? 'added' : ''}`}
           disabled={p.stock === 0} 
           onClick={handleAddToCart}
           aria-label="Add to cart"
         >
-          {isAdded ? 'Added ✓' : p.stock === 0 ? 'Out' : 'Add to Cart'}
+          {isAdded ? (
+            <span style={{ display: 'inline-flex', alignItems: 'center', gap: '4px' }}>
+              <CheckIcon size={13} /> Added
+            </span>
+          ) : p.stock === 0 ? 'Out of Stock' : 'Add to Cart'}
         </button>
       </div>
     </article>

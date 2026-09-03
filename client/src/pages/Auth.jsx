@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
+import { EyeIcon, EyeOffIcon, CheckIcon } from '../components/Icons';
 
 export default function Auth({ mode = 'login' }) {
   const isAdminLogin = mode === 'admin-login';
@@ -24,7 +25,7 @@ export default function Auth({ mode = 'login' }) {
     if (isAdminLogin) {
       setF({ ...f, email: 'admin@ministore.com', password: 'Admin@123' });
     } else {
-      setF({ ...f, email: 'member@novastudio.com', password: 'Password@123' });
+      setF({ ...f, email: 'member@novastore.com', password: 'Password@123' });
     }
   };
 
@@ -54,142 +55,122 @@ export default function Auth({ mode = 'login' }) {
   };
 
   const photoBg = isAdminLogin
-    ? 'https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=1000&auto=format&fit=crop&q=80'
-    : 'https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=1000&auto=format&fit=crop&q=80';
+    ? 'https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=900&auto=format&fit=crop&q=80'
+    : 'https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=900&auto=format&fit=crop&q=80';
 
   return (
-    <section className="bento-auth-container">
-      <div className="bento-auth-card">
-        {/* LEFT COLUMN: EDITORIAL PHOTO & MEMBER PERKS */}
-        <div className="bento-auth-image-col">
+    <section className="auth-page-wrap">
+      <div className="auth-split-card">
+        {/* LEFT COLUMN: EDITORIAL PHOTO */}
+        <div className="auth-image-col">
           <img 
             src={photoBg} 
-            alt="NOVA Gear Aesthetics" 
-            className="bento-auth-image-bg" 
+            alt="NOVA Authentication" 
+            className="auth-image-bg" 
           />
-          <div className="bento-auth-overlay"></div>
+          <div className="auth-overlay"></div>
 
-          {/* TOP BADGE */}
-          <div className="bento-auth-top-badge">
-            <span>{isAdminLogin ? '✦ NOVA RETAILER PORTAL' : '✦ NOVA STUDIO ACCESS'}</span>
+          <div className="auth-image-top">
+            <span style={{ fontSize: '11px', fontWeight: 700, letterSpacing: '0.08em', textTransform: 'uppercase', color: '#93C5FD' }}>
+              {isAdminLogin ? 'Merchant Console' : 'Member Access'}
+            </span>
           </div>
 
-          {/* BOTTOM GLASS CARD */}
-          <div className="bento-auth-bottom-info">
-            <p className="bento-auth-quote">
+          <div className="auth-image-bottom">
+            <p style={{ fontSize: '13.5px', fontWeight: 500, lineHeight: 1.5, color: '#FFFFFF', marginBottom: '10px' }}>
               {isAdminLogin 
-                ? '“Unified merchant command console for catalog control, inventory management, and telemetry.”'
-                : '“Experience spatial acoustics, technical streetwear, and progressive hardware gear.”'}
+                ? 'Store management console for inventory control, order fulfillment, and metrics.'
+                : 'Sign in to access your synchronized bag, wishlist, and order status tracking.'}
             </p>
-            <ul className="bento-auth-perks">
-              {isAdminLogin ? (
-                <>
-                  <li>✓ Real-time inventory & price updates</li>
-                  <li>✓ Instant order status fulfillment tracking</li>
-                  <li>✓ High-security encrypted session</li>
-                </>
-              ) : (
-                <>
-                  <li>✓ Express priority dispatch on limited drops</li>
-                  <li>✓ Wishlist & cart synced across all devices</li>
-                  <li>✓ 30-day effortless return privilege</li>
-                </>
-              )}
-            </ul>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '5px', fontSize: '12px', color: '#CBD5E1' }}>
+              <span style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                <CheckIcon size={14} /> Direct order tracking & live updates
+              </span>
+              <span style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                <CheckIcon size={14} /> Secure encrypted authentication
+              </span>
+            </div>
           </div>
         </div>
 
-        {/* RIGHT COLUMN: LOGIN / REGISTER FORM */}
-        <div className="bento-auth-form-col">
-          <div className="bento-auth-header">
-            <span className="eyebrow">{isAdminLogin ? 'ADMINISTRATION' : 'MEMBER PORTAL'}</span>
-            <h1 className="bento-auth-title">
-              {isAdminLogin ? 'Admin Sign In' : isLogin ? 'Welcome Back' : 'Create Account'}
+        {/* RIGHT COLUMN: CLEAN BALANCED FORM */}
+        <div className="auth-form-col">
+          <div>
+            <h1 className="auth-title">
+              {isAdminLogin ? 'Admin Sign In' : isLogin ? 'Sign In' : 'Create Account'}
             </h1>
-            <p className="bento-auth-subtitle">
+            <p className="auth-sub">
               {isAdminLogin 
-                ? 'Enter authorized store administrator credentials below.'
+                ? 'Enter your store administrator credentials.'
                 : isLogin 
-                  ? 'Sign in to access your saved bag, wishlist, and orders.'
-                  : 'Join NOVA STUDIO to unlock exclusive gear releases.'}
+                  ? 'Enter your account details below.'
+                  : 'Join NOVA to track orders and save your wishlist.'}
             </p>
           </div>
 
           {/* DEMO FILL QUICK BUTTON */}
-          <div>
+          <div style={{ marginBottom: '16px' }}>
             <button 
               type="button" 
               onClick={handleFillDemo} 
-              className="bento-demo-pill-btn"
-              title="Click to quickly fill demo login"
+              style={{
+                background: '#F1F5F9',
+                border: '1px solid #CBD5E1',
+                borderRadius: 'var(--radius-pill)',
+                padding: '5px 12px',
+                fontSize: '11.5px',
+                fontWeight: 600,
+                color: '#475569',
+                cursor: 'pointer'
+              }}
             >
-              <span>⚡</span>
-              <span>{isAdminLogin ? 'Auto-Fill Demo Admin' : 'Auto-Fill Demo Credentials'}</span>
+              {isAdminLogin ? 'Fill Demo Admin' : 'Fill Demo Account'}
             </button>
           </div>
 
-          {/* SUCCESS MESSAGE */}
+          {/* MESSAGES */}
           {msg && (
-            <div style={{ background: '#DEF7EC', color: '#03543F', padding: '12px 16px', borderRadius: '10px', fontSize: '13.5px', marginBottom: '16px', fontWeight: 600 }}>
-              ✓ {msg}
+            <div style={{ background: '#DEF7EC', color: '#03543F', padding: '10px 14px', borderRadius: '8px', fontSize: '13px', marginBottom: '14px', fontWeight: 500 }}>
+              {msg}
             </div>
           )}
 
-          {/* ERROR ALERT */}
           {err && (
-            <div style={{ background: '#FEE2E2', color: '#DC2626', padding: '12px 16px', borderRadius: '10px', fontSize: '13.5px', marginBottom: '16px', fontWeight: 600 }}>
-              ⚠️ {err}
+            <div style={{ background: '#FEE2E2', color: '#DC2626', padding: '10px 14px', borderRadius: '8px', fontSize: '13px', marginBottom: '14px', fontWeight: 500 }}>
+              {err}
             </div>
           )}
 
           <form onSubmit={submit}>
-            {/* NAME FIELD (REGISTER ONLY) */}
             {!isLogin && (
-              <div className="bento-auth-input-group">
-                <label className="bento-auth-label">
-                  <span>Full Name</span>
-                </label>
-                <div className="bento-auth-input-wrap">
-                  <input
-                    type="text"
-                    placeholder="Alex Rivera"
-                    required
-                    value={f.name}
-                    onChange={(e) => setF({ ...f, name: e.target.value })}
-                    className="bento-auth-input"
-                  />
-                </div>
+              <div className="auth-input-group">
+                <label className="auth-label">Full Name</label>
+                <input
+                  type="text"
+                  placeholder="John Doe"
+                  required
+                  value={f.name}
+                  onChange={(e) => setF({ ...f, name: e.target.value })}
+                />
               </div>
             )}
 
-            {/* EMAIL FIELD */}
-            <div className="bento-auth-input-group">
-              <label className="bento-auth-label">
-                <span>{isAdminLogin ? 'Merchant Admin Email' : 'Email Address'}</span>
+            <div className="auth-input-group">
+              <label className="auth-label">
+                {isAdminLogin ? 'Admin Email' : 'Email Address'}
               </label>
-              <div className="bento-auth-input-wrap">
-                <input
-                  type="email"
-                  placeholder={isAdminLogin ? "admin@ministore.com" : "you@example.com"}
-                  required
-                  value={f.email}
-                  onChange={(e) => setF({ ...f, email: e.target.value })}
-                  className="bento-auth-input"
-                />
-              </div>
+              <input
+                type="email"
+                placeholder={isAdminLogin ? "admin@ministore.com" : "you@example.com"}
+                required
+                value={f.email}
+                onChange={(e) => setF({ ...f, email: e.target.value })}
+              />
             </div>
 
-            {/* PASSWORD FIELD */}
-            <div className="bento-auth-input-group">
-              <label className="bento-auth-label">
-                <span>Password</span>
-                {isLogin && !isAdminLogin && (
-                  <span style={{ fontSize: '12px', color: 'var(--bento-blue)', cursor: 'pointer', fontWeight: 600 }}>
-                    Forgot?
-                  </span>
-                )}
-              </label>
-              <div className="bento-auth-input-wrap">
+            <div className="auth-input-group">
+              <label className="auth-label">Password</label>
+              <div className="auth-input-wrap">
                 <input
                   type={showPassword ? "text" : "password"}
                   placeholder="••••••••"
@@ -197,62 +178,54 @@ export default function Auth({ mode = 'login' }) {
                   required
                   value={f.password}
                   onChange={(e) => setF({ ...f, password: e.target.value })}
-                  className="bento-auth-input"
+                  style={{ paddingRight: '40px' }}
                 />
                 <button
                   type="button"
                   onClick={() => setShowPassword(!showPassword)}
-                  className="bento-auth-eye-btn"
+                  className="auth-eye-btn"
                   title={showPassword ? "Hide password" : "Show password"}
                   aria-label="Toggle password visibility"
                 >
-                  {showPassword ? '👁️' : '👁️‍🗨️'}
+                  {showPassword ? <EyeOffIcon size={16} /> : <EyeIcon size={16} />}
                 </button>
               </div>
             </div>
 
-            {/* SUBMIT BUTTON */}
             <button 
               type="submit" 
-              className="bento-auth-submit-btn" 
+              className="auth-submit-btn" 
               disabled={loading}
             >
-              {loading 
-                ? 'Authenticating...' 
-                : isAdminLogin 
-                  ? 'Sign In to Admin Portal →' 
-                  : isLogin 
-                    ? 'Sign In to Account →' 
-                    : 'Create My Account →'}
+              {loading ? 'Authenticating...' : isAdminLogin ? 'Sign In to Admin' : isLogin ? 'Sign In' : 'Create Account'}
             </button>
           </form>
 
-          {/* FOOTER SWITCHERS */}
-          <div className="bento-auth-footer-links">
+          {/* SWITCH LINKS */}
+          <div className="auth-footer-links">
             {isAdminLogin ? (
-              <Link to="/login" className="bento-auth-switch-link">
-                ← Return to Customer Sign In
+              <Link to="/login" className="auth-link-highlight">
+                Return to Customer Sign In
               </Link>
             ) : isLogin ? (
               <>
                 <div>
-                  New to NOVA?{' '}
-                  <Link to="/register" className="bento-auth-switch-link">
-                    Create an account
+                  Don't have an account?{' '}
+                  <Link to="/register" className="auth-link-highlight">
+                    Create account
                   </Link>
                 </div>
-
-                <div className="bento-auth-admin-box">
-                  <span>Are you a Store Admin / Retailer?</span>
-                  <Link to="/admin-login" className="bento-auth-admin-link">
-                    Admin Portal →
+                <div style={{ paddingTop: '8px', borderTop: '1px solid var(--border-color)', fontSize: '12px' }}>
+                  Store Staff?{' '}
+                  <Link to="/admin-login" className="auth-link-highlight">
+                    Admin Portal
                   </Link>
                 </div>
               </>
             ) : (
               <div>
                 Already have an account?{' '}
-                <Link to="/login" className="bento-auth-switch-link">
+                <Link to="/login" className="auth-link-highlight">
                   Sign in
                 </Link>
               </div>

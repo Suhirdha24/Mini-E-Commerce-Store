@@ -1,50 +1,52 @@
 import { Link } from 'react-router-dom';
+import { ArrowRightIcon } from '../components/Icons';
 
 export default function About() {
   return (
-    <section className="page" style={{ maxWidth: '1100px', margin: '0 auto' }}>
-      <div style={{ textAlign: 'center', marginBottom: '50px' }}>
-        <span className="eyebrow">NOVA STUDIO MANIFESTO</span>
-        <h1 style={{ fontSize: '42px', fontWeight: 800, color: 'var(--bento-text-dark)', margin: '8px 0 16px', letterSpacing: '-0.02em' }}>
-          Form Follows Spatial Function.
+    <section className="page" style={{ maxWidth: '960px' }}>
+      <div style={{ textAlign: 'center', marginBottom: '44px' }}>
+        <span style={{ fontSize: '11px', fontWeight: 700, textTransform: 'uppercase', color: 'var(--accent-blue)', letterSpacing: '0.08em' }}>
+          About NOVA
+        </span>
+        <h1 style={{ fontSize: '30px', fontWeight: 700, color: 'var(--text-main)', margin: '6px 0 14px', letterSpacing: '-0.02em' }}>
+          Simple, Reliable E-Commerce.
         </h1>
-        <p style={{ color: 'var(--bento-text-muted)', fontSize: '16px', maxWidth: '640px', margin: '0 auto 28px', lineHeight: 1.65 }}>
-          NOVA STUDIO bridges next-generation acoustics, technical streetwear, and progressive hardware to create gear designed for modern creators.
+        <p style={{ color: 'var(--text-muted)', fontSize: '15px', maxWidth: '580px', margin: '0 auto 24px', lineHeight: 1.6 }}>
+          NOVA connects consumers with authentic electronics, everyday streetwear, and high-performance lifestyle essentials backed by fast shipping and trusted warranty.
         </p>
         <Link className="primary" to="/shop">
-          Explore The Catalog →
+          <span style={{ display: 'inline-flex', alignItems: 'center', gap: '6px' }}>
+            Shop Our Products <ArrowRightIcon size={14} />
+          </span>
         </Link>
       </div>
 
-      {/* 3 VALUE PILLARS */}
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '24px', marginBottom: '60px' }}>
-        <div style={{ background: 'var(--bento-surface-soft)', padding: '36px', borderRadius: 'var(--bento-radius-lg)', border: '1px solid var(--bento-border)' }}>
-          <div style={{ fontSize: '32px', marginBottom: '14px' }}>⚡</div>
-          <h3 style={{ fontSize: '20px', fontWeight: 800, color: 'var(--bento-text-dark)', marginBottom: '10px' }}>
-            Acoustic Engineering
+      {/* VALUE PILLARS */}
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(260px, 1fr))', gap: '20px', marginBottom: '48px' }}>
+        <div style={{ background: 'var(--bg-muted)', padding: '28px', borderRadius: 'var(--radius-md)', border: '1px solid var(--border-color)' }}>
+          <h3 style={{ fontSize: '16px', fontWeight: 600, color: 'var(--text-main)', marginBottom: '8px' }}>
+            Fast Delivery
           </h3>
-          <p style={{ color: 'var(--bento-text-muted)', fontSize: '14px', lineHeight: 1.6 }}>
-            Bespoke driver tuning and lossless wireless architectures calibrated for maximum emotional range and tactile bass clarity.
+          <p style={{ color: 'var(--text-muted)', fontSize: '13.5px', lineHeight: 1.5 }}>
+            Express order dispatch across all major cities with real-time package status and automated tracking.
           </p>
         </div>
 
-        <div style={{ background: 'var(--bento-surface-soft)', padding: '36px', borderRadius: 'var(--bento-radius-lg)', border: '1px solid var(--bento-border)' }}>
-          <div style={{ fontSize: '32px', marginBottom: '14px' }}>🛡️</div>
-          <h3 style={{ fontSize: '20px', fontWeight: 800, color: 'var(--bento-text-dark)', marginBottom: '10px' }}>
-            Aerospace Provenance
+        <div style={{ background: 'var(--bg-muted)', padding: '28px', borderRadius: 'var(--radius-md)', border: '1px solid var(--border-color)' }}>
+          <h3 style={{ fontSize: '16px', fontWeight: 600, color: 'var(--text-main)', marginBottom: '8px' }}>
+            Verified Quality
           </h3>
-          <p style={{ color: 'var(--bento-text-muted)', fontSize: '14px', lineHeight: 1.6 }}>
-            Anodized aluminum, ballistic nylon, and custom polymers built to withstand rigorous daily transit across the world.
+          <p style={{ color: 'var(--text-muted)', fontSize: '13.5px', lineHeight: 1.5 }}>
+            Authentic items sourced from approved suppliers with original documentation and manufacturer warranty.
           </p>
         </div>
 
-        <div style={{ background: 'var(--bento-surface-soft)', padding: '36px', borderRadius: 'var(--bento-radius-lg)', border: '1px solid var(--bento-border)' }}>
-          <div style={{ fontSize: '32px', marginBottom: '14px' }}>🌐</div>
-          <h3 style={{ fontSize: '20px', fontWeight: 800, color: 'var(--bento-text-dark)', marginBottom: '10px' }}>
-            Circular Longevity
+        <div style={{ background: 'var(--bg-muted)', padding: '28px', borderRadius: 'var(--radius-md)', border: '1px solid var(--border-color)' }}>
+          <h3 style={{ fontSize: '16px', fontWeight: 600, color: 'var(--text-main)', marginBottom: '8px' }}>
+            30-Day Returns
           </h3>
-          <p style={{ color: 'var(--bento-text-muted)', fontSize: '14px', lineHeight: 1.6 }}>
-            Modular part architectures, easily replaceable batteries, and 100% recyclable post-consumer composite packaging.
+          <p style={{ color: 'var(--text-muted)', fontSize: '13.5px', lineHeight: 1.5 }}>
+            Simple doorstep returns and replacements if an item doesn't meet your everyday expectations.
           </p>
         </div>
       </div>

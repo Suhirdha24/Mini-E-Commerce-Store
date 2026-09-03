@@ -3,6 +3,7 @@ import { Link, NavLink, Outlet, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { useCart } from '../context/CartContext';
 import { safeGetJSON } from '../utils/storage';
+import { SearchIcon, CartIcon, UserIcon, HeartIcon } from './Icons';
 
 export default function Layout() {
   const { user, logout } = useAuth();
@@ -42,146 +43,146 @@ export default function Layout() {
 
   return (
     <>
-      {/* NOVA STUDIO HEADER */}
-      <header className="bento-header">
-        {/* BRAND LOGO */}
-        <Link className="bento-brand" to="/home">
-          <span className="bento-brand-name">NOVA</span>
-          <span className="bento-brand-studio">STUDIO</span>
-        </Link>
-
-        {/* NAVIGATION LINKS */}
-        <nav className="bento-nav">
-          <NavLink to="/home">New In</NavLink>
-          <NavLink to="/shop?cat=Electronics">Tech</NavLink>
-          <NavLink to="/shop?cat=Apparel">Streetwear</NavLink>
-          <NavLink to="/shop?cat=Footwear">Footwear</NavLink>
-          <NavLink to="/shop?cat=Accessories">Accessories</NavLink>
-          <NavLink to="/shop">All</NavLink>
-        </nav>
-
-        {/* SEARCH PILL WITH LIVE BADGE */}
-        <form onSubmit={handleSearchSubmit} className="bento-search-form">
-          <input 
-            type="text" 
-            placeholder='Search "AirPods Max", "Tech Jacket"...' 
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            className="bento-search-input"
-          />
-          <div className="bento-search-right-badges">
-            <span className="bento-live-badge">Live 3</span>
-            <button type="submit" className="bento-search-icon" aria-label="Search">🔍</button>
-          </div>
-        </form>
-
-        {/* RIGHT ACTIONS */}
-        <div className="bento-header-actions">
-          {/* WISHLIST */}
-          <Link to="/favorites" className="bento-action-link" title="Wishlist">
-            <span>♡</span>
-            {favCount > 0 && <span style={{ fontSize: '12px', fontWeight: 700, color: 'var(--bento-blue)' }}>({favCount})</span>}
+      {/* CLEAN APP HEADER */}
+      <header className="app-header">
+        <div className="header-inner">
+          {/* BRAND */}
+          <Link className="header-brand" to="/home">
+            <span>NOVA</span>
+            <span className="header-brand-badge">Store</span>
           </Link>
 
-          {/* USER ACCOUNT */}
-          {user ? (
-            <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-              <Link to="/profile" className="bento-action-link">
-                <span>👤</span>
-                <span>{displayName}</span>
-              </Link>
-              {user?.role === 'admin' && (
-                <Link 
-                  to="/admin" 
-                  style={{ 
-                    background: 'var(--bento-dark)', 
-                    color: '#fff', 
-                    padding: '3px 9px', 
-                    borderRadius: '12px', 
-                    fontSize: '11px', 
-                    fontWeight: 700 
-                  }}
-                >
-                  Admin
-                </Link>
-              )}
-              <button 
-                onClick={handleLogout} 
-                style={{ background: 'none', border: 'none', color: '#dc2626', fontSize: '12px', cursor: 'pointer', fontWeight: 600 }}
-              >
-                Logout
-              </button>
-            </div>
-          ) : (
-            <Link to="/login" className="bento-action-link">
-              Account
+          {/* MAIN NAV */}
+          <nav className="header-nav">
+            <NavLink to="/home">Home</NavLink>
+            <NavLink to="/shop">Shop All</NavLink>
+            <NavLink to="/shop?cat=Electronics">Electronics</NavLink>
+            <NavLink to="/shop?cat=Apparel">Apparel</NavLink>
+            <NavLink to="/shop?cat=Footwear">Footwear</NavLink>
+            <NavLink to="/about">About</NavLink>
+          </nav>
+
+          {/* SEARCH INPUT */}
+          <form onSubmit={handleSearchSubmit} className="header-search-wrap">
+            <input 
+              type="text" 
+              placeholder="Search products..." 
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="header-search-input"
+            />
+            <button type="submit" className="header-search-icon-btn" aria-label="Search">
+              <SearchIcon size={16} />
+            </button>
+          </form>
+
+          {/* HEADER ACTIONS */}
+          <div className="header-actions">
+            {/* WISHLIST */}
+            <Link to="/favorites" className="header-action-btn" title="Saved Wishlist">
+              <HeartIcon size={18} />
+              {favCount > 0 && <span className="cart-count-badge">{favCount}</span>}
             </Link>
-          )}
 
-          {/* CART */}
-          <Link to="/cart" className="bento-action-link" style={{ gap: '6px' }}>
-            <span>Cart</span>
-            <span className="bento-cart-badge">{count || 0}</span>
-          </Link>
+            {/* USER ACCOUNT */}
+            {user ? (
+              <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                <Link to="/profile" className="header-action-btn">
+                  <UserIcon size={18} />
+                  <span>{displayName}</span>
+                </Link>
+                {user?.role === 'admin' && (
+                  <Link 
+                    to="/admin" 
+                    style={{ 
+                      background: 'var(--primary)', 
+                      color: '#fff', 
+                      padding: '2px 8px', 
+                      borderRadius: 'var(--radius-sm)', 
+                      fontSize: '11px', 
+                      fontWeight: 600 
+                    }}
+                  >
+                    Admin
+                  </Link>
+                )}
+                <button 
+                  onClick={handleLogout} 
+                  style={{ background: 'none', border: 'none', color: 'var(--danger)', fontSize: '12px', fontWeight: 500, cursor: 'pointer' }}
+                >
+                  Logout
+                </button>
+              </div>
+            ) : (
+              <Link to="/login" className="header-action-btn">
+                <UserIcon size={18} />
+                <span>Sign In</span>
+              </Link>
+            )}
+
+            {/* CART */}
+            <Link to="/cart" className="header-action-btn">
+              <CartIcon size={18} />
+              <span>Cart</span>
+              {count > 0 && <span className="cart-count-badge">{count}</span>}
+            </Link>
+          </div>
         </div>
       </header>
 
-      {/* MAIN CONTENT */}
+      {/* MAIN VIEW */}
       <main>
         <Outlet />
       </main>
 
       {/* FOOTER */}
-      <footer className="bento-footer">
-        <div className="bento-footer-inner">
-          <div className="bento-footer-brand">
-            <h3>NOVA STUDIO</h3>
+      <footer className="app-footer">
+        <div className="footer-inner">
+          <div className="footer-brand">
+            <h3>NOVA</h3>
             <p>
-              Designing the future of modern gear. Spatial acoustics, high-performance streetwear, and next-generation lifestyle essentials.
+              Contemporary essentials across modern electronics, curated apparel, footwear, and lifestyle goods.
             </p>
           </div>
 
-          <div className="bento-footer-col">
-            <h4>Catalog</h4>
+          <div className="footer-col">
+            <h4>Shop</h4>
             <ul>
-              <li><Link to="/shop?cat=Electronics">Tech & Audio</Link></li>
-              <li><Link to="/shop?cat=Apparel">Streetwear Apparel</Link></li>
-              <li><Link to="/shop?cat=Footwear">Sneakers & Kicks</Link></li>
-              <li><Link to="/shop?cat=Accessories">Hardware Accessories</Link></li>
+              <li><Link to="/shop?cat=Electronics">Electronics & Audio</Link></li>
+              <li><Link to="/shop?cat=Apparel">Clothing & Apparel</Link></li>
+              <li><Link to="/shop?cat=Footwear">Footwear & Sneakers</Link></li>
+              <li><Link to="/shop?cat=Accessories">Accessories</Link></li>
             </ul>
           </div>
 
-          <div className="bento-footer-col">
-            <h4>Support</h4>
+          <div className="footer-col">
+            <h4>Customer Support</h4>
             <ul>
-              <li><Link to="/orders">Order Tracking</Link></li>
-              <li><Link to="/about">Delivery & Returns</Link></li>
-              <li><Link to="/favorites">Wishlist Archive</Link></li>
-              <li><Link to="/profile">Member Account</Link></li>
+              <li><Link to="/orders">Track Order</Link></li>
+              <li><Link to="/about">Shipping & Delivery</Link></li>
+              <li><Link to="/about">Returns & Exchanges</Link></li>
+              <li><Link to="/favorites">Wishlist</Link></li>
             </ul>
           </div>
 
-          <div className="bento-footer-col">
-            <h4>Studio</h4>
+          <div className="footer-col">
+            <h4>Company</h4>
             <ul>
-              <li><Link to="/about">Our Vision</Link></li>
-              <li><Link to="/about">Sustainability</Link></li>
-              <li><Link to="/about">Privacy & Security</Link></li>
+              <li><Link to="/about">About Us</Link></li>
+              <li><Link to="/about">Privacy Policy</Link></li>
               <li><Link to="/about">Terms of Service</Link></li>
+              <li><Link to="/profile">My Account</Link></li>
             </ul>
           </div>
         </div>
 
-        <div className="bento-footer-bottom">
-          <span>© {new Date().getFullYear()} NOVA STUDIO. Built for the modern world.</span>
+        <div className="footer-bottom">
+          <span>© {new Date().getFullYear()} NOVA Store. All rights reserved.</span>
           <div style={{ display: 'flex', gap: '16px' }}>
             <span>UPI</span>
-            <span>•</span>
-            <span>VISA</span>
-            <span>•</span>
-            <span>MASTERCARD</span>
-            <span>•</span>
-            <span>APPLE PAY</span>
+            <span>Visa</span>
+            <span>Mastercard</span>
+            <span>Net Banking</span>
           </div>
         </div>
       </footer>

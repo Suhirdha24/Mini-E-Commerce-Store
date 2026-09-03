@@ -5,6 +5,7 @@ import { useAuth } from '../context/AuthContext';
 import { initialAdminProducts } from '../data/initialProducts';
 import { safeGetJSON, safeSetJSON } from '../utils/storage.js';
 import ProductCard from '../components/ProductCard';
+import { HeartIcon, CheckIcon } from '../components/Icons';
 import api from '../api/api';
 
 const findFallbackProduct = (targetId) => {
@@ -64,13 +65,13 @@ export default function Product() {
   const handleAddToCart = () => {
     add(p, q);
     setAddedMsg(true);
-    setTimeout(() => setAddedMsg(false), 2400);
+    setTimeout(() => setAddedMsg(false), 2000);
   };
 
   if (!p) {
     return (
-      <div style={{ textAlign: 'center', padding: '100px 20px', fontSize: '18px' }}>
-        <h2 style={{ fontSize: '32px', fontWeight: 800, marginBottom: '16px' }}>Product Not Found</h2>
+      <div style={{ textAlign: 'center', padding: '80px 24px' }}>
+        <h2 style={{ fontSize: '24px', fontWeight: 700, marginBottom: '12px' }}>Product Not Found</h2>
         <Link to="/shop" className="primary">Back to Shop</Link>
       </div>
     );
@@ -83,78 +84,80 @@ export default function Product() {
     .slice(0, 4);
 
   return (
-    <section className="page" style={{ maxWidth: '1200px', margin: '0 auto' }}>
+    <section className="page" style={{ maxWidth: '1100px' }}>
       {/* BREADCRUMB */}
-      <nav style={{ display: 'flex', gap: '8px', fontSize: '13px', color: 'var(--bento-text-muted)', marginBottom: '28px' }}>
+      <nav style={{ display: 'flex', gap: '8px', fontSize: '13px', color: 'var(--text-muted)', marginBottom: '24px' }}>
         <Link to="/home">Home</Link>
         <span>/</span>
         <Link to={`/shop?cat=${encodeURIComponent(p.category || '')}`}>
           {p.category || 'Category'}
         </Link>
         <span>/</span>
-        <span style={{ color: 'var(--bento-text-dark)', fontWeight: 600 }}>{p.name}</span>
+        <span style={{ color: 'var(--text-main)', fontWeight: 600 }}>{p.name}</span>
       </nav>
 
-      <div style={{ display: 'grid', gridTemplateColumns: '1.1fr 0.9fr', gap: '50px', alignItems: 'start', marginBottom: '70px' }}>
-        {/* PRODUCT IMAGE BOX */}
+      {/* DETAIL GRID */}
+      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '44px', alignItems: 'start', marginBottom: '60px' }}>
+        {/* PRODUCT IMAGE BOX (1:1 RATIO) */}
         <div style={{ 
-          background: 'var(--bento-surface-soft)', 
-          borderRadius: 'var(--bento-radius-lg)', 
-          padding: '40px',
+          background: 'var(--bg-muted)', 
+          borderRadius: 'var(--radius-md)', 
+          border: '1px solid var(--border-color)',
+          aspectRatio: '1 / 1',
           display: 'flex',
           justifyContent: 'center',
           alignItems: 'center',
-          height: '460px',
-          position: 'relative',
-          border: '1px solid var(--bento-border)'
+          padding: '32px',
+          position: 'relative'
         }}>
           <button
             onClick={toggleFavorite}
-            className={`bento-card-fav ${isFav ? 'active' : ''}`}
-            style={{ position: 'absolute', top: '16px', right: '16px' }}
+            className={`card-wishlist-btn ${isFav ? 'active' : ''}`}
             title={isFav ? "Remove from wishlist" : "Add to wishlist"}
           >
-            {isFav ? '♥' : '♡'}
+            <HeartIcon size={18} filled={isFav} />
           </button>
 
           <img 
             src={p.image} 
             alt={p.name} 
-            style={{ maxHeight: '100%', maxWidth: '100%', objectFit: 'contain' }} 
+            style={{ maxHeight: '90%', maxWidth: '90%', objectFit: 'contain' }} 
           />
         </div>
 
         {/* DETAILS */}
         <div>
-          <span className="eyebrow">{p.category || 'STUDIO EDITION'}</span>
-          <h1 style={{ fontSize: '32px', fontWeight: 800, color: 'var(--bento-text-dark)', lineHeight: 1.25, margin: '6px 0 12px' }}>
+          <span style={{ fontSize: '11px', fontWeight: 700, textTransform: 'uppercase', color: 'var(--accent-blue)', letterSpacing: '0.04em' }}>
+            {p.category || 'Collection'}
+          </span>
+          <h1 style={{ fontSize: '26px', fontWeight: 700, color: 'var(--text-main)', lineHeight: 1.3, margin: '4px 0 12px' }}>
             {p.name}
           </h1>
 
-          <p style={{ color: 'var(--bento-text-muted)', fontSize: '15px', lineHeight: 1.6, marginBottom: '20px' }}>
-            {p.description || 'Engineered with spatial audio architecture and aerospace materials for pristine fidelity.'}
+          <p style={{ color: 'var(--text-muted)', fontSize: '14px', lineHeight: 1.6, marginBottom: '20px' }}>
+            {p.description || 'Crafted with premium materials for maximum durability and everyday performance.'}
           </p>
 
-          <hr style={{ border: 'none', borderTop: '1px solid var(--bento-border)', margin: '20px 0' }} />
+          <hr style={{ border: 'none', borderTop: '1px solid var(--border-color)', margin: '18px 0' }} />
 
           {/* PRICE */}
-          <div style={{ fontSize: '34px', fontWeight: 800, color: 'var(--bento-text-dark)', marginBottom: '20px' }}>
+          <div style={{ fontSize: '26px', fontWeight: 700, color: 'var(--text-main)', marginBottom: '16px' }}>
             ₹{price.toLocaleString('en-IN')}
           </div>
 
           {/* STOCK BADGE */}
-          <div style={{ marginBottom: '24px' }}>
+          <div style={{ marginBottom: '20px' }}>
             {p.stock === 0 ? (
-              <span style={{ background: '#fee2e2', color: '#dc2626', padding: '5px 14px', borderRadius: '12px', fontSize: '12px', fontWeight: 700 }}>
+              <span style={{ background: '#FEE2E2', color: 'var(--danger)', padding: '4px 10px', borderRadius: 'var(--radius-sm)', fontSize: '12px', fontWeight: 600 }}>
                 Out of Stock
               </span>
             ) : p.stock < 5 ? (
-              <span style={{ background: '#fef3c7', color: '#d97706', padding: '5px 14px', borderRadius: '12px', fontSize: '12px', fontWeight: 700 }}>
-                ⚠️ Only {p.stock} units remaining in studio!
+              <span style={{ background: '#FEF3C7', color: '#D97706', padding: '4px 10px', borderRadius: 'var(--radius-sm)', fontSize: '12px', fontWeight: 600 }}>
+                Only {p.stock} remaining in stock
               </span>
             ) : (
-              <span style={{ background: '#EBF2FF', color: 'var(--bento-blue)', padding: '5px 14px', borderRadius: '12px', fontSize: '12px', fontWeight: 700 }}>
-                ✓ In Stock ({p.stock} units ready to ship)
+              <span style={{ background: '#DEF7EC', color: 'var(--success)', padding: '4px 10px', borderRadius: 'var(--radius-sm)', fontSize: '12px', fontWeight: 600 }}>
+                In Stock ({p.stock} units available)
               </span>
             )}
           </div>
@@ -163,42 +166,44 @@ export default function Product() {
             <div style={{ 
               background: '#DEF7EC', 
               color: '#03543F', 
-              padding: '12px 18px', 
-              borderRadius: 'var(--bento-radius-pill)', 
-              marginBottom: '20px', 
-              fontWeight: 700,
-              fontSize: '13.5px' 
+              padding: '10px 14px', 
+              borderRadius: 'var(--radius-sm)', 
+              marginBottom: '16px', 
+              fontWeight: 600,
+              fontSize: '13px',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '6px'
             }}>
-              ✓ Added {q} item(s) to Cart!
+              <CheckIcon size={14} /> Added {q} item(s) to Cart!
             </div>
           )}
 
           {/* QUANTITY & ADD TO CART */}
-          <div style={{ display: 'flex', gap: '14px', alignItems: 'center', marginBottom: '32px' }}>
+          <div style={{ display: 'flex', gap: '12px', alignItems: 'center', marginBottom: '28px' }}>
             <div style={{ 
               display: 'inline-flex', 
               alignItems: 'center', 
-              border: '1px solid var(--bento-border)', 
-              borderRadius: 'var(--bento-radius-pill)', 
-              background: '#fff',
-              overflow: 'hidden' 
+              border: '1px solid var(--border-color)', 
+              borderRadius: 'var(--radius-pill)', 
+              background: '#FFFFFF' 
             }}>
               <button
                 type="button"
                 onClick={() => setQ(Math.max(1, q - 1))}
                 disabled={p.stock === 0 || q <= 1}
-                style={{ background: 'none', border: 'none', padding: '10px 16px', cursor: 'pointer', fontSize: '16px', fontWeight: 700 }}
+                style={{ background: 'none', border: 'none', padding: '8px 14px', fontSize: '15px', fontWeight: 700 }}
               >
                 −
               </button>
-              <span style={{ width: '28px', textAlign: 'center', fontSize: '14px', fontWeight: 700 }}>
+              <span style={{ width: '24px', textAlign: 'center', fontSize: '13.5px', fontWeight: 600 }}>
                 {q}
               </span>
               <button
                 type="button"
                 onClick={() => setQ(Math.min(p.stock || 20, q + 1))}
                 disabled={p.stock === 0 || q >= (p.stock || 20)}
-                style={{ background: 'none', border: 'none', padding: '10px 16px', cursor: 'pointer', fontSize: '16px', fontWeight: 700 }}
+                style={{ background: 'none', border: 'none', padding: '8px 14px', fontSize: '15px', fontWeight: 700 }}
               >
                 +
               </button>
@@ -208,37 +213,32 @@ export default function Product() {
               className="primary"
               disabled={p.stock === 0} 
               onClick={handleAddToCart} 
-              style={{ flex: 1, padding: '14px 28px', fontSize: '14.5px' }}
+              style={{ flex: 1, padding: '11px 24px', fontSize: '13.5px' }}
             >
               {p.stock === 0 ? 'Out of Stock' : 'Add to Cart'}
             </button>
           </div>
 
-          {/* VALUE PERKS */}
-          <div style={{ borderTop: '1px solid var(--bento-border)', paddingTop: '20px', display: 'flex', flexDirection: 'column', gap: '12px' }}>
-            <div style={{ display: 'flex', gap: '12px', alignItems: 'center', fontSize: '13.5px' }}>
-              <span>🚀</span>
-              <div>
-                <b>Priority Dispatch</b>
-                <span style={{ color: 'var(--bento-text-muted)', display: 'block', fontSize: '12px' }}>Express transit across major metros with live GPS tracking</span>
-              </div>
+          {/* PERKS */}
+          <div style={{ borderTop: '1px solid var(--border-color)', paddingTop: '18px', display: 'flex', flexDirection: 'column', gap: '8px', fontSize: '13px', color: 'var(--text-muted)' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+              <CheckIcon size={14} /> Free delivery on all orders over ₹1,999
             </div>
-            <div style={{ display: 'flex', gap: '12px', alignItems: 'center', fontSize: '13.5px' }}>
-              <span>🛡️</span>
-              <div>
-                <b>2-Year Official Warranty</b>
-                <span style={{ color: 'var(--bento-text-muted)', display: 'block', fontSize: '12px' }}>Full manufacturer coverage and instant replacement policy</span>
-              </div>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+              <CheckIcon size={14} /> 30-day hassle-free returns & replacement
+            </div>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+              <CheckIcon size={14} /> 100% verified authentic product
             </div>
           </div>
         </div>
       </div>
 
-      {/* SIMILAR PRODUCTS */}
+      {/* RELATED ITEMS */}
       {related.length > 0 && (
-        <div style={{ marginTop: '50px', paddingTop: '40px', borderTop: '1px solid var(--bento-border)' }}>
-          <h2 className="bento-section-title" style={{ marginBottom: '24px' }}>Complete The Look</h2>
-          <div className="bento-product-grid">
+        <div style={{ borderTop: '1px solid var(--border-color)', paddingTop: '36px' }}>
+          <h2 style={{ fontSize: '20px', fontWeight: 700, marginBottom: '20px' }}>Similar Products</h2>
+          <div className="product-grid">
             {related.map(item => (
               <ProductCard key={item.id || item._id} p={item} />
             ))}
