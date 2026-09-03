@@ -139,7 +139,7 @@ export default function Product() {
             color: 'var(--sable-text-dark)',
             border: '1px solid rgba(22,21,20,0.06)'
           }}>
-            ✦ Sable Atelier Edition
+            ✦ NOVA Atelier Edition
           </div>
         </div>
         

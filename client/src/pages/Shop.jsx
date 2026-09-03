@@ -82,7 +82,7 @@ export default function Shop() {
   return (
     <section className="page">
       <div style={{ marginBottom: '32px' }}>
-        <p className="eyebrow">THE SABLE ARCHIVE ({items.length} PIECES)</p>
+        <p className="eyebrow">THE NOVA ARCHIVE ({items.length} PIECES)</p>
         <h1 style={{ fontFamily: 'var(--font-editorial)', fontSize: '46px', fontWeight: 500, color: 'var(--sable-text-dark)', margin: '4px 0 12px' }}>
           {cat ? `${cat} Collection` : 'All Curated Pieces'}
         </h1>

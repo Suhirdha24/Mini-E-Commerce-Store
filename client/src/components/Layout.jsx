@@ -43,7 +43,7 @@ export default function Layout() {
 
   return (
     <>
-      {/* 1. SABLE TOP ANNOUNCEMENT BAR */}
+      {/* 1. TOP ANNOUNCEMENT BAR */}
       <div className="sable-announcement-bar">
         <div className="sable-announcement-text">
           FREE SHIPPING OVER ₹1,999 — RETURNS WITHIN 30 DAYS
@@ -54,7 +54,7 @@ export default function Layout() {
         </div>
       </div>
 
-      {/* 2. SABLE CENTERED LUXURY HEADER */}
+      {/* 2. CENTERED LUXURY HEADER WITH NOVA BRAND NAME */}
       <header className="sable-header">
         {/* LEFT NAVIGATION LINKS */}
         <nav className="sable-nav-left">
@@ -66,10 +66,10 @@ export default function Layout() {
           <NavLink to="/shop">Shop All</NavLink>
         </nav>
 
-        {/* CENTER LOGO */}
+        {/* CENTER LOGO: PRESERVED NOVA STORE NAME */}
         <div className="sable-logo-center">
           <Link to="/home" style={{ textDecoration: 'none' }}>
-            <span className="sable-logo-text">SABLE</span>
+            <span className="sable-logo-text">NOVA</span>
           </Link>
         </div>
 
@@ -168,12 +168,12 @@ export default function Layout() {
         <Outlet />
       </main>
 
-      {/* 4. SABLE LUXURY MINIMALIST FOOTER */}
+      {/* 4. LUXURY MINIMALIST FOOTER */}
       <footer className="sable-footer">
         <div className="sable-footer-grid">
           {/* BRAND MANIFESTO */}
           <div className="sable-footer-brand">
-            <h2>SABLE</h2>
+            <h2>NOVA</h2>
             <p>
               Quiet luxury, loudly considered. Curated collections of enduring clothing, leather goods, and statement accessories for the mindful wardrobe.
             </p>
@@ -219,7 +219,7 @@ export default function Layout() {
         {/* BOTTOM COPYRIGHT */}
         <div className="sable-footer-bottom">
           <div className="sable-footer-bottom-inner">
-            <span>© {new Date().getFullYear()} SABLE. All rights reserved.</span>
+            <span>© {new Date().getFullYear()} NOVA STORE. All rights reserved.</span>
             <div style={{ display: 'flex', gap: '16px', fontSize: '13px' }}>
               <span>UPI</span>
               <span>•</span>

@@ -17,7 +17,7 @@ export default function About() {
           loudly considered.
         </h1>
         <p style={{ color: 'var(--sable-text-muted)', fontSize: '16.5px', maxWidth: '640px', margin: '0 auto 32px', lineHeight: 1.7 }}>
-          SABLE creates timeless clothing, leather goods, and statement accessories designed for effortless living. We craft pieces that honor material purity, generational mastery, and lasting beauty.
+          NOVA creates timeless clothing, leather goods, and statement accessories designed for effortless living. We craft pieces that honor material purity, generational mastery, and lasting beauty.
         </p>
         <Link className="sable-btn-primary" to="/shop">
           EXPLORE THE ARCHIVE
@@ -88,7 +88,7 @@ export default function About() {
         <div style={{ height: '420px' }}>
           <img 
             src="https://images.unsplash.com/photo-1548036328-c9fa89d128fa?w=900&auto=format&fit=crop&q=80" 
-            alt="Sable Handcrafted Leather Atelier" 
+            alt="NOVA Handcrafted Leather Atelier" 
             style={{ width: '100%', height: '100%', objectFit: 'cover' }} 
           />
         </div>
@@ -99,7 +99,7 @@ export default function About() {
           flexDirection: 'column', 
           justifyContent: 'center' 
         }}>
-          <span className="eyebrow">THE SABLE STANDARD</span>
+          <span className="eyebrow">THE NOVA STANDARD</span>
           <h3 style={{ fontFamily: 'var(--font-editorial)', fontSize: '32px', marginBottom: '16px', fontWeight: 500 }}>
             Made with intention.
           </h3>
