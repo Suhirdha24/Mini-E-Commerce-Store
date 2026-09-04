@@ -102,6 +102,18 @@ export const initSupabaseDB = async () => {
         console.log("✓ Default Admin account (admin@ministore.com) provisioned in Supabase DB.");
       }
 
+      // Ensure Default Customer User exists in Supabase DB
+      const customerEmail = 'customer@novastore.com';
+      const customerCheck = await pool.query(`SELECT id FROM users WHERE email = $1`, [customerEmail]);
+      if (customerCheck.rows.length === 0) {
+        const hashedCustomerPassword = await bcrypt.hash('Customer@123', 10);
+        await pool.query(
+          `INSERT INTO users (name, email, password, role) VALUES ($1, $2, $3, $4)`,
+          ['Demo Customer', customerEmail, hashedCustomerPassword, 'user']
+        );
+        console.log("✓ Default Customer account (customer@novastore.com) provisioned in Supabase DB.");
+      }
+
       console.log("✓ Supabase PostgreSQL tables verified & ready!");
     } catch (err) {
       console.error("Warning: Supabase PostgreSQL direct init error:", err.message);

@@ -33,6 +33,14 @@ async function seed() {
     { upsert: true }
   );
 
+  // Seed Customer Account
+  const customerPassword = await bcrypt.hash('Customer@123', 10);
+  await User.updateOne(
+    { email: 'customer@novastore.com' },
+    { $set: { name: 'Demo Customer', email: 'customer@novastore.com', password: customerPassword, role: 'user' } },
+    { upsert: true }
+  );
+
   // Seed 12 Curated Products
   for (const p of products12) {
     const slug = p.name.toLowerCase().replace(/[^a-z0-9]+/g, '-');

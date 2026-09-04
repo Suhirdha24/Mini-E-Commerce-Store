@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
-import { EyeIcon, EyeOffIcon, CheckIcon } from '../components/Icons';
+import { EyeIcon, EyeOffIcon, CheckIcon, ShieldIcon } from '../components/Icons';
 
 export default function Auth({ mode = 'login' }) {
   const isAdminLogin = mode === 'admin-login';
@@ -21,12 +21,14 @@ export default function Auth({ mode = 'login' }) {
   const [loading, setLoading] = useState(false);
   const [msg] = useState(loc.state?.msg || '');
 
-  const handleFillDemo = () => {
-    if (isAdminLogin) {
-      setF({ ...f, email: 'admin@ministore.com', password: 'Admin@123' });
-    } else {
-      setF({ ...f, email: 'member@novastore.com', password: 'Password@123' });
-    }
+  const handleFillCustomerDemo = () => {
+    setF({ name: 'Demo Customer', email: 'customer@novastore.com', password: 'Customer@123' });
+    setErr('');
+  };
+
+  const handleFillAdminDemo = () => {
+    setF({ name: 'Store Admin', email: 'admin@ministore.com', password: 'Admin@123' });
+    setErr('');
   };
 
   const submit = async (e) => {
@@ -55,39 +57,58 @@ export default function Auth({ mode = 'login' }) {
   };
 
   const photoBg = isAdminLogin
-    ? 'https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=900&auto=format&fit=crop&q=80'
-    : 'https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=900&auto=format&fit=crop&q=80';
+    ? 'https://images.unsplash.com/photo-1497215728101-856f4ea42174?w=1000&auto=format&fit=crop&q=80'
+    : 'https://images.unsplash.com/photo-1441986300917-64674bd600d8?w=1000&auto=format&fit=crop&q=80';
 
   return (
-    <section className="auth-page-wrap">
+    <div className="auth-page-wrap">
       <div className="auth-split-card">
         {/* LEFT COLUMN: EDITORIAL PHOTO */}
         <div className="auth-image-col">
           <img 
             src={photoBg} 
-            alt="NOVA Authentication" 
+            alt="NOVA Lifestyle" 
             className="auth-image-bg" 
           />
           <div className="auth-overlay"></div>
 
           <div className="auth-image-top">
-            <span style={{ fontSize: '11px', fontWeight: 700, letterSpacing: '0.08em', textTransform: 'uppercase', color: '#93C5FD' }}>
-              {isAdminLogin ? 'Merchant Console' : 'Member Access'}
+            <span style={{ 
+              display: 'inline-flex',
+              alignItems: 'center',
+              gap: '6px',
+              background: 'rgba(255, 255, 255, 0.15)',
+              backdropFilter: 'blur(8px)',
+              padding: '4px 12px',
+              borderRadius: 'var(--radius-pill)',
+              fontSize: '11px', 
+              fontWeight: 700, 
+              letterSpacing: '0.08em', 
+              textTransform: 'uppercase', 
+              color: '#FFFFFF' 
+            }}>
+              {isAdminLogin ? 'Merchant Console' : 'NOVA Membership'}
             </span>
           </div>
 
           <div className="auth-image-bottom">
-            <p style={{ fontSize: '13.5px', fontWeight: 500, lineHeight: 1.5, color: '#FFFFFF', marginBottom: '10px' }}>
+            <h3 style={{ fontSize: '20px', fontWeight: 800, color: '#FFFFFF', marginBottom: '8px', lineHeight: 1.3 }}>
+              {isAdminLogin ? 'Merchant Operations & Inventory Control' : 'Curated Essentials for Modern Living'}
+            </h3>
+            <p style={{ fontSize: '13px', fontWeight: 400, lineHeight: 1.6, color: '#E2E8F0', marginBottom: '16px' }}>
               {isAdminLogin 
-                ? 'Store management console for inventory control, order fulfillment, and metrics.'
-                : 'Sign in to access your synchronized bag, wishlist, and order status tracking.'}
+                ? 'Authorized management console for real-time catalog adjustments, order dispatch, and warehouse stock tracking.'
+                : 'Sign in to access your synchronized bag, saved wishlist items, and real-time order tracking.'}
             </p>
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '5px', fontSize: '12px', color: '#CBD5E1' }}>
-              <span style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-                <CheckIcon size={14} /> Direct order tracking & live updates
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', fontSize: '12px', color: '#CBD5E1' }}>
+              <span style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                <CheckIcon size={14} /> Direct order tracking with timeline updates
               </span>
-              <span style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-                <CheckIcon size={14} /> Secure encrypted authentication
+              <span style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                <CheckIcon size={14} /> Secure encrypted authentication protocol
+              </span>
+              <span style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                <CheckIcon size={14} /> Priority member dispatch & customer care
               </span>
             </div>
           </div>
@@ -95,48 +116,79 @@ export default function Auth({ mode = 'login' }) {
 
         {/* RIGHT COLUMN: CLEAN BALANCED FORM */}
         <div className="auth-form-col">
-          <div>
+          <div className="auth-header">
+            <span className="eyebrow" style={{ color: 'var(--accent-blue)', marginBottom: '4px', display: 'block' }}>
+              {isAdminLogin ? 'PORTAL ACCESS' : 'WELCOME TO NOVA'}
+            </span>
             <h1 className="auth-title">
               {isAdminLogin ? 'Admin Sign In' : isLogin ? 'Sign In' : 'Create Account'}
             </h1>
             <p className="auth-sub">
               {isAdminLogin 
-                ? 'Enter your store administrator credentials.'
+                ? 'Enter authorized store administrator credentials.'
                 : isLogin 
-                  ? 'Enter your account details below.'
-                  : 'Join NOVA to track orders and save your wishlist.'}
+                  ? 'Access your orders, saved bag, and personal wishlist.'
+                  : 'Join NOVA Store for seamless order tracking and member perks.'}
             </p>
           </div>
 
-          {/* DEMO FILL QUICK BUTTON */}
-          <div style={{ marginBottom: '16px' }}>
+          {/* ONE-CLICK DEMO AUTO-FILL CHIPS */}
+          <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap', marginBottom: '18px' }}>
+            {!isAdminLogin && (
+              <button 
+                type="button" 
+                onClick={handleFillCustomerDemo} 
+                style={{
+                  background: 'var(--bg-secondary)',
+                  border: '1px solid var(--border)',
+                  borderRadius: 'var(--radius-pill)',
+                  padding: '6px 14px',
+                  fontSize: '12px',
+                  fontWeight: 600,
+                  color: 'var(--text-dark)',
+                  cursor: 'pointer',
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  gap: '6px'
+                }}
+              >
+                <span>Demo Customer</span>
+                <span style={{ color: 'var(--accent-blue)', fontSize: '11px' }}>(1-Click Fill)</span>
+              </button>
+            )}
+
             <button 
               type="button" 
-              onClick={handleFillDemo} 
+              onClick={handleFillAdminDemo} 
               style={{
-                background: '#F1F5F9',
-                border: '1px solid #CBD5E1',
+                background: 'var(--bg-secondary)',
+                border: '1px solid var(--border)',
                 borderRadius: 'var(--radius-pill)',
-                padding: '5px 12px',
-                fontSize: '11.5px',
+                padding: '6px 14px',
+                fontSize: '12px',
                 fontWeight: 600,
-                color: '#475569',
-                cursor: 'pointer'
+                color: 'var(--text-dark)',
+                cursor: 'pointer',
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: '6px'
               }}
             >
-              {isAdminLogin ? 'Fill Demo Admin' : 'Fill Demo Account'}
+              <ShieldIcon size={13} />
+              <span>Demo Admin</span>
+              <span style={{ color: 'var(--accent-blue)', fontSize: '11px' }}>(1-Click Fill)</span>
             </button>
           </div>
 
-          {/* MESSAGES */}
+          {/* NOTIFICATION MESSAGES */}
           {msg && (
-            <div style={{ background: '#DEF7EC', color: '#03543F', padding: '10px 14px', borderRadius: '8px', fontSize: '13px', marginBottom: '14px', fontWeight: 500 }}>
+            <div style={{ background: 'var(--accent-green-bg)', color: 'var(--accent-green)', padding: '10px 14px', borderRadius: 'var(--radius-sm)', fontSize: '13px', marginBottom: '14px', fontWeight: 600 }}>
               {msg}
             </div>
           )}
 
           {err && (
-            <div style={{ background: '#FEE2E2', color: '#DC2626', padding: '10px 14px', borderRadius: '8px', fontSize: '13px', marginBottom: '14px', fontWeight: 500 }}>
+            <div style={{ background: 'var(--accent-red-bg)', color: 'var(--accent-red)', padding: '10px 14px', borderRadius: 'var(--radius-sm)', fontSize: '13px', marginBottom: '14px', fontWeight: 600 }}>
               {err}
             </div>
           )}
@@ -147,7 +199,7 @@ export default function Auth({ mode = 'login' }) {
                 <label className="auth-label">Full Name</label>
                 <input
                   type="text"
-                  placeholder="John Doe"
+                  placeholder="e.g. Alex Morgan"
                   required
                   value={f.name}
                   onChange={(e) => setF({ ...f, name: e.target.value })}
@@ -161,7 +213,7 @@ export default function Auth({ mode = 'login' }) {
               </label>
               <input
                 type="email"
-                placeholder={isAdminLogin ? "admin@ministore.com" : "you@example.com"}
+                placeholder={isAdminLogin ? "admin@ministore.com" : "customer@novastore.com"}
                 required
                 value={f.email}
                 onChange={(e) => setF({ ...f, email: e.target.value })}
@@ -169,7 +221,14 @@ export default function Auth({ mode = 'login' }) {
             </div>
 
             <div className="auth-input-group">
-              <label className="auth-label">Password</label>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', marginBottom: '6px' }}>
+                <label className="auth-label" style={{ margin: 0 }}>Password</label>
+                {isLogin && !isAdminLogin && (
+                  <span style={{ fontSize: '11.5px', color: 'var(--text-muted)' }}>
+                    Min. 6 characters
+                  </span>
+                )}
+              </div>
               <div className="auth-input-wrap">
                 <input
                   type={showPassword ? "text" : "password"}
@@ -178,7 +237,7 @@ export default function Auth({ mode = 'login' }) {
                   required
                   value={f.password}
                   onChange={(e) => setF({ ...f, password: e.target.value })}
-                  style={{ paddingRight: '40px' }}
+                  style={{ paddingRight: '42px' }}
                 />
                 <button
                   type="button"
@@ -197,33 +256,41 @@ export default function Auth({ mode = 'login' }) {
               className="auth-submit-btn" 
               disabled={loading}
             >
-              {loading ? 'Authenticating...' : isAdminLogin ? 'Sign In to Admin' : isLogin ? 'Sign In' : 'Create Account'}
+              {loading 
+                ? 'Authenticating...' 
+                : isAdminLogin 
+                  ? 'Sign In to Admin Portal' 
+                  : isLogin 
+                    ? 'Sign In to Account' 
+                    : 'Create Account'}
             </button>
           </form>
 
-          {/* SWITCH LINKS */}
+          {/* FOOTER SWITCH LINKS */}
           <div className="auth-footer-links">
             {isAdminLogin ? (
-              <Link to="/login" className="auth-link-highlight">
-                Return to Customer Sign In
-              </Link>
+              <div style={{ textAlign: 'center', paddingTop: '8px' }}>
+                <Link to="/login" className="auth-link-highlight">
+                  Return to Customer Sign In
+                </Link>
+              </div>
             ) : isLogin ? (
               <>
-                <div>
+                <div style={{ textAlign: 'center' }}>
                   Don't have an account?{' '}
                   <Link to="/register" className="auth-link-highlight">
-                    Create account
+                    Create free account
                   </Link>
                 </div>
-                <div style={{ paddingTop: '8px', borderTop: '1px solid var(--border-color)', fontSize: '12px' }}>
-                  Store Staff?{' '}
+                <div style={{ textAlign: 'center', paddingTop: '10px', borderTop: '1px solid var(--border)', fontSize: '12.5px' }}>
+                  Store Staff or Manager?{' '}
                   <Link to="/admin-login" className="auth-link-highlight">
-                    Admin Portal
+                    Admin Portal Sign In
                   </Link>
                 </div>
               </>
             ) : (
-              <div>
+              <div style={{ textAlign: 'center' }}>
                 Already have an account?{' '}
                 <Link to="/login" className="auth-link-highlight">
                   Sign in
@@ -233,6 +300,6 @@ export default function Auth({ mode = 'login' }) {
           </div>
         </div>
       </div>
-    </section>
+    </div>
   );
 }
