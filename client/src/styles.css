@@ -124,7 +124,7 @@ input:-webkit-autofill:active {
 /* STANDARD LAYOUT CONTAINER */
 .container {
   width: 100%;
-  max-width: 1540px;
+  max-width: 1680px;
   margin-left: auto;
   margin-right: auto;
   padding-left: clamp(20px, 2.5vw, 36px);
@@ -252,7 +252,7 @@ header.app-header {
 
 .header-top-inner {
   width: 100%;
-  max-width: 1540px;
+  max-width: 1680px;
   margin-left: auto;
   margin-right: auto;
   padding: 14px clamp(20px, 2.5vw, 36px);
@@ -371,7 +371,7 @@ header.app-header {
 
 .header-subnav-inner {
   width: 100%;
-  max-width: 1540px;
+  max-width: 1680px;
   margin-left: auto;
   margin-right: auto;
   padding: 10px clamp(20px, 2.5vw, 36px);
@@ -1137,7 +1137,7 @@ footer.app-footer {
 
 .auth-split-card {
   width: 100%;
-  max-width: 940px;
+  max-width: 1380px;
   background: var(--bg-surface);
   border: 1px solid var(--border);
   border-radius: var(--radius-xl);
@@ -1145,7 +1145,7 @@ footer.app-footer {
   overflow: hidden;
   display: grid;
   grid-template-columns: 1fr 1.15fr;
-  min-height: 560px;
+  min-height: 680px;
 }
 
 .auth-image-col {

@@ -68,23 +68,23 @@ export default function Auth({ mode = 'login' }) {
     : 'https://images.unsplash.com/photo-1441986300917-64674bd600d8?w=1000&auto=format&fit=crop&q=80';
 
   return (
-    <div className="container page" style={{ minHeight: 'calc(100vh - 180px)', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '36px 0' }}>
-      {/* FIXED RATIO SPLIT CARD (1180px max-width, balanced store ratio) */}
+    <div className="container page" style={{ minHeight: 'calc(100vh - 140px)', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '24px 0' }}>
+      {/* EXPANDED LUXURY SPLIT CARD (1380px max-width, full-scale proportions) */}
       <div 
         style={{
           width: '100%',
-          maxWidth: '1180px',
+          maxWidth: '1380px',
           background: '#FFFFFF',
-          borderRadius: '24px',
+          borderRadius: '28px',
           border: '1px solid #E2E8F0',
-          boxShadow: '0 25px 50px -12px rgba(15, 23, 42, 0.12)',
+          boxShadow: '0 30px 60px -15px rgba(15, 23, 42, 0.14)',
           overflow: 'hidden',
           display: 'grid',
-          gridTemplateColumns: 'repeat(auto-fit, minmax(360px, 1fr))',
-          minHeight: '620px'
+          gridTemplateColumns: 'repeat(auto-fit, minmax(420px, 1fr))',
+          minHeight: '680px'
         }}
       >
-        {/* LEFT COLUMN: FIXED 1:1 EDITORIAL VISUAL FRAME */}
+        {/* LEFT COLUMN: EDITORIAL VISUAL FRAME */}
         <div 
           style={{
             position: 'relative',
@@ -93,9 +93,9 @@ export default function Auth({ mode = 'login' }) {
             display: 'flex',
             flexDirection: 'column',
             justifyContent: 'space-between',
-            padding: '40px',
+            padding: '52px clamp(32px, 4vw, 64px)',
             color: '#FFFFFF',
-            minHeight: '320px'
+            minHeight: '360px'
           }}
         >
           {/* BACKGROUND PHOTO WITH FIXED COVER RATIO */}
@@ -109,7 +109,7 @@ export default function Auth({ mode = 'login' }) {
               width: '100%',
               height: '100%',
               objectFit: 'cover',
-              opacity: 0.5,
+              opacity: 0.52,
               zIndex: 1
             }} 
           />
@@ -122,7 +122,7 @@ export default function Auth({ mode = 'login' }) {
               left: 0,
               right: 0,
               bottom: 0,
-              background: 'linear-gradient(180deg, rgba(15, 23, 42, 0.35) 0%, rgba(15, 23, 42, 0.88) 100%)',
+              background: 'linear-gradient(180deg, rgba(15, 23, 42, 0.3) 0%, rgba(15, 23, 42, 0.88) 100%)',
               zIndex: 2
             }} 
           />
@@ -133,14 +133,14 @@ export default function Auth({ mode = 'login' }) {
               style={{ 
                 display: 'inline-flex',
                 alignItems: 'center',
-                gap: '6px',
-                background: 'rgba(255, 255, 255, 0.15)',
-                backdropFilter: 'blur(8px)',
-                padding: '4px 14px',
+                gap: '8px',
+                background: 'rgba(255, 255, 255, 0.16)',
+                backdropFilter: 'blur(10px)',
+                padding: '6px 18px',
                 borderRadius: '9999px',
-                fontSize: '11px', 
+                fontSize: '12px', 
                 fontWeight: 700, 
-                letterSpacing: '0.08em', 
+                letterSpacing: '0.09em', 
                 textTransform: 'uppercase', 
                 color: '#FFFFFF' 
               }}
@@ -151,23 +151,23 @@ export default function Auth({ mode = 'login' }) {
 
           {/* BOTTOM VALUE PROPOSITIONS */}
           <div style={{ position: 'relative', zIndex: 3 }}>
-            <h3 style={{ fontSize: '20px', fontWeight: 800, color: '#FFFFFF', marginBottom: '8px', lineHeight: 1.3 }}>
+            <h3 style={{ fontSize: '26px', fontWeight: 800, color: '#FFFFFF', marginBottom: '10px', lineHeight: 1.25, letterSpacing: '-0.02em' }}>
               {isAdminLogin ? 'Merchant Operations & Warehouse Control' : 'Curated Essentials for Modern Living'}
             </h3>
-            <p style={{ fontSize: '13px', fontWeight: 400, lineHeight: 1.6, color: '#E2E8F0', marginBottom: '16px' }}>
+            <p style={{ fontSize: '14.5px', fontWeight: 400, lineHeight: 1.6, color: '#E2E8F0', marginBottom: '20px' }}>
               {isAdminLogin 
                 ? 'Authorized management console for real-time inventory adjustments and order status updates.'
                 : 'Sign in to access your synchronized bag, saved wishlist items, and real-time order tracking.'}
             </p>
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', fontSize: '12px', color: '#CBD5E1' }}>
-              <span style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                <CheckIcon size={14} /> Direct order tracking with timeline updates
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', fontSize: '13.5px', color: '#E2E8F0' }}>
+              <span style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                <CheckIcon size={16} /> Direct order tracking with timeline updates
               </span>
-              <span style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                <CheckIcon size={14} /> 256-bit encrypted authentication security
+              <span style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                <CheckIcon size={16} /> 256-bit encrypted authentication security
               </span>
-              <span style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                <CheckIcon size={14} /> Priority member dispatch & customer care
+              <span style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                <CheckIcon size={16} /> Priority member dispatch & customer care
               </span>
             </div>
           </div>
@@ -176,7 +176,7 @@ export default function Auth({ mode = 'login' }) {
         {/* RIGHT COLUMN: PROPORTIONATE AUTHENTICATION FORM */}
         <div 
           style={{
-            padding: '44px 40px',
+            padding: '52px clamp(32px, 4vw, 64px)',
             display: 'flex',
             flexDirection: 'column',
             justifyContent: 'center',
@@ -184,14 +184,14 @@ export default function Auth({ mode = 'login' }) {
           }}
         >
           {/* HEADER */}
-          <div style={{ marginBottom: '20px' }}>
-            <span style={{ fontSize: '11px', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.08em', color: 'var(--accent-blue)', display: 'block', marginBottom: '4px' }}>
+          <div style={{ marginBottom: '24px' }}>
+            <span style={{ fontSize: '12px', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.09em', color: 'var(--accent-blue)', display: 'block', marginBottom: '6px' }}>
               {isAdminLogin ? 'PORTAL ACCESS' : 'SECURE SIGN IN'}
             </span>
-            <h1 style={{ fontSize: '26px', fontWeight: 800, letterSpacing: '-0.02em', color: 'var(--text-dark)', margin: '0 0 6px' }}>
+            <h1 style={{ fontSize: '32px', fontWeight: 800, letterSpacing: '-0.03em', color: '#0F172A', margin: '0 0 8px' }}>
               {isAdminLogin ? 'Admin Sign In' : isLogin ? 'Sign In to NOVA' : 'Create Account'}
             </h1>
-            <p style={{ fontSize: '13.5px', color: 'var(--text-muted)', margin: 0, lineHeight: 1.5 }}>
+            <p style={{ fontSize: '14.5px', color: 'var(--text-muted)', margin: 0, lineHeight: 1.5 }}>
               {isAdminLogin 
                 ? 'Enter authorized store administrator credentials.'
                 : isLogin 
