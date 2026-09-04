@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Link, NavLink, Outlet, useNavigate } from 'react-router-dom';
+import { Link, NavLink, Outlet, useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { useCart } from '../context/CartContext';
 import { safeGetJSON } from '../utils/storage';
@@ -9,9 +9,35 @@ export default function Layout() {
   const { user, logout } = useAuth();
   const { count } = useCart();
   const navigate = useNavigate();
+  const location = useLocation();
   const [searchQuery, setSearchQuery] = useState('');
   const [favCount, setFavCount] = useState(0);
   const [mobileOpen, setMobileOpen] = useState(false);
+
+  const searchParams = new URLSearchParams(location.search);
+  const currentCat = searchParams.get('cat') || '';
+  const currentSort = searchParams.get('sort') || '';
+  const currentQ = searchParams.get('q') || '';
+  const isShop = location.pathname === '/shop';
+
+  const isNavActive = (type, val = '') => {
+    if (type === 'home') {
+      return location.pathname === '/' || location.pathname === '/home';
+    }
+    if (type === 'about') {
+      return location.pathname === '/about';
+    }
+    if (type === 'all') {
+      return isShop && !currentCat && !currentSort && !currentQ;
+    }
+    if (type === 'sort') {
+      return isShop && currentSort.toLowerCase() === val.toLowerCase();
+    }
+    if (type === 'cat') {
+      return isShop && currentCat.toLowerCase() === val.toLowerCase();
+    }
+    return false;
+  };
 
   const updateFavCount = () => {
     const userKey = user?.email ? `fav_${String(user.email).toLowerCase()}` : 'fav_guest';
@@ -145,16 +171,16 @@ export default function Layout() {
         <div className="header-subnav">
           <div className="header-subnav-inner">
             <nav className="subnav-links">
-              <NavLink to="/home">Home</NavLink>
-              <NavLink to="/shop">Shop All</NavLink>
-              <NavLink to="/shop?sort=deals">Today's Deals</NavLink>
-              <NavLink to="/shop?sort=new">New Arrivals</NavLink>
-              <NavLink to="/shop?sort=best">Best Sellers</NavLink>
-              <NavLink to="/shop?cat=Electronics">Electronics</NavLink>
-              <NavLink to="/shop?cat=Bags">Bags</NavLink>
-              <NavLink to="/shop?cat=Footwear">Footwear</NavLink>
-              <NavLink to="/shop?cat=Accessories">Accessories</NavLink>
-              <NavLink to="/about">About Us</NavLink>
+              <Link to="/home" className={isNavActive('home') ? 'active' : ''}>Home</Link>
+              <Link to="/shop" className={isNavActive('all') ? 'active' : ''}>Shop All</Link>
+              <Link to="/shop?sort=deals" className={isNavActive('sort', 'deals') ? 'active' : ''}>Today's Deals</Link>
+              <Link to="/shop?sort=new" className={isNavActive('sort', 'new') ? 'active' : ''}>New Arrivals</Link>
+              <Link to="/shop?sort=best" className={isNavActive('sort', 'best') ? 'active' : ''}>Best Sellers</Link>
+              <Link to="/shop?cat=Electronics" className={isNavActive('cat', 'Electronics') ? 'active' : ''}>Electronics</Link>
+              <Link to="/shop?cat=Bags" className={isNavActive('cat', 'Bags') ? 'active' : ''}>Bags</Link>
+              <Link to="/shop?cat=Footwear" className={isNavActive('cat', 'Footwear') ? 'active' : ''}>Footwear</Link>
+              <Link to="/shop?cat=Accessories" className={isNavActive('cat', 'Accessories') ? 'active' : ''}>Accessories</Link>
+              <Link to="/about" className={isNavActive('about') ? 'active' : ''}>About Us</Link>
             </nav>
 
             <div className="subnav-promo">

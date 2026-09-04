@@ -75,9 +75,19 @@ export default function Shop() {
     setSearchParams(params);
   };
 
-  const categories = Array.from(new Set((items || []).map(i => i?.category).filter(Boolean)));
+  // Deduplicate products by unique key
+  const seenCatalogKeys = new Set();
+  const uniqueItems = (items || []).filter(item => {
+    if (!item) return false;
+    const key = (item._id || item.id || item.sku || item.name).toString().toLowerCase();
+    if (seenCatalogKeys.has(key)) return false;
+    seenCatalogKeys.add(key);
+    return true;
+  });
 
-  let filtered = (items || []).filter(i => 
+  const categories = Array.from(new Set(uniqueItems.map(i => i?.category).filter(Boolean)));
+
+  let filtered = uniqueItems.filter(i => 
     i &&
     (!cat || i.category === cat) &&
     (!q || (i.name && i.name.toLowerCase().includes(q.toLowerCase())) || 
@@ -93,6 +103,14 @@ export default function Shop() {
     filtered.sort((a, b) => (a.name || '').localeCompare(b.name || ''));
   } else if (sortBy === 'deals') {
     filtered = filtered.filter(p => Number(p.regularPrice || 0) > Number(p.salePrice || p.price || 0) || p.featured);
+  } else if (sortBy === 'new') {
+    filtered.sort((a, b) => {
+      const dateA = a.created_at || a.createdAt ? new Date(a.created_at || a.createdAt).getTime() : 0;
+      const dateB = b.created_at || b.createdAt ? new Date(b.created_at || b.createdAt).getTime() : 0;
+      return dateB - dateA;
+    });
+  } else if (sortBy === 'best') {
+    filtered.sort((a, b) => (b.featured ? 1 : 0) - (a.featured ? 1 : 0) || (b.stock || 0) - (a.stock || 0));
   }
 
   return (
@@ -114,7 +132,15 @@ export default function Shop() {
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', flexWrap: 'wrap', gap: '12px', marginBottom: '24px' }}>
         <div>
           <h1 style={{ fontSize: '28px', fontWeight: 800, color: 'var(--text-dark)', margin: 0 }}>
-            {cat ? `${cat} Collection` : sortBy === 'deals' ? "Today's Deals & Offers" : 'Store Catalog'}
+            {cat 
+              ? `${cat} Collection` 
+              : sortBy === 'deals' 
+                ? "Today's Deals & Offers" 
+                : sortBy === 'new' 
+                  ? 'New Arrivals' 
+                  : sortBy === 'best' 
+                    ? 'Best Sellers' 
+                    : 'Store Catalog'}
           </h1>
           <p style={{ fontSize: '13.5px', color: 'var(--text-muted)', marginTop: '4px' }}>
             Showing {filtered.length} products available for immediate dispatch.
@@ -165,10 +191,10 @@ export default function Shop() {
               border: '1px solid var(--border)'
             }}
           >
-            All Products ({items.length})
+            All Products ({uniqueItems.length})
           </button>
           {categories.map(c => {
-            const count = items.filter(i => i && i.category === c).length;
+            const count = uniqueItems.filter(i => i && i.category === c).length;
             const isSel = cat === c;
             return (
               <button 
@@ -226,6 +252,8 @@ export default function Shop() {
           >
             <option value="featured">Sort by: Featured</option>
             <option value="deals">Sort by: Best Deals</option>
+            <option value="new">Sort by: New Arrivals</option>
+            <option value="best">Sort by: Best Sellers</option>
             <option value="price-low">Price: Low to High</option>
             <option value="price-high">Price: High to Low</option>
             <option value="name">Name: A to Z</option>

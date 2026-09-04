@@ -24,26 +24,44 @@ export default function Home() {
       .finally(() => setLoading(false));
   }, []);
 
+  // Deduplicate products by unique key
+  const uniqueProducts = [];
+  const seenProductKeys = new Set();
+  for (const p of allProducts) {
+    if (!p) continue;
+    const key = (p.id || p._id || p.sku || p.name).toString().toLowerCase();
+    if (!seenProductKeys.has(key)) {
+      seenProductKeys.add(key);
+      uniqueProducts.push(p);
+    }
+  }
+
   // Category counts and list
   const categoryMeta = [
-    { name: 'Electronics', count: allProducts.filter(p => p.category === 'Electronics').length || 4, img: 'https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=500&auto=format&fit=crop&q=80' },
-    { name: 'Bags', count: allProducts.filter(p => p.category === 'Bags').length || 3, img: 'https://images.unsplash.com/photo-1553062407-98eeb64c6a62?w=500&auto=format&fit=crop&q=80' },
-    { name: 'Footwear', count: allProducts.filter(p => p.category === 'Footwear').length || 3, img: 'https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=500&auto=format&fit=crop&q=80' },
-    { name: 'Accessories', count: allProducts.filter(p => p.category === 'Accessories').length || 3, img: 'https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=500&auto=format&fit=crop&q=80' },
-    { name: 'Apparel', count: allProducts.filter(p => p.category === 'Apparel').length || 2, img: 'https://images.unsplash.com/photo-1521572267360-ee0c2909d518?w=500&auto=format&fit=crop&q=80' },
-    { name: 'Home', count: allProducts.filter(p => p.category === 'Home').length || 2, img: 'https://images.unsplash.com/photo-1513519245088-0e12902e5a38?w=500&auto=format&fit=crop&q=80' }
+    { name: 'Electronics', count: uniqueProducts.filter(p => p.category === 'Electronics').length || 10, img: 'https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=500&auto=format&fit=crop&q=80' },
+    { name: 'Bags', count: uniqueProducts.filter(p => p.category === 'Bags').length || 10, img: 'https://images.unsplash.com/photo-1553062407-98eeb64c6a62?w=500&auto=format&fit=crop&q=80' },
+    { name: 'Footwear', count: uniqueProducts.filter(p => p.category === 'Footwear').length || 10, img: 'https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=500&auto=format&fit=crop&q=80' },
+    { name: 'Accessories', count: uniqueProducts.filter(p => p.category === 'Accessories').length || 10, img: 'https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=500&auto=format&fit=crop&q=80' },
+    { name: 'Apparel', count: uniqueProducts.filter(p => p.category === 'Apparel').length || 10, img: 'https://images.unsplash.com/photo-1521572267360-ee0c2909d518?w=500&auto=format&fit=crop&q=80' },
+    { name: 'Home', count: uniqueProducts.filter(p => p.category === 'Home').length || 10, img: 'https://images.unsplash.com/photo-1513519245088-0e12902e5a38?w=500&auto=format&fit=crop&q=80' }
   ];
 
-  // Deals: Products with discount or sale price
+  // Deals: Products with discount or sale price (up to 8 items)
   const dealProducts = (activeDealCategory === 'All')
-    ? allProducts.filter(p => (Number(p.regularPrice || 0) > Number(p.salePrice || p.price || 0)) || p.featured).slice(0, 8)
-    : allProducts.filter(p => p.category === activeDealCategory).slice(0, 8);
+    ? uniqueProducts.filter(p => (Number(p.regularPrice || 0) > Number(p.salePrice || p.price || 0)) || p.featured).slice(0, 8)
+    : uniqueProducts.filter(p => p.category === activeDealCategory).slice(0, 8);
 
-  // New arrivals: sorted by createdAt
-  const newArrivals = [...allProducts].slice(0, 4);
+  const dealKeys = new Set(dealProducts.map(p => (p.id || p._id || p.sku || p.name).toString().toLowerCase()));
 
-  // Best sellers: featured or popular items
-  const bestSellers = [...allProducts].reverse().slice(0, 4);
+  // New arrivals: products distinct from Deals
+  const remainingAfterDeals = uniqueProducts.filter(p => !dealKeys.has((p.id || p._id || p.sku || p.name).toString().toLowerCase()));
+  const newArrivals = (remainingAfterDeals.length >= 4 ? remainingAfterDeals : uniqueProducts).slice(0, 4);
+
+  const arrivalKeys = new Set(newArrivals.map(p => (p.id || p._id || p.sku || p.name).toString().toLowerCase()));
+
+  // Best sellers: products distinct from Deals and New Arrivals
+  const remainingAfterArrivals = remainingAfterDeals.filter(p => !arrivalKeys.has((p.id || p._id || p.sku || p.name).toString().toLowerCase()));
+  const bestSellers = (remainingAfterArrivals.length >= 4 ? remainingAfterArrivals : uniqueProducts.slice(4)).slice(0, 4);
 
   return (
     <div className="container page">

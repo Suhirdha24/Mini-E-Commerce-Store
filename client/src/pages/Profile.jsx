@@ -16,11 +16,12 @@ export default function Profile() {
   }, [userAddressKey]);
 
   return (
-    <div className="container page" style={{ maxWidth: '750px' }}>
-      <p className="eyebrow">USER PROFILE</p>
-      <h1 style={{ fontSize: '24px', fontWeight: 700, margin: '4px 0 24px' }}>My Account</h1>
+    <div className="container page">
+      <div style={{ maxWidth: '800px', margin: '0 auto' }}>
+        <p className="eyebrow">USER PROFILE</p>
+        <h1 style={{ fontSize: '26px', fontWeight: 800, color: 'var(--text-dark)', margin: '4px 0 24px' }}>My Account</h1>
 
-      <div style={{ background: '#fff', padding: '28px', borderRadius: '12px', border: '1px solid var(--border)', boxShadow: 'var(--shadow-sm)' }}>
+        <div style={{ background: 'var(--bg-surface)', padding: '32px', borderRadius: 'var(--radius-lg)', border: '1px solid var(--border)', boxShadow: 'var(--shadow-sm)' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '16px', marginBottom: '24px' }}>
           <div style={{ width: '56px', height: '56px', borderRadius: '50%', background: 'var(--text-dark)', color: '#fff', display: 'grid', placeItems: 'center', fontSize: '20px', fontWeight: 600 }}>
             {user?.name?.[0]?.toUpperCase() || 'U'}
@@ -84,6 +85,7 @@ export default function Profile() {
             Sign Out
           </button>
         </div>
+      </div>
       </div>
     </div>
   );

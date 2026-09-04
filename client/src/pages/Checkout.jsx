@@ -109,43 +109,45 @@ export default function Checkout() {
     const orderId = successOrder.id || successOrder._id || 'CONFIRMED';
 
     return (
-      <div className="container page" style={{ maxWidth: '600px', textAlign: 'center' }}>
-        <div style={{ background: '#fff', padding: '36px', borderRadius: '12px', border: '1px solid var(--border)', boxShadow: 'var(--shadow-sm)' }}>
-          <div style={{ width: '56px', height: '56px', borderRadius: '50%', background: '#ecfdf5', color: '#059669', display: 'grid', placeItems: 'center', margin: '0 auto 16px' }}>
-            <CheckIcon size={28} />
-          </div>
-          <p className="eyebrow" style={{ color: '#059669', fontWeight: 600 }}>ORDER CONFIRMED</p>
-          <h1 style={{ fontSize: '24px', fontWeight: 700, margin: '8px 0 12px' }}>
-            Payment Successful!
-          </h1>
-          <p style={{ color: 'var(--text-muted)', marginBottom: '24px', fontSize: '14px' }}>
-            Order ID: <strong>#{orderId}</strong>
-          </p>
-
-          <div style={{ background: 'var(--bg-secondary)', padding: '20px', borderRadius: '8px', textAlign: 'left', marginBottom: '24px', border: '1px solid var(--border)' }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '12px', fontSize: '14px' }}>
-              <span style={{ color: 'var(--text-muted)' }}>Payment Method:</span>
-              <strong style={{ color: 'var(--text-dark)' }}>{successOrder.payment_method || successOrder.paymentMethod}</strong>
+      <div className="container page">
+        <div style={{ maxWidth: '640px', margin: '0 auto' }}>
+          <div style={{ background: '#fff', padding: '36px', borderRadius: '12px', border: '1px solid var(--border)', boxShadow: 'var(--shadow-sm)', textAlign: 'center' }}>
+            <div style={{ width: '56px', height: '56px', borderRadius: '50%', background: '#ecfdf5', color: '#059669', display: 'grid', placeItems: 'center', margin: '0 auto 16px' }}>
+              <CheckIcon size={28} />
             </div>
-            <hr style={{ borderColor: 'var(--border)', margin: '12px 0' }} />
-            <h4 style={{ fontSize: '14px', fontWeight: 600, marginBottom: '6px' }}>Shipping Address</h4>
-            <p style={{ fontSize: '13px', color: 'var(--text-muted)', lineHeight: 1.5 }}>
-              <strong style={{ color: 'var(--text-dark)' }}>{f.name}</strong><br />
-              {f.address}, {f.city}, {f.state} - {f.postalCode}<br />
-              Phone: {f.phone}
+            <p className="eyebrow" style={{ color: '#059669', fontWeight: 600 }}>ORDER CONFIRMED</p>
+            <h1 style={{ fontSize: '24px', fontWeight: 700, margin: '8px 0 12px' }}>
+              Payment Successful!
+            </h1>
+            <p style={{ color: 'var(--text-muted)', marginBottom: '24px', fontSize: '14px' }}>
+              Order ID: <strong>#{orderId}</strong>
             </p>
-            <hr style={{ borderColor: 'var(--border)', margin: '12px 0' }} />
-            <div style={{ display: 'flex', justifyContent: 'space-between', fontWeight: 700, fontSize: '15px' }}>
-              <span>Total Paid</span>
-              <span>₹{Number(successOrder.total || total || 0).toLocaleString('en-IN')}</span>
-            </div>
-          </div>
 
-          <div style={{ display: 'flex', gap: '12px', justifyContent: 'center' }}>
-            <button className="primary" onClick={() => nav('/orders')}>View My Orders</button>
-            <Link to="/shop" style={{ padding: '10px 20px', textDecoration: 'none', color: 'var(--text-dark)', fontWeight: 500, fontSize: '14px' }}>
-              Continue Shopping
-            </Link>
+            <div style={{ background: 'var(--bg-secondary)', padding: '20px', borderRadius: '8px', textAlign: 'left', marginBottom: '24px', border: '1px solid var(--border)' }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '12px', fontSize: '14px' }}>
+                <span style={{ color: 'var(--text-muted)' }}>Payment Method:</span>
+                <strong style={{ color: 'var(--text-dark)' }}>{successOrder.payment_method || successOrder.paymentMethod}</strong>
+              </div>
+              <hr style={{ borderColor: 'var(--border)', margin: '12px 0' }} />
+              <h4 style={{ fontSize: '14px', fontWeight: 600, marginBottom: '6px' }}>Shipping Address</h4>
+              <p style={{ fontSize: '13px', color: 'var(--text-muted)', lineHeight: 1.5 }}>
+                <strong style={{ color: 'var(--text-dark)' }}>{f.name}</strong><br />
+                {f.address}, {f.city}, {f.state} - {f.postalCode}<br />
+                Phone: {f.phone}
+              </p>
+              <hr style={{ borderColor: 'var(--border)', margin: '12px 0' }} />
+              <div style={{ display: 'flex', justifyContent: 'space-between', fontWeight: 700, fontSize: '15px' }}>
+                <span>Total Paid</span>
+                <span>₹{Number(successOrder.total || total || 0).toLocaleString('en-IN')}</span>
+              </div>
+            </div>
+
+            <div style={{ display: 'flex', gap: '12px', justifyContent: 'center' }}>
+              <button className="primary" onClick={() => nav('/orders')}>View My Orders</button>
+              <Link to="/shop" style={{ padding: '10px 20px', textDecoration: 'none', color: 'var(--text-dark)', fontWeight: 500, fontSize: '14px' }}>
+                Continue Shopping
+              </Link>
+            </div>
           </div>
         </div>
       </div>
@@ -153,8 +155,9 @@ export default function Checkout() {
   }
 
   return (
-    <div className="container page" style={{ maxWidth: '600px' }}>
-      <div style={{ background: '#fff', padding: '32px', borderRadius: '12px', border: '1px solid var(--border)', boxShadow: 'var(--shadow-sm)' }}>
+    <div className="container page">
+      <div style={{ maxWidth: '680px', margin: '0 auto' }}>
+        <div style={{ background: '#fff', padding: '32px', borderRadius: '12px', border: '1px solid var(--border)', boxShadow: 'var(--shadow-sm)' }}>
         
         <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '24px', borderBottom: '1px solid var(--border)', paddingBottom: '14px', fontSize: '14px' }}>
           <div style={{ fontWeight: step === 'shipping' ? 600 : 400, color: step === 'shipping' ? 'var(--text-dark)' : 'var(--text-muted)' }}>
@@ -289,6 +292,7 @@ export default function Checkout() {
           </form>
         )}
 
+      </div>
       </div>
     </div>
   );

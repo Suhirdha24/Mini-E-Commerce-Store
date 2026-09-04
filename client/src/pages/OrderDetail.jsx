@@ -33,7 +33,7 @@ export default function OrderDetail() {
   const shortId = String(orderId).slice(-8).toUpperCase();
 
   return (
-    <div className="container page" style={{ maxWidth: '850px' }}>
+    <div className="container page">
       <Link to="/orders" style={{ textDecoration: 'none', color: 'var(--text-muted)', fontSize: '13px', marginBottom: '16px', display: 'inline-block' }}>
         ← Back to My Orders
       </Link>

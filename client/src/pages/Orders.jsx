@@ -43,22 +43,22 @@ export default function Orders() {
   };
 
   return (
-    <div className="container page" style={{ maxWidth: '900px' }}>
+    <div className="container page">
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '24px' }}>
         <div>
           <p className="eyebrow">CUSTOMER ACCOUNT</p>
-          <h1 style={{ fontSize: '24px', fontWeight: 700, margin: '4px 0 0' }}>My Orders</h1>
+          <h1 style={{ fontSize: '26px', fontWeight: 800, color: 'var(--text-dark)', margin: '4px 0 0' }}>My Orders</h1>
         </div>
         <button 
           onClick={loadOrders} 
-          style={{ display: 'flex', alignItems: 'center', gap: '6px', background: '#fff', border: '1px solid var(--border)', padding: '6px 14px', borderRadius: '6px', fontSize: '13px', fontWeight: 500, cursor: 'pointer' }}
+          className="btn btn-secondary btn-sm"
         >
           <RefreshIcon size={14} /> Refresh
         </button>
       </div>
 
       {actionError && (
-        <div style={{ background: '#fee2e2', color: '#dc2626', padding: '12px', borderRadius: '6px', marginBottom: '16px', fontSize: '13px' }}>
+        <div style={{ background: '#fee2e2', color: '#dc2626', padding: '12px', borderRadius: 'var(--radius-sm)', marginBottom: '16px', fontSize: '13px' }}>
           {actionError}
         </div>
       )}
@@ -78,9 +78,9 @@ export default function Orders() {
               <div
                 key={orderId}
                 style={{
-                  padding: '20px',
-                  background: 'var(--bg-card)',
-                  borderRadius: '10px',
+                  padding: '24px',
+                  background: 'var(--bg-surface)',
+                  borderRadius: 'var(--radius-md)',
                   border: '1px solid var(--border)',
                   boxShadow: 'var(--shadow-sm)'
                 }}
