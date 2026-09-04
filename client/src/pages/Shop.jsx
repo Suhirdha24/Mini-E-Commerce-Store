@@ -25,8 +25,11 @@ export default function Shop() {
   }, [searchParams]);
 
   const loadProducts = () => {
-    setLoading(true);
-    api.get('/products?limit=100')
+    // Only set loading true if we don't already have catalog products
+    if (!items || items.length === 0) {
+      setLoading(true);
+    }
+    api.get('/products?limit=100', { timeout: 3500 })
       .then(res => {
         if (res.data?.items && Array.isArray(res.data.items) && res.data.items.length > 0) {
           setItems(res.data.items);
@@ -34,7 +37,12 @@ export default function Shop() {
           setItems(res.data);
         }
       })
-      .catch(() => {})
+      .catch((err) => {
+        console.warn('Catalog network fetch fallback:', err?.message);
+        if (!items || items.length === 0) {
+          setItems(initialAdminProducts || []);
+        }
+      })
       .finally(() => setLoading(false));
   };
 
@@ -150,7 +158,7 @@ export default function Shop() {
   return (
     <div className="container page">
       {/* BREADCRUMBS */}
-      <div style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '12.5px', color: 'var(--text-muted)', marginBottom: '16px' }}>
+      <div style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '13.5px', color: 'var(--text-muted)', marginBottom: '18px' }}>
         <Link to="/home" style={{ color: 'var(--text-muted)' }}>Home</Link>
         <span>/</span>
         <Link to="/shop" style={{ color: 'var(--text-muted)' }}>Catalog</Link>
@@ -167,9 +175,9 @@ export default function Shop() {
         <div style={{
           background: 'linear-gradient(135deg, #FFFBEB 0%, #FEF3C7 100%)',
           border: '1px solid #FDE68A',
-          borderRadius: 'var(--radius-lg)',
-          padding: '24px 32px',
-          marginBottom: '24px',
+          borderRadius: '20px',
+          padding: '28px 36px',
+          marginBottom: '28px',
           display: 'flex',
           justifyContent: 'space-between',
           alignItems: 'center',
@@ -177,17 +185,17 @@ export default function Shop() {
           gap: '16px'
         }}>
           <div>
-            <span style={{ fontSize: '11px', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.08em', color: '#B45309', display: 'inline-block', marginBottom: '4px' }}>
+            <span style={{ fontSize: '12px', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.09em', color: '#B45309', display: 'inline-block', marginBottom: '6px' }}>
               TODAY'S SPECIAL MARKDOWNS
             </span>
-            <h2 style={{ fontSize: '22px', fontWeight: 800, color: '#78350F', margin: '0 0 6px' }}>
+            <h2 style={{ fontSize: '26px', fontWeight: 800, color: '#78350F', margin: '0 0 6px', letterSpacing: '-0.02em' }}>
               Verified Flash Deals — Up to 35% Instant Price Drops
             </h2>
-            <p style={{ fontSize: '13.5px', color: '#92400E', margin: 0 }}>
+            <p style={{ fontSize: '14.5px', color: '#92400E', margin: 0 }}>
               Showing {filtered.length} products with active savings. Sorted by highest percentage discount first.
             </p>
           </div>
-          <div style={{ background: '#F59E0B', color: '#FFFFFF', padding: '8px 18px', borderRadius: 'var(--radius-pill)', fontWeight: 700, fontSize: '13px' }}>
+          <div style={{ background: '#F59E0B', color: '#FFFFFF', padding: '10px 22px', borderRadius: 'var(--radius-pill)', fontWeight: 700, fontSize: '14px', boxShadow: '0 2px 8px rgba(245, 158, 11, 0.3)' }}>
             🔥 Live Flash Deals
           </div>
         </div>
@@ -197,9 +205,9 @@ export default function Shop() {
         <div style={{
           background: 'linear-gradient(135deg, #F0FDF4 0%, #DCFCE7 100%)',
           border: '1px solid #BBF7D0',
-          borderRadius: 'var(--radius-lg)',
-          padding: '24px 32px',
-          marginBottom: '24px',
+          borderRadius: '20px',
+          padding: '28px 36px',
+          marginBottom: '28px',
           display: 'flex',
           justifyContent: 'space-between',
           alignItems: 'center',
@@ -207,18 +215,18 @@ export default function Shop() {
           gap: '16px'
         }}>
           <div>
-            <span style={{ fontSize: '11px', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.08em', color: '#15803D', display: 'inline-block', marginBottom: '4px' }}>
+            <span style={{ fontSize: '12px', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.09em', color: '#15803D', display: 'inline-block', marginBottom: '6px' }}>
               JUST LANDED • NEW SEASON RELEASES
             </span>
-            <h2 style={{ fontSize: '22px', fontWeight: 800, color: '#14532D', margin: '0 0 6px' }}>
+            <h2 style={{ fontSize: '26px', fontWeight: 800, color: '#14532D', margin: '0 0 6px', letterSpacing: '-0.02em' }}>
               Workspace Ergonomics & Active Fitness Collections
             </h2>
-            <p style={{ fontSize: '13.5px', color: '#166534', margin: 0 }}>
-              Explore our newest 20 arrivals crafted for focus and daily movement.
+            <p style={{ fontSize: '14.5px', color: '#166534', margin: 0 }}>
+              Explore our newest arrivals crafted for focus and daily movement.
             </p>
           </div>
-          <div style={{ background: '#16A34A', color: '#FFFFFF', padding: '8px 18px', borderRadius: 'var(--radius-pill)', fontWeight: 700, fontSize: '13px' }}>
-            ✨ 20 Fresh Drops Added
+          <div style={{ background: '#16A34A', color: '#FFFFFF', padding: '10px 22px', borderRadius: 'var(--radius-pill)', fontWeight: 700, fontSize: '14px', boxShadow: '0 2px 8px rgba(22, 163, 74, 0.3)' }}>
+            ✨ Fresh Drops Added
           </div>
         </div>
       )}
@@ -227,9 +235,9 @@ export default function Shop() {
         <div style={{
           background: 'linear-gradient(135deg, #EFF6FF 0%, #DBEAFE 100%)',
           border: '1px solid #BFDBFE',
-          borderRadius: 'var(--radius-lg)',
-          padding: '24px 32px',
-          marginBottom: '24px',
+          borderRadius: '20px',
+          padding: '28px 36px',
+          marginBottom: '28px',
           display: 'flex',
           justifyContent: 'space-between',
           alignItems: 'center',
@@ -237,28 +245,28 @@ export default function Shop() {
           gap: '16px'
         }}>
           <div>
-            <span style={{ fontSize: '11px', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.08em', color: '#1D4ED8', display: 'inline-block', marginBottom: '4px' }}>
+            <span style={{ fontSize: '12px', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.09em', color: '#1D4ED8', display: 'inline-block', marginBottom: '6px' }}>
               COMMUNITY FAVORITES
             </span>
-            <h2 style={{ fontSize: '22px', fontWeight: 800, color: '#1E3A8A', margin: '0 0 6px' }}>
+            <h2 style={{ fontSize: '26px', fontWeight: 800, color: '#1E3A8A', margin: '0 0 6px', letterSpacing: '-0.02em' }}>
               Highest Rated & Most Popular Essentials
             </h2>
-            <p style={{ fontSize: '13.5px', color: '#1E40AF', margin: 0 }}>
+            <p style={{ fontSize: '14.5px', color: '#1E40AF', margin: 0 }}>
               Curated customer essentials with 4.9★ satisfaction ratings.
             </p>
           </div>
-          <div style={{ background: '#2563EB', color: '#FFFFFF', padding: '8px 18px', borderRadius: 'var(--radius-pill)', fontWeight: 700, fontSize: '13px' }}>
+          <div style={{ background: '#2563EB', color: '#FFFFFF', padding: '10px 22px', borderRadius: 'var(--radius-pill)', fontWeight: 700, fontSize: '14px', boxShadow: '0 2px 8px rgba(37, 99, 235, 0.3)' }}>
             ⭐ 4.9★ Community Rating
           </div>
         </div>
       )}
 
       {/* HEADER TITLE */}
-      <div style={{ marginBottom: '20px' }}>
+      <div style={{ marginBottom: '24px' }}>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', flexWrap: 'wrap', gap: '16px' }}>
           <div>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-              <h1 style={{ fontSize: '28px', fontWeight: 800, color: 'var(--text-dark)', margin: 0, letterSpacing: '-0.02em' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+              <h1 style={{ fontSize: '34px', fontWeight: 800, color: '#0F172A', margin: 0, letterSpacing: '-0.03em' }}>
                 {cat 
                   ? `${cat} Collection` 
                   : sortBy === 'deals' 
@@ -269,11 +277,11 @@ export default function Shop() {
                         ? 'Best Sellers' 
                         : 'Store Catalog'}
               </h1>
-              <span style={{ background: 'var(--bg-secondary)', color: 'var(--text-muted)', fontSize: '12px', fontWeight: 700, padding: '3px 10px', borderRadius: 'var(--radius-pill)' }}>
+              <span style={{ background: '#E2E8F0', color: '#1E293B', fontSize: '13.5px', fontWeight: 700, padding: '5px 14px', borderRadius: '9999px' }}>
                 {filtered.length} {filtered.length === 1 ? 'product' : 'products'}
               </span>
             </div>
-            <p style={{ fontSize: '13.5px', color: 'var(--text-muted)', margin: '4px 0 0' }}>
+            <p style={{ fontSize: '15px', color: 'var(--text-muted)', margin: '6px 0 0' }}>
               {cat 
                 ? `Explore precision crafted products for the ${cat.toLowerCase()} collection.` 
                 : 'Showing curated lifestyle products available for immediate dispatch.'}
@@ -286,27 +294,27 @@ export default function Shop() {
       <div style={{ 
         display: 'flex', 
         alignItems: 'center', 
-        gap: '8px', 
+        gap: '10px', 
         overflowX: 'auto',
-        paddingBottom: '14px',
-        marginBottom: '16px',
+        paddingBottom: '12px',
+        marginBottom: '22px',
         scrollbarWidth: 'none',
         msOverflowStyle: 'none'
       }}>
         <button 
           onClick={() => handleCategoryClick('')}
           style={{
-            padding: '7px 16px',
-            borderRadius: 'var(--radius-pill)',
-            fontSize: '13px',
+            padding: '10px 22px',
+            borderRadius: '9999px',
+            fontSize: '14.5px',
             fontWeight: 600,
             whiteSpace: 'nowrap',
-            background: cat === '' ? 'var(--text-dark)' : '#FFFFFF',
-            color: cat === '' ? '#FFFFFF' : 'var(--text-muted)',
-            border: cat === '' ? '1px solid var(--text-dark)' : '1px solid var(--border)',
-            boxShadow: cat === '' ? '0 2px 6px rgba(15, 23, 42, 0.15)' : 'none',
+            background: cat === '' ? '#0F172A' : '#FFFFFF',
+            color: cat === '' ? '#FFFFFF' : '#334155',
+            border: cat === '' ? '1px solid #0F172A' : '1px solid #CBD5E1',
+            boxShadow: cat === '' ? '0 4px 14px rgba(15, 23, 42, 0.22)' : '0 1px 3px rgba(15, 23, 42, 0.04)',
             cursor: 'pointer',
-            transition: 'var(--transition)'
+            transition: 'all 0.2s ease'
           }}
         >
           All Products ({uniqueItems.length})
@@ -319,17 +327,17 @@ export default function Shop() {
               key={c} 
               onClick={() => handleCategoryClick(c)}
               style={{
-                padding: '7px 16px',
-                borderRadius: 'var(--radius-pill)',
-                fontSize: '13px',
+                padding: '10px 22px',
+                borderRadius: '9999px',
+                fontSize: '14.5px',
                 fontWeight: 600,
                 whiteSpace: 'nowrap',
-                background: isSel ? 'var(--text-dark)' : '#FFFFFF',
-                color: isSel ? '#FFFFFF' : 'var(--text-muted)',
-                border: isSel ? '1px solid var(--text-dark)' : '1px solid var(--border)',
-                boxShadow: isSel ? '0 2px 6px rgba(15, 23, 42, 0.15)' : 'none',
+                background: isSel ? '#0F172A' : '#FFFFFF',
+                color: isSel ? '#FFFFFF' : '#334155',
+                border: isSel ? '1px solid #0F172A' : '1px solid #CBD5E1',
+                boxShadow: isSel ? '0 4px 14px rgba(15, 23, 42, 0.22)' : '0 1px 3px rgba(15, 23, 42, 0.04)',
                 cursor: 'pointer',
-                transition: 'var(--transition)'
+                transition: 'all 0.2s ease'
               }}
             >
               {c} ({count})
@@ -345,32 +353,33 @@ export default function Shop() {
         alignItems: 'center', 
         gap: '16px', 
         flexWrap: 'wrap', 
-        marginBottom: '24px',
-        padding: '12px 18px',
+        marginBottom: '28px',
+        padding: '16px 24px',
         background: '#FFFFFF',
-        border: '1px solid var(--border)',
-        borderRadius: 'var(--radius-md)'
+        border: '1px solid #E2E8F0',
+        borderRadius: '16px',
+        boxShadow: '0 2px 8px rgba(15, 23, 42, 0.04)'
       }}>
         {/* LEFT: RESULTS & ACTIVE FILTER PILLS */}
-        <div style={{ display: 'flex', alignItems: 'center', gap: '10px', flexWrap: 'wrap' }}>
-          <span style={{ fontSize: '13.5px', fontWeight: 600, color: 'var(--text-dark)' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '12px', flexWrap: 'wrap' }}>
+          <span style={{ fontSize: '15px', fontWeight: 700, color: '#0F172A' }}>
             Showing {filtered.length} products
           </span>
           {(cat || q) && (
             <div style={{ display: 'flex', gap: '8px', alignItems: 'center', flexWrap: 'wrap' }}>
               {cat && (
-                <span style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', background: 'var(--bg-secondary)', border: '1px solid var(--border)', padding: '3px 10px', borderRadius: 'var(--radius-pill)', fontSize: '12px', fontWeight: 600, color: 'var(--text-dark)' }}>
+                <span style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', background: '#F1F5F9', border: '1px solid #CBD5E1', padding: '6px 14px', borderRadius: '9999px', fontSize: '13px', fontWeight: 600, color: '#0F172A' }}>
                   Category: {cat}
-                  <button onClick={() => handleCategoryClick('')} style={{ display: 'flex', alignItems: 'center', background: 'none', border: 'none', cursor: 'pointer', color: 'var(--text-muted)' }} aria-label="Clear category filter">
-                    <CloseIcon size={12} />
+                  <button onClick={() => handleCategoryClick('')} style={{ display: 'flex', alignItems: 'center', background: 'none', border: 'none', cursor: 'pointer', color: '#64748B' }} aria-label="Clear category filter">
+                    <CloseIcon size={13} />
                   </button>
                 </span>
               )}
               {q && (
-                <span style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', background: 'var(--bg-secondary)', border: '1px solid var(--border)', padding: '3px 10px', borderRadius: 'var(--radius-pill)', fontSize: '12px', fontWeight: 600, color: 'var(--text-dark)' }}>
+                <span style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', background: '#F1F5F9', border: '1px solid #CBD5E1', padding: '6px 14px', borderRadius: '9999px', fontSize: '13px', fontWeight: 600, color: '#0F172A' }}>
                   Search: "{q}"
-                  <button onClick={() => handleSearchChange('')} style={{ display: 'flex', alignItems: 'center', background: 'none', border: 'none', cursor: 'pointer', color: 'var(--text-muted)' }} aria-label="Clear search">
-                    <CloseIcon size={12} />
+                  <button onClick={() => handleSearchChange('')} style={{ display: 'flex', alignItems: 'center', background: 'none', border: 'none', cursor: 'pointer', color: '#64748B' }} aria-label="Clear search">
+                    <CloseIcon size={13} />
                   </button>
                 </span>
               )}
@@ -379,23 +388,26 @@ export default function Shop() {
         </div>
 
         {/* RIGHT: SEARCH & SORT SELECTOR */}
-        <div style={{ display: 'flex', gap: '10px', alignItems: 'center' }}>
+        <div style={{ display: 'flex', gap: '12px', alignItems: 'center' }}>
           <div style={{ position: 'relative' }}>
             <input
               value={q}
               onChange={e => handleSearchChange(e.target.value)}
               placeholder="Search in catalog..."
               style={{ 
-                width: '210px', 
-                padding: '8px 12px 8px 34px',
-                fontSize: '13px',
-                borderRadius: 'var(--radius-pill)',
-                border: '1px solid var(--border)',
-                background: 'var(--bg-secondary)'
+                width: '280px', 
+                padding: '10px 16px 10px 42px',
+                fontSize: '14px',
+                borderRadius: '9999px',
+                border: '1px solid #CBD5E1',
+                background: '#F8FAFC',
+                color: '#0F172A',
+                outline: 'none',
+                transition: 'all 0.2s ease'
               }}
             />
-            <span style={{ position: 'absolute', left: '11px', top: '50%', transform: 'translateY(-50%)', color: 'var(--text-muted)', display: 'flex' }}>
-              <SearchIcon size={14} />
+            <span style={{ position: 'absolute', left: '14px', top: '50%', transform: 'translateY(-50%)', color: '#64748B', display: 'flex', pointerEvents: 'none' }}>
+              <SearchIcon size={16} />
             </span>
           </div>
 
@@ -404,14 +416,15 @@ export default function Shop() {
             onChange={e => handleSortChange(e.target.value)}
             style={{ 
               width: 'auto',
-              padding: '8px 14px',
-              fontSize: '13px',
+              padding: '10px 20px',
+              fontSize: '14px',
               fontWeight: 600,
-              borderRadius: 'var(--radius-pill)',
-              border: '1px solid var(--border)',
-              background: 'var(--bg-secondary)',
-              color: 'var(--text-dark)',
-              cursor: 'pointer'
+              borderRadius: '9999px',
+              border: '1px solid #CBD5E1',
+              background: '#F8FAFC',
+              color: '#0F172A',
+              cursor: 'pointer',
+              outline: 'none'
             }}
           >
             <option value="featured">Sort by: Featured</option>
@@ -426,15 +439,15 @@ export default function Shop() {
       </div>
 
       {/* PRODUCT GRID */}
-      {loading ? (
-        <div style={{ textAlign: 'center', padding: '80px 20px', color: 'var(--text-muted)', fontSize: '14px' }}>
-          Loading products from inventory...
-        </div>
-      ) : filtered.length > 0 ? (
+      {filtered.length > 0 ? (
         <div className="product-grid">
           {filtered.map(p => (
             <ProductCard key={p._id || p.id || p.sku} p={p} />
           ))}
+        </div>
+      ) : loading ? (
+        <div style={{ textAlign: 'center', padding: '80px 20px', color: 'var(--text-muted)', fontSize: '15px' }}>
+          Loading products from inventory...
         </div>
       ) : (
         <div style={{ 
