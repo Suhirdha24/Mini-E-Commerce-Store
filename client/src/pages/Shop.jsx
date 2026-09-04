@@ -102,15 +102,31 @@ export default function Shop() {
   } else if (sortBy === 'name') {
     filtered.sort((a, b) => (a.name || '').localeCompare(b.name || ''));
   } else if (sortBy === 'deals') {
-    filtered = filtered.filter(p => Number(p.regularPrice || 0) > Number(p.salePrice || p.price || 0) || p.featured);
-  } else if (sortBy === 'new') {
+    // Strictly products with real discounts, sorted by discount percentage descending
+    filtered = filtered.filter(p => Number(p.regularPrice || 0) > Number(p.salePrice || p.price || 0));
     filtered.sort((a, b) => {
+      const discA = (Number(a.regularPrice) - Number(a.salePrice || a.price)) / Number(a.regularPrice);
+      const discB = (Number(b.regularPrice) - Number(b.salePrice || b.price)) / Number(b.regularPrice);
+      return discB - discA;
+    });
+  } else if (sortBy === 'new') {
+    // New Arrivals: prioritize new categories (Workspace & Fitness) and newest releases
+    filtered.sort((a, b) => {
+      const isNewA = (a.category === 'Workspace' || a.category === 'Fitness' || (a.sku && (a.sku.includes('WKS') || a.sku.includes('FIT')))) ? 1 : 0;
+      const isNewB = (b.category === 'Workspace' || b.category === 'Fitness' || (b.sku && (b.sku.includes('WKS') || b.sku.includes('FIT')))) ? 1 : 0;
+      if (isNewA !== isNewB) return isNewB - isNewA;
       const dateA = a.created_at || a.createdAt ? new Date(a.created_at || a.createdAt).getTime() : 0;
       const dateB = b.created_at || b.createdAt ? new Date(b.created_at || b.createdAt).getTime() : 0;
-      return dateB - dateA;
+      if (dateB !== dateA) return dateB - dateA;
+      return String(b.id || b._id || '').localeCompare(String(a.id || a._id || ''));
     });
   } else if (sortBy === 'best') {
-    filtered.sort((a, b) => (b.featured ? 1 : 0) - (a.featured ? 1 : 0) || (b.stock || 0) - (a.stock || 0));
+    filtered.sort((a, b) => {
+      const featA = a.featured ? 1 : 0;
+      const featB = b.featured ? 1 : 0;
+      if (featA !== featB) return featB - featA;
+      return (b.stock || 0) - (a.stock || 0);
+    });
   }
 
   return (
@@ -127,6 +143,97 @@ export default function Shop() {
           </>
         )}
       </div>
+
+      {/* DISTINCTIVE CURATED HERO BANNER FOR SPECIAL VIEWS */}
+      {sortBy === 'deals' && (
+        <div style={{
+          background: 'linear-gradient(135deg, #FFFBEB 0%, #FEF3C7 100%)',
+          border: '1px solid #FDE68A',
+          borderRadius: 'var(--radius-lg)',
+          padding: '24px 32px',
+          marginBottom: '24px',
+          display: 'flex',
+          justifyContent: 'space-between',
+          alignItems: 'center',
+          flexWrap: 'wrap',
+          gap: '16px'
+        }}>
+          <div>
+            <span style={{ fontSize: '11px', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.08em', color: '#B45309', display: 'inline-block', marginBottom: '4px' }}>
+              TODAY'S SPECIAL MARKDOWNS
+            </span>
+            <h2 style={{ fontSize: '22px', fontWeight: 800, color: '#78350F', margin: '0 0 6px' }}>
+              Verified Flash Deals — Up to 35% Instant Price Drops
+            </h2>
+            <p style={{ fontSize: '13.5px', color: '#92400E', margin: 0 }}>
+              Showing {filtered.length} products with active savings. Sorted by highest percentage discount first.
+            </p>
+          </div>
+          <div style={{ background: '#F59E0B', color: '#FFFFFF', padding: '8px 18px', borderRadius: 'var(--radius-pill)', fontWeight: 700, fontSize: '13px' }}>
+            🔥 Live Flash Deals
+          </div>
+        </div>
+      )}
+
+      {sortBy === 'new' && (
+        <div style={{
+          background: 'linear-gradient(135deg, #F0FDF4 0%, #DCFCE7 100%)',
+          border: '1px solid #BBF7D0',
+          borderRadius: 'var(--radius-lg)',
+          padding: '24px 32px',
+          marginBottom: '24px',
+          display: 'flex',
+          justifyContent: 'space-between',
+          alignItems: 'center',
+          flexWrap: 'wrap',
+          gap: '16px'
+        }}>
+          <div>
+            <span style={{ fontSize: '11px', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.08em', color: '#15803D', display: 'inline-block', marginBottom: '4px' }}>
+              JUST LANDED • NEW SEASON RELEASES
+            </span>
+            <h2 style={{ fontSize: '22px', fontWeight: 800, color: '#14532D', margin: '0 0 6px' }}>
+              Workspace Ergonomics & Active Fitness Collections
+            </h2>
+            <p style={{ fontSize: '13.5px', color: '#166534', margin: 0 }}>
+              Explore our newest 20 arrivals crafted for focus and daily movement.
+            </p>
+          </div>
+          <div style={{ background: '#16A34A', color: '#FFFFFF', padding: '8px 18px', borderRadius: 'var(--radius-pill)', fontWeight: 700, fontSize: '13px' }}>
+            ✨ 20 Fresh Drops Added
+          </div>
+        </div>
+      )}
+
+      {sortBy === 'best' && (
+        <div style={{
+          background: 'linear-gradient(135deg, #EFF6FF 0%, #DBEAFE 100%)',
+          border: '1px solid #BFDBFE',
+          borderRadius: 'var(--radius-lg)',
+          padding: '24px 32px',
+          marginBottom: '24px',
+          display: 'flex',
+          justifyContent: 'space-between',
+          alignItems: 'center',
+          flexWrap: 'wrap',
+          gap: '16px'
+        }}>
+          <div>
+            <span style={{ fontSize: '11px', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.08em', color: '#1D4ED8', display: 'inline-block', marginBottom: '4px' }}>
+              COMMUNITY FAVORITES
+            </span>
+            <h2 style={{ fontSize: '22px', fontWeight: 800, color: '#1E3A8A', margin: '0 0 6px' }}>
+              Highest Rated & Most Popular Essentials
+            </h2>
+            <p style={{ fontSize: '13.5px', color: '#1E40AF', margin: 0 }}>
+              Curated customer essentials with 4.9★ satisfaction ratings.
+            </p>
+          </div>
+          <div style={{ background: '#2563EB', color: '#FFFFFF', padding: '8px 18px', borderRadius: 'var(--radius-pill)', fontWeight: 700, fontSize: '13px' }}>
+            ⭐ 4.9★ Community Rating
+          </div>
+        </div>
+      )}
 
       {/* HEADER TITLE */}
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', flexWrap: 'wrap', gap: '12px', marginBottom: '24px' }}>

@@ -36,32 +36,34 @@ export default function Home() {
     }
   }
 
-  // Category counts and list
+  // Category counts and list (8 comprehensive departments)
   const categoryMeta = [
     { name: 'Electronics', count: uniqueProducts.filter(p => p.category === 'Electronics').length || 10, img: 'https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=500&auto=format&fit=crop&q=80' },
     { name: 'Bags', count: uniqueProducts.filter(p => p.category === 'Bags').length || 10, img: 'https://images.unsplash.com/photo-1553062407-98eeb64c6a62?w=500&auto=format&fit=crop&q=80' },
     { name: 'Footwear', count: uniqueProducts.filter(p => p.category === 'Footwear').length || 10, img: 'https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=500&auto=format&fit=crop&q=80' },
     { name: 'Accessories', count: uniqueProducts.filter(p => p.category === 'Accessories').length || 10, img: 'https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=500&auto=format&fit=crop&q=80' },
     { name: 'Apparel', count: uniqueProducts.filter(p => p.category === 'Apparel').length || 10, img: 'https://images.unsplash.com/photo-1521572267360-ee0c2909d518?w=500&auto=format&fit=crop&q=80' },
-    { name: 'Home', count: uniqueProducts.filter(p => p.category === 'Home').length || 10, img: 'https://images.unsplash.com/photo-1513519245088-0e12902e5a38?w=500&auto=format&fit=crop&q=80' }
+    { name: 'Home', count: uniqueProducts.filter(p => p.category === 'Home').length || 10, img: 'https://images.unsplash.com/photo-1513519245088-0e12902e5a38?w=500&auto=format&fit=crop&q=80' },
+    { name: 'Workspace', count: uniqueProducts.filter(p => p.category === 'Workspace').length || 10, img: 'https://images.unsplash.com/photo-1527443224154-c4a3942d3acf?w=500&auto=format&fit=crop&q=80' },
+    { name: 'Fitness', count: uniqueProducts.filter(p => p.category === 'Fitness').length || 10, img: 'https://images.unsplash.com/photo-1517838277536-f5f99be501cd?w=500&auto=format&fit=crop&q=80' }
   ];
 
-  // Deals: Products with discount or sale price (up to 8 items)
+  // Deals: Products with real verified discount, sorted by discount amount
+  const discountedProducts = uniqueProducts.filter(p => Number(p.regularPrice || 0) > Number(p.salePrice || p.price || 0));
   const dealProducts = (activeDealCategory === 'All')
-    ? uniqueProducts.filter(p => (Number(p.regularPrice || 0) > Number(p.salePrice || p.price || 0)) || p.featured).slice(0, 8)
-    : uniqueProducts.filter(p => p.category === activeDealCategory).slice(0, 8);
+    ? discountedProducts.slice(0, 8)
+    : discountedProducts.filter(p => p.category === activeDealCategory).slice(0, 8);
 
-  const dealKeys = new Set(dealProducts.map(p => (p.id || p._id || p.sku || p.name).toString().toLowerCase()));
+  // New arrivals: fresh drops from Workspace & Fitness and newest releases
+  const newArrivalCandidates = uniqueProducts.filter(p => 
+    p.category === 'Workspace' || 
+    p.category === 'Fitness' || 
+    (p.sku && (p.sku.includes('WKS') || p.sku.includes('FIT')))
+  );
+  const newArrivals = (newArrivalCandidates.length >= 4 ? newArrivalCandidates : uniqueProducts.slice(30)).slice(0, 4);
 
-  // New arrivals: products distinct from Deals
-  const remainingAfterDeals = uniqueProducts.filter(p => !dealKeys.has((p.id || p._id || p.sku || p.name).toString().toLowerCase()));
-  const newArrivals = (remainingAfterDeals.length >= 4 ? remainingAfterDeals : uniqueProducts).slice(0, 4);
-
-  const arrivalKeys = new Set(newArrivals.map(p => (p.id || p._id || p.sku || p.name).toString().toLowerCase()));
-
-  // Best sellers: products distinct from Deals and New Arrivals
-  const remainingAfterArrivals = remainingAfterDeals.filter(p => !arrivalKeys.has((p.id || p._id || p.sku || p.name).toString().toLowerCase()));
-  const bestSellers = (remainingAfterArrivals.length >= 4 ? remainingAfterArrivals : uniqueProducts.slice(4)).slice(0, 4);
+  // Best sellers: high-demand customer favorites distinct from new arrivals
+  const bestSellers = uniqueProducts.filter(p => p.featured && p.category !== 'Workspace' && p.category !== 'Fitness').slice(0, 4);
 
   return (
     <div className="container page">

@@ -13,8 +13,8 @@ export default function Auth({ mode = 'login' }) {
   
   const [f, setF] = useState({ 
     name: '', 
-    email: isAdminLogin ? 'admin@ministore.com' : '', 
-    password: isAdminLogin ? 'Admin@123' : '' 
+    email: '', 
+    password: '' 
   });
   const [showPassword, setShowPassword] = useState(false);
   const [err, setErr] = useState('');
@@ -61,20 +61,20 @@ export default function Auth({ mode = 'login' }) {
     : 'https://images.unsplash.com/photo-1441986300917-64674bd600d8?w=1000&auto=format&fit=crop&q=80';
 
   return (
-    <div className="container page" style={{ minHeight: 'calc(100vh - 180px)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-      {/* FIXED RATIO SPLIT CARD (920px max-width, 1:1.15 balance) */}
+    <div className="container page" style={{ minHeight: 'calc(100vh - 180px)', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '36px 0' }}>
+      {/* FIXED RATIO SPLIT CARD (1180px max-width, balanced store ratio) */}
       <div 
         style={{
           width: '100%',
-          maxWidth: '920px',
+          maxWidth: '1180px',
           background: '#FFFFFF',
-          borderRadius: '20px',
+          borderRadius: '24px',
           border: '1px solid #E2E8F0',
-          boxShadow: '0 20px 40px -15px rgba(15, 23, 42, 0.08)',
+          boxShadow: '0 25px 50px -12px rgba(15, 23, 42, 0.12)',
           overflow: 'hidden',
           display: 'grid',
-          gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))',
-          minHeight: '560px'
+          gridTemplateColumns: 'repeat(auto-fit, minmax(360px, 1fr))',
+          minHeight: '620px'
         }}
       >
         {/* LEFT COLUMN: FIXED 1:1 EDITORIAL VISUAL FRAME */}
@@ -284,13 +284,13 @@ export default function Auth({ mode = 'login' }) {
               </label>
               <input
                 type="email"
-                placeholder={isAdminLogin ? "admin@ministore.com" : "customer@novastore.com"}
+                placeholder={isAdminLogin ? "e.g. admin@ministore.com" : "e.g. name@example.com"}
                 required
                 value={f.email}
                 onChange={(e) => setF({ ...f, email: e.target.value })}
                 style={{
                   width: '100%',
-                  padding: '10px 14px',
+                  padding: '12px 16px',
                   borderRadius: '8px',
                   border: '1px solid var(--border)',
                   fontSize: '14px'
@@ -312,14 +312,14 @@ export default function Auth({ mode = 'login' }) {
               <div style={{ position: 'relative', display: 'flex', alignItems: 'center' }}>
                 <input
                   type={showPassword ? "text" : "password"}
-                  placeholder="••••••••"
+                  placeholder="Enter your secret password"
                   minLength="6"
                   required
                   value={f.password}
                   onChange={(e) => setF({ ...f, password: e.target.value })}
                   style={{
                     width: '100%',
-                    padding: '10px 42px 10px 14px',
+                    padding: '12px 42px 12px 16px',
                     borderRadius: '8px',
                     border: '1px solid var(--border)',
                     fontSize: '14px'

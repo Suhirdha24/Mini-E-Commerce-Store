@@ -5,27 +5,40 @@ import { useAuth } from '../context/AuthContext';
 import { safeGetJSON, safeSetJSON } from '../utils/storage';
 import { HeartIcon, CheckIcon, StarIcon } from './Icons';
 
-const FALLBACK_IMAGE = 'https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=800&auto=format&fit=crop&q=80';
+const getCategoryFallback = (cat) => {
+  const map = {
+    'Electronics': 'https://images.unsplash.com/photo-1546435770-a3e426bf472b?w=800&auto=format&fit=crop&q=80',
+    'Bags': 'https://images.unsplash.com/photo-1553062407-98eeb64c6a62?w=800&auto=format&fit=crop&q=80',
+    'Footwear': 'https://images.unsplash.com/photo-1600185365483-26d7a4cc7519?w=800&auto=format&fit=crop&q=80',
+    'Accessories': 'https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=800&auto=format&fit=crop&q=80',
+    'Apparel': 'https://images.unsplash.com/photo-1556821840-3a63f95609a7?w=800&auto=format&fit=crop&q=80',
+    'Home': 'https://images.unsplash.com/photo-1507473885765-e6ed057f782c?w=800&auto=format&fit=crop&q=80',
+    'Workspace': 'https://images.unsplash.com/photo-1527443224154-c4a3942d3acf?w=800&auto=format&fit=crop&q=80',
+    'Fitness': 'https://images.unsplash.com/photo-1602143407151-7111542de6e8?w=800&auto=format&fit=crop&q=80'
+  };
+  return map[cat] || 'https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=800&auto=format&fit=crop&q=80';
+};
 
 export default function ProductCard({ p }) {
   const { add } = useCart();
   const { user } = useAuth();
   if (!p) return null;
 
+  const fallback = getCategoryFallback(p?.category);
   const productId = p.id || p._id || p.sku;
   const [isFav, setIsFav] = useState(false);
-  const [imgSrc, setImgSrc] = useState(p.image || FALLBACK_IMAGE);
+  const [imgSrc, setImgSrc] = useState(p.image || fallback);
   const [isAdded, setIsAdded] = useState(false);
 
   const userKey = user?.email ? `fav_${String(user.email).toLowerCase()}` : 'fav_guest';
 
   useEffect(() => {
-    setImgSrc(p?.image || FALLBACK_IMAGE);
+    setImgSrc(p?.image || getCategoryFallback(p?.category));
     const favs = safeGetJSON(userKey, []);
     if (Array.isArray(favs)) {
       setIsFav(favs.some(item => item && String(item.id || item._id || item.sku).toLowerCase() === String(productId).toLowerCase()));
     }
-  }, [p?.image, productId, userKey]);
+  }, [p?.image, p?.category, productId, userKey]);
 
   const toggleFavorite = (e) => {
     e.preventDefault();
@@ -85,7 +98,7 @@ export default function ProductCard({ p }) {
             src={imgSrc} 
             alt={p.name || 'Product'} 
             className="product-card-thumb"
-            onError={() => setImgSrc(FALLBACK_IMAGE)}
+            onError={() => setImgSrc(getCategoryFallback(p?.category))}
             loading="lazy"
           />
         </Link>

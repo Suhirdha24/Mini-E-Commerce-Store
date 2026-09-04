@@ -180,6 +180,8 @@ export default function Layout() {
               <Link to="/shop?cat=Bags" className={isNavActive('cat', 'Bags') ? 'active' : ''}>Bags</Link>
               <Link to="/shop?cat=Footwear" className={isNavActive('cat', 'Footwear') ? 'active' : ''}>Footwear</Link>
               <Link to="/shop?cat=Accessories" className={isNavActive('cat', 'Accessories') ? 'active' : ''}>Accessories</Link>
+              <Link to="/shop?cat=Workspace" className={isNavActive('cat', 'Workspace') ? 'active' : ''}>Workspace</Link>
+              <Link to="/shop?cat=Fitness" className={isNavActive('cat', 'Fitness') ? 'active' : ''}>Fitness</Link>
               <Link to="/about" className={isNavActive('about') ? 'active' : ''}>About Us</Link>
             </nav>
 
@@ -209,10 +211,13 @@ export default function Layout() {
               <Link to="/home" onClick={() => setMobileOpen(false)}>Home</Link>
               <Link to="/shop" onClick={() => setMobileOpen(false)}>Shop All Catalog</Link>
               <Link to="/shop?sort=deals" onClick={() => setMobileOpen(false)}>Today's Deals</Link>
+              <Link to="/shop?sort=new" onClick={() => setMobileOpen(false)}>New Arrivals</Link>
               <Link to="/shop?cat=Electronics" onClick={() => setMobileOpen(false)}>Electronics</Link>
               <Link to="/shop?cat=Bags" onClick={() => setMobileOpen(false)}>Bags</Link>
               <Link to="/shop?cat=Footwear" onClick={() => setMobileOpen(false)}>Footwear</Link>
               <Link to="/shop?cat=Accessories" onClick={() => setMobileOpen(false)}>Accessories</Link>
+              <Link to="/shop?cat=Workspace" onClick={() => setMobileOpen(false)}>Workspace</Link>
+              <Link to="/shop?cat=Fitness" onClick={() => setMobileOpen(false)}>Fitness</Link>
               <Link to="/favorites" onClick={() => setMobileOpen(false)}>Saved Wishlist ({favCount})</Link>
               <Link to="/orders" onClick={() => setMobileOpen(false)}>My Orders</Link>
               {user?.role === 'admin' && (
@@ -248,6 +253,8 @@ export default function Layout() {
                 <li><Link to="/shop?cat=Bags">Bags & Carry</Link></li>
                 <li><Link to="/shop?cat=Footwear">Footwear & Sneakers</Link></li>
                 <li><Link to="/shop?cat=Accessories">Accessories</Link></li>
+                <li><Link to="/shop?cat=Workspace">Workspace & Desk</Link></li>
+                <li><Link to="/shop?cat=Fitness">Fitness & Wellness</Link></li>
                 <li><Link to="/shop?sort=deals">Special Offers</Link></li>
               </ul>
             </div>
