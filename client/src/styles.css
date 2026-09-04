@@ -110,11 +110,11 @@ button {
 /* STANDARD LAYOUT CONTAINER */
 .container {
   width: 100%;
-  max-width: 1380px;
+  max-width: 1540px;
   margin-left: auto;
   margin-right: auto;
-  padding-left: clamp(28px, 4.5vw, 64px);
-  padding-right: clamp(28px, 4.5vw, 64px);
+  padding-left: clamp(20px, 2.5vw, 36px);
+  padding-right: clamp(20px, 2.5vw, 36px);
 }
 
 .page {
@@ -238,10 +238,10 @@ header.app-header {
 
 .header-top-inner {
   width: 100%;
-  max-width: 1380px;
+  max-width: 1540px;
   margin-left: auto;
   margin-right: auto;
-  padding: 14px clamp(28px, 4.5vw, 64px);
+  padding: 14px clamp(20px, 2.5vw, 36px);
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -357,10 +357,10 @@ header.app-header {
 
 .header-subnav-inner {
   width: 100%;
-  max-width: 1380px;
+  max-width: 1540px;
   margin-left: auto;
   margin-right: auto;
-  padding: 10px clamp(28px, 4.5vw, 64px);
+  padding: 10px clamp(20px, 2.5vw, 36px);
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -701,27 +701,34 @@ header.app-header {
 .product-grid {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
-  gap: 24px;
+  gap: 20px;
 }
 
-@media (max-width: 1180px) {
+@media (min-width: 1400px) {
   .product-grid {
-    grid-template-columns: repeat(3, 1fr);
+    grid-template-columns: repeat(5, 1fr);
     gap: 20px;
   }
 }
 
-@media (max-width: 820px) {
+@media (max-width: 1100px) {
   .product-grid {
-    grid-template-columns: repeat(2, 1fr);
+    grid-template-columns: repeat(3, 1fr);
     gap: 16px;
   }
 }
 
-@media (max-width: 500px) {
+@media (max-width: 768px) {
+  .product-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 12px;
+  }
+}
+
+@media (max-width: 480px) {
   .product-grid {
     grid-template-columns: 1fr;
-    gap: 16px;
+    gap: 14px;
   }
 }
 
@@ -1050,16 +1057,16 @@ footer.app-footer {
 
 @media (max-width: 768px) {
   .container {
-    padding-left: 20px;
-    padding-right: 20px;
+    padding-left: 16px;
+    padding-right: 16px;
   }
   .header-top-inner {
-    padding-left: 20px;
-    padding-right: 20px;
+    padding-left: 16px;
+    padding-right: 16px;
   }
   .header-subnav-inner {
-    padding-left: 20px;
-    padding-right: 20px;
+    padding-left: 16px;
+    padding-right: 16px;
   }
   .mobile-menu-btn {
     display: block;
