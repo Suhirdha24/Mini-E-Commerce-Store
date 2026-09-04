@@ -693,8 +693,36 @@ header.app-header {
 ========================================================= */
 .product-grid {
   display: grid;
-  grid-template-columns: repeat(4, 1fr);
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
   gap: 20px;
+}
+
+@media (min-width: 1400px) {
+  .product-grid {
+    grid-template-columns: repeat(5, 1fr);
+    gap: 22px;
+  }
+}
+
+@media (max-width: 1100px) {
+  .product-grid {
+    grid-template-columns: repeat(3, 1fr);
+    gap: 16px;
+  }
+}
+
+@media (max-width: 768px) {
+  .product-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 12px;
+  }
+}
+
+@media (max-width: 480px) {
+  .product-grid {
+    grid-template-columns: 1fr;
+    gap: 16px;
+  }
 }
 
 .product-card {
@@ -774,24 +802,24 @@ header.app-header {
 
 /* CARD DETAILS */
 .product-card-body {
-  padding: 16px;
+  padding: 14px 16px 16px;
   display: flex;
   flex-direction: column;
   flex: 1;
 }
 
 .card-category {
-  font-size: 11px;
-  font-weight: 600;
+  font-size: 10.5px;
+  font-weight: 700;
   text-transform: uppercase;
-  letter-spacing: 0.05em;
-  color: var(--text-muted);
+  letter-spacing: 0.06em;
+  color: var(--accent-blue);
   margin-bottom: 4px;
 }
 
 .card-title {
-  font-size: 14.5px;
-  font-weight: 600;
+  font-size: 14px;
+  font-weight: 700;
   color: var(--text-dark);
   line-height: 1.35;
   margin-bottom: 6px;
@@ -808,7 +836,7 @@ header.app-header {
   gap: 4px;
   font-size: 11.5px;
   color: var(--text-muted);
-  margin-bottom: 10px;
+  margin-bottom: 6px;
 }
 
 .card-price-row {
@@ -820,8 +848,8 @@ header.app-header {
 }
 
 .card-price {
-  font-size: 16px;
-  font-weight: 700;
+  font-size: 16.5px;
+  font-weight: 800;
   color: var(--text-dark);
 }
 
@@ -843,25 +871,29 @@ header.app-header {
 
 .card-add-btn {
   width: 100%;
-  padding: 8px 14px;
-  background: var(--bg-secondary);
-  color: var(--text-dark);
-  border-radius: var(--radius-sm);
+  padding: 9px 14px;
+  background: var(--primary);
+  color: var(--primary-fg);
+  border-radius: var(--radius-pill);
   font-size: 13px;
-  font-weight: 600;
+  font-weight: 700;
   display: flex;
   align-items: center;
   justify-content: center;
   gap: 6px;
   transition: var(--transition);
+  box-shadow: 0 1px 3px rgba(15, 23, 42, 0.08);
 }
 .card-add-btn:hover:not(:disabled) {
-  background: var(--primary);
-  color: #FFFFFF;
+  background: var(--primary-hover);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 10px rgba(15, 23, 42, 0.15);
 }
 .card-add-btn:disabled {
-  opacity: 0.5;
+  background: var(--bg-secondary);
+  color: var(--text-light);
   cursor: not-allowed;
+  box-shadow: none;
 }
 
 /* =========================================================

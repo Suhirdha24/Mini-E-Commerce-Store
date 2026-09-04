@@ -85,7 +85,25 @@ export default function Shop() {
     return true;
   });
 
-  const categories = Array.from(new Set(uniqueItems.map(i => i?.category).filter(Boolean)));
+  const DEPARTMENT_ORDER = [
+    'Electronics',
+    'Workspace',
+    'Fitness',
+    'Bags',
+    'Footwear',
+    'Accessories',
+    'Apparel',
+    'Home'
+  ];
+
+  const categories = Array.from(new Set(uniqueItems.map(i => i?.category).filter(Boolean))).sort((a, b) => {
+    const idxA = DEPARTMENT_ORDER.indexOf(a);
+    const idxB = DEPARTMENT_ORDER.indexOf(b);
+    if (idxA !== -1 && idxB !== -1) return idxA - idxB;
+    if (idxA !== -1) return -1;
+    if (idxB !== -1) return 1;
+    return a.localeCompare(b);
+  });
 
   let filtered = uniqueItems.filter(i => 
     i &&
@@ -236,94 +254,131 @@ export default function Shop() {
       )}
 
       {/* HEADER TITLE */}
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', flexWrap: 'wrap', gap: '12px', marginBottom: '24px' }}>
-        <div>
-          <h1 style={{ fontSize: '28px', fontWeight: 800, color: 'var(--text-dark)', margin: 0 }}>
-            {cat 
-              ? `${cat} Collection` 
-              : sortBy === 'deals' 
-                ? "Today's Deals & Offers" 
-                : sortBy === 'new' 
-                  ? 'New Arrivals' 
-                  : sortBy === 'best' 
-                    ? 'Best Sellers' 
-                    : 'Store Catalog'}
-          </h1>
-          <p style={{ fontSize: '13.5px', color: 'var(--text-muted)', marginTop: '4px' }}>
-            Showing {filtered.length} products available for immediate dispatch.
-          </p>
-        </div>
-
-        {/* ACTIVE FILTER BADGES */}
-        {(q || cat) && (
-          <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
-            {cat && (
-              <span style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', background: 'var(--bg-secondary)', border: '1px solid var(--border)', padding: '4px 10px', borderRadius: 'var(--radius-pill)', fontSize: '12px', fontWeight: 600 }}>
-                Category: {cat}
-                <button onClick={() => handleCategoryClick('')} style={{ display: 'flex' }}><CloseIcon size={12} /></button>
+      <div style={{ marginBottom: '20px' }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', flexWrap: 'wrap', gap: '16px' }}>
+          <div>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+              <h1 style={{ fontSize: '28px', fontWeight: 800, color: 'var(--text-dark)', margin: 0, letterSpacing: '-0.02em' }}>
+                {cat 
+                  ? `${cat} Collection` 
+                  : sortBy === 'deals' 
+                    ? "Today's Deals & Offers" 
+                    : sortBy === 'new' 
+                      ? 'New Arrivals' 
+                      : sortBy === 'best' 
+                        ? 'Best Sellers' 
+                        : 'Store Catalog'}
+              </h1>
+              <span style={{ background: 'var(--bg-secondary)', color: 'var(--text-muted)', fontSize: '12px', fontWeight: 700, padding: '3px 10px', borderRadius: 'var(--radius-pill)' }}>
+                {filtered.length} {filtered.length === 1 ? 'product' : 'products'}
               </span>
-            )}
-            {q && (
-              <span style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', background: 'var(--bg-secondary)', border: '1px solid var(--border)', padding: '4px 10px', borderRadius: 'var(--radius-pill)', fontSize: '12px', fontWeight: 600 }}>
-                Search: "{q}"
-                <button onClick={() => handleSearchChange('')} style={{ display: 'flex' }}><CloseIcon size={12} /></button>
-              </span>
-            )}
+            </div>
+            <p style={{ fontSize: '13.5px', color: 'var(--text-muted)', margin: '4px 0 0' }}>
+              {cat 
+                ? `Explore precision crafted products for the ${cat.toLowerCase()} collection.` 
+                : 'Showing curated lifestyle products available for immediate dispatch.'}
+            </p>
           </div>
-        )}
+        </div>
       </div>
 
-      {/* TOOLBAR */}
+      {/* 1. CATEGORY DEPARTMENT PILLS ROW */}
+      <div style={{ 
+        display: 'flex', 
+        alignItems: 'center', 
+        gap: '8px', 
+        overflowX: 'auto',
+        paddingBottom: '14px',
+        marginBottom: '16px',
+        scrollbarWidth: 'none',
+        msOverflowStyle: 'none'
+      }}>
+        <button 
+          onClick={() => handleCategoryClick('')}
+          style={{
+            padding: '7px 16px',
+            borderRadius: 'var(--radius-pill)',
+            fontSize: '13px',
+            fontWeight: 600,
+            whiteSpace: 'nowrap',
+            background: cat === '' ? 'var(--text-dark)' : '#FFFFFF',
+            color: cat === '' ? '#FFFFFF' : 'var(--text-muted)',
+            border: cat === '' ? '1px solid var(--text-dark)' : '1px solid var(--border)',
+            boxShadow: cat === '' ? '0 2px 6px rgba(15, 23, 42, 0.15)' : 'none',
+            cursor: 'pointer',
+            transition: 'var(--transition)'
+          }}
+        >
+          All Products ({uniqueItems.length})
+        </button>
+        {categories.map(c => {
+          const count = uniqueItems.filter(i => i && i.category === c).length;
+          const isSel = cat === c;
+          return (
+            <button 
+              key={c} 
+              onClick={() => handleCategoryClick(c)}
+              style={{
+                padding: '7px 16px',
+                borderRadius: 'var(--radius-pill)',
+                fontSize: '13px',
+                fontWeight: 600,
+                whiteSpace: 'nowrap',
+                background: isSel ? 'var(--text-dark)' : '#FFFFFF',
+                color: isSel ? '#FFFFFF' : 'var(--text-muted)',
+                border: isSel ? '1px solid var(--text-dark)' : '1px solid var(--border)',
+                boxShadow: isSel ? '0 2px 6px rgba(15, 23, 42, 0.15)' : 'none',
+                cursor: 'pointer',
+                transition: 'var(--transition)'
+              }}
+            >
+              {c} ({count})
+            </button>
+          );
+        })}
+      </div>
+
+      {/* 2. ACTIONS & SORT BAR */}
       <div style={{ 
         display: 'flex', 
         justifyContent: 'space-between', 
         alignItems: 'center', 
         gap: '16px', 
         flexWrap: 'wrap', 
-        marginBottom: '28px',
-        paddingBottom: '16px',
-        borderBottom: '1px solid var(--border)'
+        marginBottom: '24px',
+        padding: '12px 18px',
+        background: '#FFFFFF',
+        border: '1px solid var(--border)',
+        borderRadius: 'var(--radius-md)'
       }}>
-        {/* CATEGORY FILTER CHIPS */}
-        <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
-          <button 
-            onClick={() => handleCategoryClick('')}
-            style={{
-              padding: '6px 14px',
-              borderRadius: 'var(--radius-pill)',
-              fontSize: '13px',
-              fontWeight: 600,
-              background: cat === '' ? 'var(--text-dark)' : 'var(--bg-surface)',
-              color: cat === '' ? '#fff' : 'var(--text-muted)',
-              border: '1px solid var(--border)'
-            }}
-          >
-            All Products ({uniqueItems.length})
-          </button>
-          {categories.map(c => {
-            const count = uniqueItems.filter(i => i && i.category === c).length;
-            const isSel = cat === c;
-            return (
-              <button 
-                key={c} 
-                onClick={() => handleCategoryClick(c)}
-                style={{
-                  padding: '6px 14px',
-                  borderRadius: 'var(--radius-pill)',
-                  fontSize: '13px',
-                  fontWeight: 600,
-                  background: isSel ? 'var(--text-dark)' : 'var(--bg-surface)',
-                  color: isSel ? '#fff' : 'var(--text-muted)',
-                  border: '1px solid var(--border)'
-                }}
-              >
-                {c} ({count})
-              </button>
-            );
-          })}
+        {/* LEFT: RESULTS & ACTIVE FILTER PILLS */}
+        <div style={{ display: 'flex', alignItems: 'center', gap: '10px', flexWrap: 'wrap' }}>
+          <span style={{ fontSize: '13.5px', fontWeight: 600, color: 'var(--text-dark)' }}>
+            Showing {filtered.length} products
+          </span>
+          {(cat || q) && (
+            <div style={{ display: 'flex', gap: '8px', alignItems: 'center', flexWrap: 'wrap' }}>
+              {cat && (
+                <span style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', background: 'var(--bg-secondary)', border: '1px solid var(--border)', padding: '3px 10px', borderRadius: 'var(--radius-pill)', fontSize: '12px', fontWeight: 600, color: 'var(--text-dark)' }}>
+                  Category: {cat}
+                  <button onClick={() => handleCategoryClick('')} style={{ display: 'flex', alignItems: 'center', background: 'none', border: 'none', cursor: 'pointer', color: 'var(--text-muted)' }} aria-label="Clear category filter">
+                    <CloseIcon size={12} />
+                  </button>
+                </span>
+              )}
+              {q && (
+                <span style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', background: 'var(--bg-secondary)', border: '1px solid var(--border)', padding: '3px 10px', borderRadius: 'var(--radius-pill)', fontSize: '12px', fontWeight: 600, color: 'var(--text-dark)' }}>
+                  Search: "{q}"
+                  <button onClick={() => handleSearchChange('')} style={{ display: 'flex', alignItems: 'center', background: 'none', border: 'none', cursor: 'pointer', color: 'var(--text-muted)' }} aria-label="Clear search">
+                    <CloseIcon size={12} />
+                  </button>
+                </span>
+              )}
+            </div>
+          )}
         </div>
 
-        {/* SEARCH & SORT SELECTOR */}
+        {/* RIGHT: SEARCH & SORT SELECTOR */}
         <div style={{ display: 'flex', gap: '10px', alignItems: 'center' }}>
           <div style={{ position: 'relative' }}>
             <input
@@ -331,14 +386,15 @@ export default function Shop() {
               onChange={e => handleSearchChange(e.target.value)}
               placeholder="Search in catalog..."
               style={{ 
-                width: '200px', 
-                padding: '8px 12px 8px 32px',
+                width: '210px', 
+                padding: '8px 12px 8px 34px',
                 fontSize: '13px',
                 borderRadius: 'var(--radius-pill)',
-                border: '1px solid var(--border)'
+                border: '1px solid var(--border)',
+                background: 'var(--bg-secondary)'
               }}
             />
-            <span style={{ position: 'absolute', left: '10px', top: '50%', transform: 'translateY(-50%)', color: 'var(--text-muted)', display: 'flex' }}>
+            <span style={{ position: 'absolute', left: '11px', top: '50%', transform: 'translateY(-50%)', color: 'var(--text-muted)', display: 'flex' }}>
               <SearchIcon size={14} />
             </span>
           </div>
@@ -350,10 +406,11 @@ export default function Shop() {
               width: 'auto',
               padding: '8px 14px',
               fontSize: '13px',
-              fontWeight: 500,
+              fontWeight: 600,
               borderRadius: 'var(--radius-pill)',
               border: '1px solid var(--border)',
-              background: 'var(--bg-surface)',
+              background: 'var(--bg-secondary)',
+              color: 'var(--text-dark)',
               cursor: 'pointer'
             }}
           >
