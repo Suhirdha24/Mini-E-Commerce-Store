@@ -17,13 +17,14 @@ import { ProtectedRoute, AdminRoute } from "./components/ProtectedRoute";
 function App() {
   return (
     <Routes>
-      {/* AUTHENTICATION ROUTES */}
-      <Route path="/login" element={<Auth mode="login" />} />
-      <Route path="/register" element={<Auth mode="register" />} />
-      <Route path="/admin-login" element={<Auth mode="admin-login" />} />
-
       {/* MAIN WEBSITE LAYOUT ROUTES */}
       <Route element={<Layout />}>
+        {/* AUTHENTICATION ROUTES */}
+        <Route path="/login" element={<Auth mode="login" />} />
+        <Route path="/register" element={<Auth mode="register" />} />
+        <Route path="/admin-login" element={<Auth mode="admin-login" />} />
+
+        {/* STOREFRONT CATALOG ROUTES */}
         <Route path="/" element={<Home />} />
         <Route path="/home" element={<Home />} />
         <Route path="/shop" element={<Shop />} />
