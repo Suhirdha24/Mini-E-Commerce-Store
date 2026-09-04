@@ -107,6 +107,11 @@ button {
   transition: var(--transition);
 }
 
+input::placeholder, textarea::placeholder {
+  color: #94A3B8;
+  opacity: 1;
+}
+
 /* STANDARD LAYOUT CONTAINER */
 .container {
   width: 100%;

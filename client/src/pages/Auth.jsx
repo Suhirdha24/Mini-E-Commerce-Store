@@ -263,7 +263,7 @@ export default function Auth({ mode = 'login' }) {
                 </label>
                 <input
                   type="text"
-                  placeholder="e.g. Alex Morgan"
+                  placeholder="Enter your full name"
                   required
                   value={f.name}
                   onChange={(e) => setF({ ...f, name: e.target.value })}
@@ -284,7 +284,7 @@ export default function Auth({ mode = 'login' }) {
               </label>
               <input
                 type="email"
-                placeholder={isAdminLogin ? "e.g. admin@ministore.com" : "e.g. name@example.com"}
+                placeholder="Enter your email address"
                 required
                 value={f.email}
                 onChange={(e) => setF({ ...f, email: e.target.value })}
@@ -312,7 +312,7 @@ export default function Auth({ mode = 'login' }) {
               <div style={{ position: 'relative', display: 'flex', alignItems: 'center' }}>
                 <input
                   type={showPassword ? "text" : "password"}
-                  placeholder="Enter your secret password"
+                  placeholder="Enter your password"
                   minLength="6"
                   required
                   value={f.password}
