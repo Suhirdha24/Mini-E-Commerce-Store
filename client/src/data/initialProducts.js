@@ -1,4 +1,4 @@
-import { safeGetJSON, safeSetJSON } from '../utils/storage';
+import { safeGetJSON, safeSetJSON } from '../utils/storage.js';
 
 export const initialAdminProducts = [
   // BAGS (10 UNIQUE PRODUCTS & IMAGES)
