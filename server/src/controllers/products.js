@@ -25,7 +25,7 @@ export const list = async (req, res) => {
     const total = parseInt(countRes.rows[0].count, 10);
 
     const p = Math.max(1, +page);
-    const l = Math.min(100, Math.max(1, +limit));
+    const l = Math.min(250, Math.max(1, +limit));
     const offset = (p - 1) * l;
 
     const dataRes = await pool.query(
@@ -58,7 +58,7 @@ export const list = async (req, res) => {
     if (search) query = query.ilike('name', `%${search}%`);
 
     const p = Math.max(1, +page);
-    const l = Math.min(100, Math.max(1, +limit));
+    const l = Math.min(250, Math.max(1, +limit));
     const from = (p - 1) * l;
     const to = from + l - 1;
 

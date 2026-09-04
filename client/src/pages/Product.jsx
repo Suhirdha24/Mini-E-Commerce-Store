@@ -42,7 +42,7 @@ export default function Product() {
         if (fallback) setP(fallback);
       });
 
-    api.get('/products?limit=100')
+    api.get('/products?limit=200')
       .then(res => {
         if (res.data?.items && Array.isArray(res.data.items)) {
           setAllProducts(res.data.items);

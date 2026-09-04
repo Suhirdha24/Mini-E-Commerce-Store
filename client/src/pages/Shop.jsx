@@ -29,7 +29,7 @@ export default function Shop() {
     if (!items || items.length === 0) {
       setLoading(true);
     }
-    api.get('/products?limit=100', { timeout: 3500 })
+    api.get('/products?limit=200', { timeout: 3500 })
       .then(res => {
         if (res.data?.items && Array.isArray(res.data.items) && res.data.items.length > 0) {
           setItems(res.data.items);

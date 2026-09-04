@@ -33,7 +33,7 @@ export default function Admin() {
     setLoading(true);
     try {
       const [prodRes, orderRes] = await Promise.all([
-        api.get('/products?limit=100'),
+        api.get('/products?limit=200'),
         api.get('/orders/admin/all').catch(() => ({ data: [] }))
       ]);
 

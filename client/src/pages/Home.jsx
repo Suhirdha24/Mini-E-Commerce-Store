@@ -12,7 +12,7 @@ export default function Home() {
 
   useEffect(() => {
     setLoading(true);
-    api.get('/products?limit=100')
+    api.get('/products?limit=200')
       .then(res => {
         if (res.data?.items && Array.isArray(res.data.items) && res.data.items.length > 0) {
           setAllProducts(res.data.items);
