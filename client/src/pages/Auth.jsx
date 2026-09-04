@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { EyeIcon, EyeOffIcon, CheckIcon, ShieldIcon, UserIcon, LockIcon } from '../components/Icons';
@@ -20,6 +20,13 @@ export default function Auth({ mode = 'login' }) {
   const [err, setErr] = useState('');
   const [loading, setLoading] = useState(false);
   const [msg] = useState(loc.state?.msg || '');
+
+  // Reset form inputs whenever navigating between sign in and register
+  useEffect(() => {
+    setF({ name: '', email: '', password: '' });
+    setErr('');
+    setShowPassword(false);
+  }, [mode, loc.pathname]);
 
   const handleFillCustomerDemo = () => {
     setF({ name: 'Demo Customer', email: 'customer@novastore.com', password: 'Customer@123' });
@@ -239,6 +246,28 @@ export default function Auth({ mode = 'login' }) {
               <span>Demo Admin</span>
               <span style={{ color: 'var(--accent-blue)', fontSize: '11px' }}>(1-Click Fill)</span>
             </button>
+
+            {(f.email || f.password || f.name) && (
+              <button 
+                type="button" 
+                onClick={() => setF({ name: '', email: '', password: '' })} 
+                style={{
+                  background: '#FFFFFF',
+                  border: '1px solid #CBD5E1',
+                  borderRadius: '9999px',
+                  padding: '6px 14px',
+                  fontSize: '12px',
+                  fontWeight: 600,
+                  color: 'var(--text-muted)',
+                  cursor: 'pointer',
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  gap: '6px'
+                }}
+              >
+                Clear Fields
+              </button>
+            )}
           </div>
 
           {/* STATUS MESSAGES */}
@@ -255,7 +284,7 @@ export default function Auth({ mode = 'login' }) {
           )}
 
           {/* FORM */}
-          <form onSubmit={submit} style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+          <form onSubmit={submit} autoComplete="off" style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
             {!isLogin && (
               <div>
                 <label style={{ display: 'block', fontSize: '12.5px', fontWeight: 600, color: 'var(--text-dark)', marginBottom: '6px' }}>
@@ -263,16 +292,19 @@ export default function Auth({ mode = 'login' }) {
                 </label>
                 <input
                   type="text"
+                  name="fullName"
+                  autoComplete="off"
                   placeholder="Enter your full name"
                   required
                   value={f.name}
                   onChange={(e) => setF({ ...f, name: e.target.value })}
                   style={{
                     width: '100%',
-                    padding: '10px 14px',
+                    padding: '12px 16px',
                     borderRadius: '8px',
                     border: '1px solid var(--border)',
-                    fontSize: '14px'
+                    fontSize: '14px',
+                    background: '#FFFFFF'
                   }}
                 />
               </div>
@@ -284,6 +316,10 @@ export default function Auth({ mode = 'login' }) {
               </label>
               <input
                 type="email"
+                name="userEmail"
+                autoComplete="new-password"
+                readOnly
+                onFocus={(e) => e.target.removeAttribute('readonly')}
                 placeholder="Enter your email address"
                 required
                 value={f.email}
@@ -293,7 +329,8 @@ export default function Auth({ mode = 'login' }) {
                   padding: '12px 16px',
                   borderRadius: '8px',
                   border: '1px solid var(--border)',
-                  fontSize: '14px'
+                  fontSize: '14px',
+                  background: '#FFFFFF'
                 }}
               />
             </div>
@@ -312,6 +349,10 @@ export default function Auth({ mode = 'login' }) {
               <div style={{ position: 'relative', display: 'flex', alignItems: 'center' }}>
                 <input
                   type={showPassword ? "text" : "password"}
+                  name="userPassword"
+                  autoComplete="new-password"
+                  readOnly
+                  onFocus={(e) => e.target.removeAttribute('readonly')}
                   placeholder="Enter your password"
                   minLength="6"
                   required
@@ -322,7 +363,8 @@ export default function Auth({ mode = 'login' }) {
                     padding: '12px 42px 12px 16px',
                     borderRadius: '8px',
                     border: '1px solid var(--border)',
-                    fontSize: '14px'
+                    fontSize: '14px',
+                    background: '#FFFFFF'
                   }}
                 />
                 <button
